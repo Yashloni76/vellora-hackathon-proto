@@ -20,7 +20,7 @@ export default function SimulatorPage() {
             <div className="w-1.5 h-1.5 rounded-full bg-[#00ff88] mt-4 shadow-[0_0_10px_rgba(0,255,136,0.6)]" />
           </div>
           <p className="text-sm font-bold text-muted leading-relaxed uppercase tracking-widest italic opacity-80">
-            "Every ₹100 saved today is a brick in your future financial fortress. Adjust non-essentials to visualize your trajectory."
+            &quot;Every ₹100 saved today is a brick in your future financial fortress. Adjust non-essentials to visualize your trajectory.&quot;
           </p>
         </div>
 

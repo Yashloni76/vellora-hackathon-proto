@@ -38,7 +38,7 @@ export default function Sidebar() {
     <aside className="w-[200px] h-screen bg-[#0f0f0f] border-r border-border-dark flex flex-col fixed left-0 top-0 z-50">
       {/* Logo Section */}
       <div className="p-6 mb-4">
-        <h1 className="text-[#00ff88] font-bold text-xl tracking-tighter">SYMP's</h1>
+        <h1 className="text-[#00ff88] font-bold text-xl tracking-tighter">SYMP&apos;s</h1>
         <p className="text-muted text-[10px] font-medium tracking-[0.2em]">PREMIUM WEALTH</p>
       </div>
 

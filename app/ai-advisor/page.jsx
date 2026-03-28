@@ -192,7 +192,7 @@ export default function AIAdvisorPage() {
       <section className="space-y-6">
         <div>
           <h2 className="text-lg font-bold text-white">Categorize My Expenses</h2>
-          <p className="text-[#555] text-xs mt-0.5">Add your expenses and let AI decide what's avoidable.</p>
+          <p className="text-[#555] text-xs mt-0.5">Add your expenses and let AI decide what&apos;s avoidable.</p>
         </div>
 
         {/* Input Row */}

@@ -56,7 +56,7 @@ export default function OnboardingPage() {
       {/* Top Bar */}
       <header className="flex justify-between items-center px-12 py-8 border-b border-border-dark/30">
         <div className="flex flex-col">
-          <h2 className="text-[#00ff88] font-bold tracking-tighter text-lg leading-tight">SYMP's ONBOARDING</h2>
+          <h2 className="text-[#00ff88] font-bold tracking-tighter text-lg leading-tight">SYMP&apos;s ONBOARDING</h2>
           <div className="flex items-center gap-2 mt-2">
             <div className="flex gap-1">
               {[1, 2, 3].map((s) => (
@@ -127,7 +127,7 @@ export default function OnboardingPage() {
                 </div>
                 <h3 className="text-[#00ff88] font-bold text-sm mb-2">Smart Analysis</h3>
                 <p className="text-muted text-[11px] leading-relaxed">
-                  SYMP's uses AI to categorize your income automatically. Connect your bank later for real-time tracking.
+                  SYMP&apos;s uses AI to categorize your income automatically. Connect your bank later for real-time tracking.
                 </p>
                 <div className="mt-6 pt-6 border-t border-border-dark/50">
                    <div className="flex items-center gap-2 mb-3">
@@ -135,7 +135,7 @@ export default function OnboardingPage() {
                       <span className="text-[10px] text-muted font-bold tracking-wider">AI RECOMMENDATION</span>
                    </div>
                    <p className="text-white text-[11px] font-medium leading-snug">
-                     "Most professionals save 20% on onboarding. We can set that as your default goal."
+                     &quot;Most professionals save 20% on onboarding. We can set that as your default goal.&quot;
                    </p>
                 </div>
               </div>
@@ -152,7 +152,7 @@ function Step1({ formData, setFormData, onContinue }) {
     <div className="space-y-6">
       <div className="mb-10">
         <h1 className="text-3xl font-bold tracking-tight mb-2">Income Setup</h1>
-        <p className="text-muted text-sm">Let's map out your financial inflow.</p>
+        <p className="text-muted text-sm">Let&apos;s map out your financial inflow.</p>
       </div>
 
       <div className="card space-y-6 bg-[#111311]">

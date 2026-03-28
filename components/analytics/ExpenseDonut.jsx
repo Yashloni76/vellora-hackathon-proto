@@ -61,7 +61,7 @@ export default function ExpenseDonut() {
           ))}
           <div className="pt-6 border-t border-border-dark/50 invisible lg:visible">
              <p className="text-[9px] text-muted font-medium leading-relaxed uppercase tracking-wider">
-               "Net utility density is 12% higher than prev cycle."
+               &quot;Net utility density is 12% higher than prev cycle.&quot;
              </p>
           </div>
         </div>
