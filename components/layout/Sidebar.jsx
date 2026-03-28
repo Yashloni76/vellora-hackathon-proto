@@ -37,9 +37,9 @@ export default function Sidebar() {
   return (
     <aside className="w-[200px] h-screen bg-[#0f0f0f] border-r border-border-dark flex flex-col fixed left-0 top-0 z-50">
       {/* Logo Section */}
-      <div className="p-6 mb-4">
-        <h1 className="text-[#00ff88] font-bold text-xl tracking-tighter">SYMP&apos;s</h1>
-        <p className="text-muted text-[10px] font-medium tracking-[0.2em]">PREMIUM WEALTH</p>
+      <div className="px-4 pt-4 pb-2 flex items-center justify-center">
+        <img src="/logo.png" alt="SYMP's Logo" className="w-[150px] h-[150px] object-contain" />
+
       </div>
 
       {/* Navigation Section */}
