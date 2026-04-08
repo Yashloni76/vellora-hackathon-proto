@@ -1,5 +1,6 @@
 import "./globals.css";
 import Sidebar from "@/components/layout/Sidebar";
+import { AuthProvider } from '@/lib/AuthContext';
 
 export const metadata = {
   title: "SYMP - Premium Wealth Tracker",
@@ -13,7 +14,9 @@ export default function RootLayout({ children }) {
         <div className="flex min-h-screen">
           <Sidebar />
           <main className="flex-1 ml-[200px] bg-primary min-h-screen">
-            {children}
+            <AuthProvider>
+              {children}
+            </AuthProvider>
           </main>
         </div>
       </body>

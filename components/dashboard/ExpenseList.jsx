@@ -19,7 +19,9 @@ const IconMap = {
   briefcase: Briefcase
 };
 
-export default function ExpenseList() {
+export default function ExpenseList({ realExpenses }) {
+  const avoidable = realExpenses?.avoidable?.length > 0 ? realExpenses.avoidable : avoidableExpenses
+  const unavoidable = realExpenses?.unavoidable?.length > 0 ? realExpenses.unavoidable : unavoidableExpenses
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
       {/* Unavoidable Expenses */}
@@ -29,7 +31,7 @@ export default function ExpenseList() {
           <span className="text-[10px] text-muted font-bold tracking-[0.2em] uppercase">Fixed Costs</span>
         </div>
         <div className="grid grid-cols-1 gap-3">
-          {unavoidableExpenses.map((expense) => (
+          {unavoidable.map((expense) => (
             <ExpenseItem key={expense.id} expense={expense} type="unavoidable" />
           ))}
         </div>
@@ -42,7 +44,7 @@ export default function ExpenseList() {
           <span className="text-[10px] text-muted font-bold tracking-[0.2em] uppercase">Lifestyle</span>
         </div>
         <div className="grid grid-cols-1 gap-3">
-          {avoidableExpenses.map((expense) => (
+          {avoidable.map((expense) => (
             <ExpenseItem key={expense.id} expense={expense} type="avoidable" />
           ))}
         </div>

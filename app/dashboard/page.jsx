@@ -6,9 +6,78 @@ import { Bell, Plus, X } from "lucide-react";
 import BalanceCard from "@/components/dashboard/BalanceCard";
 import ExpenseList from "@/components/dashboard/ExpenseList";
 import StatsRow from "@/components/dashboard/StatsRow";
+import { useAuth } from '@/lib/AuthContext'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
+import { supabase } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 
 export default function DashboardPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { user, loading } = useAuth()
+  const router = useRouter()
+
+  const [expenseName, setExpenseName] = useState('')
+  const [expenseAmount, setExpenseAmount] = useState('')
+  const [expenseType, setExpenseType] = useState('Avoidable')
+  const [realExpenses, setRealExpenses] = useState([])
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login')
+    }
+  }, [user, loading])
+
+  useEffect(() => {
+    if (user) fetchExpenses()
+  }, [user])
+
+  if (loading) return (
+    <div className="flex items-center justify-center h-screen bg-[#0a0a0a]">
+      <div className="text-[#00ff88] text-xl">Loading...</div>
+    </div>
+  )
+
+  if (!user) return null
+
+  const fetchExpenses = async () => {
+    if (!user) return
+    const { data, error } = await supabase
+      .from('expenses')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+
+    if (data && data.length > 0) {
+      const avoidable = data.filter(e => e.type === 'avoidable')
+      const unavoidable = data.filter(e => e.type === 'unavoidable')
+      setRealExpenses({ avoidable, unavoidable })
+    }
+  }
+
+  const handleSaveExpense = async () => {
+    if (!expenseName || !expenseAmount) return
+
+    const { error } = await supabase
+      .from('expenses')
+      .insert({
+        user_id: user.id,
+        title: expenseName,
+        amount: parseFloat(expenseAmount),
+        type: expenseType.toLowerCase(),
+        mood: 'neutral',
+        date: new Date().toISOString().split('T')[0]
+      })
+
+    if (error) {
+      console.error('Error saving expense:', error)
+    } else {
+      setIsDialogOpen(false)
+      setExpenseName('')
+      setExpenseAmount('')
+      fetchExpenses()
+    }
+  }
 
   return (
     <motion.div 
@@ -45,7 +114,7 @@ export default function DashboardPage() {
       {/* Main Content Sections */}
       <section className="space-y-12">
         <BalanceCard />
-        <ExpenseList />
+        <ExpenseList realExpenses={realExpenses} />
         <StatsRow />
       </section>
 
@@ -93,6 +162,8 @@ export default function DashboardPage() {
                   <input 
                     type="text" 
                     placeholder="e.g. Starbucks Coffee"
+                    value={expenseName}
+                    onChange={(e) => setExpenseName(e.target.value)}
                     className="w-full bg-[#0a0a0a] border border-border-dark rounded-2xl px-5 py-4 text-sm text-white focus:border-[#00ff88] outline-none transition-all placeholder-gray-800"
                   />
                 </div>
@@ -105,13 +176,19 @@ export default function DashboardPage() {
                       <input 
                         type="number" 
                         placeholder="0.00"
+                        value={expenseAmount}
+                        onChange={(e) => setExpenseAmount(e.target.value)}
                         className="w-full bg-[#0a0a0a] border border-border-dark rounded-2xl pl-10 pr-5 py-4 text-sm text-white focus:border-[#00ff88] outline-none transition-all placeholder-gray-800"
                       />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-muted tracking-widest uppercase ml-1">Category</label>
-                    <select className="w-full bg-[#0a0a0a] border border-border-dark rounded-2xl px-5 py-4 text-sm text-white focus:border-[#00ff88] outline-none transition-all appearance-none cursor-pointer">
+                    <select 
+                      value={expenseType}
+                      onChange={(e) => setExpenseType(e.target.value)}
+                      className="w-full bg-[#0a0a0a] border border-border-dark rounded-2xl px-5 py-4 text-sm text-white focus:border-[#00ff88] outline-none transition-all appearance-none cursor-pointer"
+                    >
                       <option>Avoidable</option>
                       <option>Unavoidable</option>
                     </select>
@@ -126,7 +203,7 @@ export default function DashboardPage() {
                     Cancel
                   </button>
                   <button 
-                    onClick={() => setIsDialogOpen(false)}
+                    onClick={handleSaveExpense}
                     className="flex-1 py-4 rounded-2xl bg-[#00ff88] text-black font-black text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all glow"
                   >
                     Save Entry
