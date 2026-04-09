@@ -1,4 +1,7 @@
-"use client";
+'use client'
+import { useEffect } from "react";
+import { useAuth } from '@/lib/AuthContext'
+import { useRouter } from 'next/navigation'
 import { motion } from "framer-motion";
 import { Zap, Plus, CheckCircle2, Award, MoreHorizontal } from "lucide-react";
 import HeatMap from "@/components/streak/HeatMap";
@@ -7,6 +10,23 @@ import MilestoneCards from "@/components/streak/MilestoneCards";
 import { streakData, balance } from "@/data/dummy";
 
 export default function StreakPage() {
+  const { user, loading } = useAuth()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login')
+    }
+  }, [user, loading])
+
+  if (loading) return (
+    <div className="flex items-center justify-center h-screen bg-[#0a0a0a]">
+      <div className="text-[#00ff88] text-xl">Loading...</div>
+    </div>
+  )
+
+  if (!user) return null
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }} 

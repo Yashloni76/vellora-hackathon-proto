@@ -1,6 +1,8 @@
-"use client";
+'use client'
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useAuth } from '@/lib/AuthContext'
+import { useRouter } from 'next/navigation'
 import { journalEntries } from "@/data/dummy";
 import { 
   Smile, 
@@ -24,6 +26,23 @@ const moodConfig = {
 };
 
 const JournalPage = () => {
+  const { user, loading } = useAuth()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login')
+    }
+  }, [user, loading])
+
+  if (loading) return (
+    <div className="flex items-center justify-center h-screen bg-[#0a0a0a]">
+      <div className="text-[#00ff88] text-xl">Loading...</div>
+    </div>
+  )
+
+  if (!user) return null
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedMood, setSelectedMood] = useState("HAPPY");
 

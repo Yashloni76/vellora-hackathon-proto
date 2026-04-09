@@ -1,6 +1,8 @@
-"use client";
+'use client'
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useAuth } from '@/lib/AuthContext'
+import { useRouter } from 'next/navigation'
 import { goals } from "@/data/dummy";
 import { Shield, Laptop, Plane, Target, Plus, X, Calendar, TrendingUp, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,6 +15,23 @@ const iconMap = {
 };
 
 const GoalsPage = () => {
+  const { user, loading } = useAuth()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login')
+    }
+  }, [user, loading])
+
+  if (loading) return (
+    <div className="flex items-center justify-center h-screen bg-[#0a0a0a]">
+      <div className="text-[#00ff88] text-xl">Loading...</div>
+    </div>
+  )
+
+  if (!user) return null
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // Goal logic calculations

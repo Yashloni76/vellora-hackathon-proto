@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Pencil, 
@@ -14,6 +15,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 export default function OnboardingPage() {
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     incomeSource: "Freelance",
@@ -114,6 +116,7 @@ export default function OnboardingPage() {
                   formData={formData} 
                   setFormData={setFormData} 
                   onBack={prevStep}
+                  onComplete={() => router.push('/dashboard')}
                 />
               )}
             </div>
@@ -333,7 +336,7 @@ function Step2({ formData, setFormData, onContinue, onBack }) {
   );
 }
 
-function Step3({ formData, setFormData, onBack }) {
+function Step3({ formData, setFormData, onBack, onComplete }) {
   return (
     <div className="space-y-6">
       <div className="mb-10">
@@ -385,13 +388,13 @@ function Step3({ formData, setFormData, onBack }) {
         >
           Back
         </button>
-        <Link 
-          href="/dashboard"
+        <button 
+          onClick={onComplete}
           className="flex-[2] bg-[#00ff88] text-black font-bold py-4 rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all glow text-[13px] uppercase tracking-wider flex items-center justify-center gap-2"
         >
           Get Started
           <ArrowRight size={18} />
-        </Link>
+        </button>
       </div>
     </div>
   );

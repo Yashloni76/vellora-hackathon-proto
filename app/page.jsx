@@ -8,13 +8,20 @@ export default function Home() {
   const router = useRouter()
 
   useEffect(() => {
+    const timeout = setTimeout(() => {
+      router.push('/login')
+    }, 2000)
+
     if (!loading) {
+      clearTimeout(timeout)
       if (user) {
         router.push('/dashboard')
       } else {
         router.push('/login')
       }
     }
+
+    return () => clearTimeout(timeout)
   }, [user, loading])
 
   return (
