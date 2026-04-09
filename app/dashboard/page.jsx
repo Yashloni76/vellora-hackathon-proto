@@ -12,15 +12,21 @@ import { supabase } from '@/lib/supabase'
 import { unavoidableExpenses as dummyUnavoidable, avoidableExpenses as dummyAvoidable } from "@/data/dummy"
 
 export default function DashboardPage() {
-  const [open, setOpen] = useState(false);
   const { user, loading } = useAuth()
   const router = useRouter()
+  const [open, setOpen] = useState(false)
+  const [expenseName, setExpenseName] = useState('')
+  const [expenseAmount, setExpenseAmount] = useState('')
+  const [expenseType, setExpenseType] = useState('avoidable')
+  const [expenses, setExpenses] = useState([])
+  const [saving, setSaving] = useState(false)
+  const [userIncome, setUserIncome] = useState(25000)
 
-  const [expenseName, setExpenseName] = useState("");
-  const [expenseAmount, setExpenseAmount] = useState("");
-  const [expenseType, setExpenseType] = useState("Avoidable");
-  const [dbExpenses, setDbExpenses] = useState(null);
-  const [userIncome, setUserIncome] = useState(25000);
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login')
+    }
+  }, [user, loading])
 
   const fetchUserIncome = async () => {
     if (!user) return
@@ -42,12 +48,12 @@ export default function DashboardPage() {
       .select('*')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
-
-    if (data && data.length > 0) {
-      const avoidable = data.filter(e => e.type === 'avoidable')
-      const unavoidable = data.filter(e => e.type === 'unavoidable')
-      setDbExpenses({ avoidable, unavoidable })
+    
+    if (error) {
+      console.error('Fetch error:', error)
+      return
     }
+    if (data) setExpenses(data)
   }
 
   useEffect(() => {
@@ -57,40 +63,53 @@ export default function DashboardPage() {
     }
   }, [user])
 
-  const totalExpenses = dbExpenses
-    ? [...dbExpenses.avoidable, ...dbExpenses.unavoidable].reduce((sum, e) => sum + e.amount, 0)
-    : [...dummyUnavoidable, ...dummyAvoidable].reduce((sum, e) => sum + e.amount, 0)
-
   const handleSaveExpense = async () => {
-    if (!user) return
-    if (!expenseName || !expenseAmount) return
-
-    const { error } = await supabase
+    if (!user) {
+      console.error('No user found')
+      return
+    }
+    if (!expenseName.trim() || !expenseAmount) {
+      alert('Please fill expense name and amount')
+      return
+    }
+    
+    setSaving(true)
+    
+    const { data, error } = await supabase
       .from('expenses')
-      .insert({
+      .insert([{
         user_id: user.id,
-        title: expenseName,
+        title: expenseName.trim(),
         amount: parseFloat(expenseAmount),
-        type: expenseType === 'Unavoidable' ? 'unavoidable' : 'avoidable',
+        type: expenseType,
         mood: 'neutral',
         date: new Date().toISOString().split('T')[0]
-      })
+      }])
+      .select()
 
     if (error) {
-      console.error('Error saving:', error)
-    } else {
-      setOpen(false)
-      setExpenseName('')
-      setExpenseAmount('')
-      fetchExpenses()
+      console.error('Save error:', error)
+      alert('Error saving: ' + error.message)
+      setSaving(false)
+      return
     }
+    
+    console.log('Saved successfully:', data)
+    setOpen(false)
+    setExpenseName('')
+    setExpenseAmount('')
+    setExpenseType('avoidable')
+    setSaving(false)
+    fetchExpenses()
   }
 
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login')
-    }
-  }, [user, loading])
+  const avoidable = expenses.filter(e => e.type === 'avoidable')
+  const unavoidable = expenses.filter(e => e.type === 'unavoidable')
+  const dbExpenses = expenses.length > 0 ? { avoidable, unavoidable } : null
+
+  const totalExpenses = expenses.length > 0
+    ? expenses.reduce((sum, e) => sum + e.amount, 0)
+    : [...dummyUnavoidable, ...dummyAvoidable].reduce((sum, e) => sum + e.amount, 0)
 
   if (loading) return (
     <div className="flex items-center justify-center h-screen bg-[#0a0a0a]">
@@ -140,99 +159,165 @@ export default function DashboardPage() {
       </section>
 
       {/* Floating Action Button */}
-      <button 
+      <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-6 right-6 z-[60] cursor-pointer bg-[#00ff88] text-black w-14 h-14 rounded-full flex items-center justify-center shadow-[0_0_25px_rgba(0,255,136,0.3)] hover:bg-[#00cc6a] hover:scale-110 active:scale-95 transition-all duration-300 group"
+        style={{
+          position: 'fixed',
+          bottom: '24px',
+          right: '24px',
+          zIndex: 9999,
+          width: '56px',
+          height: '56px',
+          borderRadius: '50%',
+          backgroundColor: '#00ff88',
+          border: 'none',
+          cursor: 'pointer',
+          fontSize: '28px',
+          color: '#000',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 4px 20px rgba(0,255,136,0.4)'
+        }}
       >
-        <Plus size={28} className="group-hover:rotate-90 transition-transform duration-300" />
-        <div className="absolute -top-12 right-0 bg-[#111311] border border-border-dark px-3 py-1.5 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-           <span className="text-[10px] text-[#00ff88] font-bold tracking-widest uppercase">Quick Add</span>
-        </div>
+        +
       </button>
 
-      {/* Simple Dialog Modal */}
-      <AnimatePresence>
-        {open && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm">
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="w-full max-w-md bg-[#111311] border border-border-dark rounded-3xl p-8 shadow-[0_0_50px_rgba(0,0,0,0.5)] relative overflow-hidden"
-            >
-              <div className="absolute top-0 left-0 w-full h-[3px] bg-[#00ff88]" />
-              
-              <div className="flex justify-between items-center mb-8">
-                <div className="space-y-1">
-                  <h2 className="text-xl font-bold text-white tracking-tight">Add Expense</h2>
-                  <p className="text-xs text-muted font-medium uppercase tracking-widest">Entry portal v1.0</p>
-                </div>
-                <button 
-                  onClick={() => setOpen(false)}
-                  className="w-10 h-10 rounded-xl hover:bg-white/5 flex items-center justify-center text-muted hover:text-white transition-all"
-                >
-                  <X size={20} />
-                </button>
-              </div>
+      {/* Simple Working Modal */}
+      {open && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          zIndex: 9998,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <div style={{
+            backgroundColor: '#111311',
+            border: '1px solid #1f2b1f',
+            borderRadius: '16px',
+            padding: '32px',
+            width: '400px',
+            maxWidth: '90vw'
+          }}>
+            <h2 style={{ color: '#fff', marginBottom: '24px',
+              fontSize: '20px', fontWeight: 'bold' }}>
+              Add Expense
+            </h2>
+            
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ color: '#6b7280', fontSize: '12px',
+                display: 'block', marginBottom: '8px' }}>
+                EXPENSE NAME
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Netflix, Rent, Food"
+                value={expenseName}
+                onChange={(e) => setExpenseName(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  backgroundColor: '#0a0a0a',
+                  border: '1px solid #1f2b1f',
+                  borderRadius: '8px',
+                  color: '#fff',
+                  fontSize: '14px',
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
 
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-muted tracking-widest uppercase ml-1">Expense Name</label>
-                  <input 
-                    type="text" 
-                    placeholder="e.g. Starbucks Coffee"
-                    value={expenseName}
-                    onChange={(e) => setExpenseName(e.target.value)}
-                    className="w-full bg-[#0a0a0a] border border-border-dark rounded-2xl px-5 py-4 text-sm text-white focus:border-[#00ff88] outline-none transition-all placeholder-gray-800"
-                  />
-                </div>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ color: '#6b7280', fontSize: '12px',
+                display: 'block', marginBottom: '8px' }}>
+                AMOUNT (₹)
+              </label>
+              <input
+                type="number"
+                placeholder="e.g. 500"
+                value={expenseAmount}
+                onChange={(e) => setExpenseAmount(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  backgroundColor: '#0a0a0a',
+                  border: '1px solid #1f2b1f',
+                  borderRadius: '8px',
+                  color: '#fff',
+                  fontSize: '14px',
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-muted tracking-widest uppercase ml-1">Amount</label>
-                    <div className="relative">
-                      <span className="absolute left-5 top-1/2 -translate-y-1/2 text-[#00ff88] font-bold">₹</span>
-                      <input 
-                        type="number" 
-                        placeholder="0.00"
-                        value={expenseAmount}
-                        onChange={(e) => setExpenseAmount(e.target.value)}
-                        className="w-full bg-[#0a0a0a] border border-border-dark rounded-2xl pl-10 pr-5 py-4 text-sm text-white focus:border-[#00ff88] outline-none transition-all placeholder-gray-800"
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-muted tracking-widest uppercase ml-1">Category</label>
-                    <select 
-                      value={expenseType}
-                      onChange={(e) => setExpenseType(e.target.value)}
-                      className="w-full bg-[#0a0a0a] border border-border-dark rounded-2xl px-5 py-4 text-sm text-white focus:border-[#00ff88] outline-none transition-all appearance-none cursor-pointer"
-                    >
-                      <option>Avoidable</option>
-                      <option>Unavoidable</option>
-                    </select>
-                  </div>
-                </div>
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ color: '#6b7280', fontSize: '12px',
+                display: 'block', marginBottom: '8px' }}>
+                TYPE
+              </label>
+              <select
+                value={expenseType}
+                onChange={(e) => setExpenseType(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  backgroundColor: '#0a0a0a',
+                  border: '1px solid #1f2b1f',
+                  borderRadius: '8px',
+                  color: '#fff',
+                  fontSize: '14px',
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
+              >
+                <option value="avoidable">Avoidable</option>
+                <option value="unavoidable">Unavoidable</option>
+              </select>
+            </div>
 
-                <div className="flex gap-4 pt-4">
-                  <button 
-                    onClick={() => setOpen(false)}
-                    className="flex-1 py-4 rounded-2xl border border-border-dark text-muted font-bold text-xs uppercase tracking-widest hover:bg-white/5 hover:text-white transition-all"
-                  >
-                    Cancel
-                  </button>
-                  <button 
-                    onClick={handleSaveExpense}
-                    className="flex-1 py-4 rounded-2xl bg-[#00ff88] text-black font-black text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all glow"
-                  >
-                    Save Entry
-                  </button>
-                </div>
-              </div>
-            </motion.div>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                onClick={() => setOpen(false)}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  backgroundColor: 'transparent',
+                  border: '1px solid #1f2b1f',
+                  borderRadius: '8px',
+                  color: '#6b7280',
+                  cursor: 'pointer',
+                  fontSize: '14px'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveExpense}
+                disabled={saving}
+                style={{
+                  flex: 2,
+                  padding: '12px',
+                  backgroundColor: '#00ff88',
+                  border: 'none',
+                  borderRadius: '8px',
+                  color: '#000',
+                  fontWeight: 'bold',
+                  cursor: saving ? 'not-allowed' : 'pointer',
+                  fontSize: '14px',
+                  opacity: saving ? 0.7 : 1
+                }}
+              >
+                {saving ? 'Saving...' : 'Save Entry'}
+              </button>
+            </div>
           </div>
-        )}
-      </AnimatePresence>
+        </div>
+      )}
     </motion.div>
   );
 }
