@@ -1,14 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bell, Plus, X } from "lucide-react";
 import BalanceCard from "@/components/dashboard/BalanceCard";
 import ExpenseList from "@/components/dashboard/ExpenseList";
 import StatsRow from "@/components/dashboard/StatsRow";
+import { useAuth } from '@/lib/AuthContext'
+import { useRouter } from 'next/navigation'
 
 export default function DashboardPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { user, loading } = useAuth()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login')
+    }
+  }, [user, loading])
+
+  if (loading) return (
+    <div className="flex items-center justify-center h-screen bg-[#0a0a0a]">
+      <div className="text-[#00ff88] text-xl">Loading...</div>
+    </div>
+  )
+
+  if (!user) return null
 
   return (
     <motion.div 

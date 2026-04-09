@@ -1,5 +1,27 @@
-import { redirect } from 'next/navigation'
+'use client'
+import { useAuth } from '@/lib/AuthContext'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 
 export default function Home() {
-  redirect('/onboarding')
+  const { user, loading } = useAuth()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!loading) {
+      if (user) {
+        router.push('/dashboard')
+      } else {
+        router.push('/login')
+      }
+    }
+  }, [user, loading])
+
+  return (
+    <div className="flex items-center justify-center h-screen bg-[#0a0a0a]">
+      <div className="text-[#00ff88] text-xl font-bold tracking-tight">
+        Loading SYMP...
+      </div>
+    </div>
+  )
 }

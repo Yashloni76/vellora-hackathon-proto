@@ -27,6 +27,7 @@ const GoalsPage = () => {
     return "bg-red-500";
   };
 
+
   const getProgressShadow = (percent) => {
     if (percent >= 70) return "shadow-[0_0_15px_rgba(0,255,136,0.3)]";
     if (percent >= 40) return "shadow-[0_0_15px_rgba(250,204,21,0.3)]";
@@ -42,7 +43,7 @@ const GoalsPage = () => {
   return (
     <div className="p-10 max-w-7xl mx-auto min-h-screen text-white bg-primary">
       {/* Title & Subtitle */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         className="mb-12"
@@ -126,7 +127,7 @@ const GoalsPage = () => {
                     <p className="text-xl font-bold text-white/50">₹{goal.target.toLocaleString()}</p>
                   </div>
                 </div>
-                
+
                 <div className="relative h-4 w-full bg-white/5 rounded-full overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
@@ -225,7 +226,7 @@ const GoalsPage = () => {
                     />
                   </div>
                 </div>
-                
+
                 <button
                   className="w-full bg-[#00ff88] text-[#0a0a0a] py-5 rounded-2xl font-black text-lg hover:shadow-[0_10px_30px_rgba(0,255,136,0.2)] hover:bg-[#00ff88]/90 transition-all mt-4"
                 >

@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { supabase } from '@/lib/supabase'
 import { 
   LayoutDashboard, 
   UserPlus, 
@@ -33,6 +34,12 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter()
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    router.push('/login')
+  }
 
   return (
     <aside className="w-[200px] h-screen bg-[#0f0f0f] border-r border-border-dark flex flex-col fixed left-0 top-0 z-50">
@@ -86,6 +93,7 @@ export default function Sidebar() {
             SETTINGS
           </Link>
           <button
+            onClick={handleLogout}
             className="w-full flex items-center gap-3 px-2 py-2 text-[11px] font-bold text-red hover:brightness-125 transition-all text-left"
           >
             <LogOut size={16} />
