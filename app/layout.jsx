@@ -1,6 +1,7 @@
 import "./globals.css";
 import Sidebar from "@/components/layout/Sidebar";
 import { AuthProvider } from '@/lib/AuthContext'
+import { Analytics } from "@vercel/analytics/next"
 
 export const metadata = {
   title: "SYMP - Premium Wealth Tracker",
@@ -18,6 +19,7 @@ export default function RootLayout({ children }) {
               {children}
             </main>
           </div>
+          <Analytics />
         </body>
       </html>
     </AuthProvider>
