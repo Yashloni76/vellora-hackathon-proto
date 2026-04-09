@@ -13,9 +13,12 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/lib/AuthContext'
 
 export default function OnboardingPage() {
   const router = useRouter();
+  const { user } = useAuth();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     incomeSource: "Freelance",
@@ -30,6 +33,19 @@ export default function OnboardingPage() {
 
   const nextStep = () => setStep((s) => Math.min(s + 1, 3));
   const prevStep = () => setStep((s) => Math.max(s - 1, 1));
+
+  const handleFinish = async () => {
+    if (user) {
+      await supabase
+        .from('users')
+        .upsert({
+          id: user.id,
+          email: user.email,
+          income: parseFloat(formData.amount) || 0
+        })
+    }
+    router.push('/dashboard')
+  }
 
   const variants = {
     enter: (direction) => ({
@@ -116,7 +132,7 @@ export default function OnboardingPage() {
                   formData={formData} 
                   setFormData={setFormData} 
                   onBack={prevStep}
-                  onComplete={() => router.push('/dashboard')}
+                  onComplete={handleFinish}
                 />
               )}
             </div>

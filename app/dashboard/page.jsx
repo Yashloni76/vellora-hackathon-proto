@@ -8,11 +8,83 @@ import ExpenseList from "@/components/dashboard/ExpenseList";
 import StatsRow from "@/components/dashboard/StatsRow";
 import { useAuth } from '@/lib/AuthContext'
 import { useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabase'
+import { unavoidableExpenses as dummyUnavoidable, avoidableExpenses as dummyAvoidable } from "@/data/dummy"
 
 export default function DashboardPage() {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const { user, loading } = useAuth()
   const router = useRouter()
+
+  const [expenseName, setExpenseName] = useState("");
+  const [expenseAmount, setExpenseAmount] = useState("");
+  const [expenseType, setExpenseType] = useState("Avoidable");
+  const [dbExpenses, setDbExpenses] = useState(null);
+  const [userIncome, setUserIncome] = useState(25000);
+
+  const fetchUserIncome = async () => {
+    if (!user) return
+    const { data } = await supabase
+      .from('users')
+      .select('income')
+      .eq('id', user.id)
+      .single()
+
+    if (data && data.income) {
+      setUserIncome(data.income)
+    }
+  }
+
+  const fetchExpenses = async () => {
+    if (!user) return
+    const { data, error } = await supabase
+      .from('expenses')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+
+    if (data && data.length > 0) {
+      const avoidable = data.filter(e => e.type === 'avoidable')
+      const unavoidable = data.filter(e => e.type === 'unavoidable')
+      setDbExpenses({ avoidable, unavoidable })
+    }
+  }
+
+  useEffect(() => {
+    if (user) {
+      fetchExpenses()
+      fetchUserIncome()
+    }
+  }, [user])
+
+  const totalExpenses = dbExpenses
+    ? [...dbExpenses.avoidable, ...dbExpenses.unavoidable].reduce((sum, e) => sum + e.amount, 0)
+    : [...dummyUnavoidable, ...dummyAvoidable].reduce((sum, e) => sum + e.amount, 0)
+
+  const handleSaveExpense = async () => {
+    if (!user) return
+    if (!expenseName || !expenseAmount) return
+
+    const { error } = await supabase
+      .from('expenses')
+      .insert({
+        user_id: user.id,
+        title: expenseName,
+        amount: parseFloat(expenseAmount),
+        type: expenseType === 'Unavoidable' ? 'unavoidable' : 'avoidable',
+        mood: 'neutral',
+        date: new Date().toISOString().split('T')[0]
+      })
+
+    if (error) {
+      console.error('Error saving:', error)
+    } else {
+      setOpen(false)
+      setExpenseName('')
+      setExpenseAmount('')
+      fetchExpenses()
+    }
+  }
 
   useEffect(() => {
     if (!loading && !user) {
@@ -62,27 +134,25 @@ export default function DashboardPage() {
 
       {/* Main Content Sections */}
       <section className="space-y-12">
-        <BalanceCard />
-        <ExpenseList />
-        <StatsRow />
+        <BalanceCard totalExpenses={totalExpenses} userIncome={userIncome} />
+        <ExpenseList data={dbExpenses || { avoidable: dummyAvoidable, unavoidable: dummyUnavoidable }} />
+        <StatsRow totalExpenses={totalExpenses} userIncome={userIncome} />
       </section>
 
       {/* Floating Action Button */}
-      <div className="fixed bottom-10 right-10 z-50">
-        <button 
-          onClick={() => setIsDialogOpen(true)}
-          className="w-14 h-14 bg-[#00ff88] text-black rounded-full flex items-center justify-center shadow-[0_0_25px_rgba(0,255,136,0.3)] hover:scale-110 active:scale-95 transition-all duration-300 group"
-        >
-           <Plus size={28} className="group-hover:rotate-90 transition-transform duration-300" />
-        </button>
+      <button 
+        onClick={() => setOpen(true)}
+        className="fixed bottom-6 right-6 z-[60] cursor-pointer bg-[#00ff88] text-black w-14 h-14 rounded-full flex items-center justify-center shadow-[0_0_25px_rgba(0,255,136,0.3)] hover:bg-[#00cc6a] hover:scale-110 active:scale-95 transition-all duration-300 group"
+      >
+        <Plus size={28} className="group-hover:rotate-90 transition-transform duration-300" />
         <div className="absolute -top-12 right-0 bg-[#111311] border border-border-dark px-3 py-1.5 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
            <span className="text-[10px] text-[#00ff88] font-bold tracking-widest uppercase">Quick Add</span>
         </div>
-      </div>
+      </button>
 
       {/* Simple Dialog Modal */}
       <AnimatePresence>
-        {isDialogOpen && (
+        {open && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm">
             <motion.div 
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -98,7 +168,7 @@ export default function DashboardPage() {
                   <p className="text-xs text-muted font-medium uppercase tracking-widest">Entry portal v1.0</p>
                 </div>
                 <button 
-                  onClick={() => setIsDialogOpen(false)}
+                  onClick={() => setOpen(false)}
                   className="w-10 h-10 rounded-xl hover:bg-white/5 flex items-center justify-center text-muted hover:text-white transition-all"
                 >
                   <X size={20} />
@@ -111,6 +181,8 @@ export default function DashboardPage() {
                   <input 
                     type="text" 
                     placeholder="e.g. Starbucks Coffee"
+                    value={expenseName}
+                    onChange={(e) => setExpenseName(e.target.value)}
                     className="w-full bg-[#0a0a0a] border border-border-dark rounded-2xl px-5 py-4 text-sm text-white focus:border-[#00ff88] outline-none transition-all placeholder-gray-800"
                   />
                 </div>
@@ -123,13 +195,19 @@ export default function DashboardPage() {
                       <input 
                         type="number" 
                         placeholder="0.00"
+                        value={expenseAmount}
+                        onChange={(e) => setExpenseAmount(e.target.value)}
                         className="w-full bg-[#0a0a0a] border border-border-dark rounded-2xl pl-10 pr-5 py-4 text-sm text-white focus:border-[#00ff88] outline-none transition-all placeholder-gray-800"
                       />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-muted tracking-widest uppercase ml-1">Category</label>
-                    <select className="w-full bg-[#0a0a0a] border border-border-dark rounded-2xl px-5 py-4 text-sm text-white focus:border-[#00ff88] outline-none transition-all appearance-none cursor-pointer">
+                    <select 
+                      value={expenseType}
+                      onChange={(e) => setExpenseType(e.target.value)}
+                      className="w-full bg-[#0a0a0a] border border-border-dark rounded-2xl px-5 py-4 text-sm text-white focus:border-[#00ff88] outline-none transition-all appearance-none cursor-pointer"
+                    >
                       <option>Avoidable</option>
                       <option>Unavoidable</option>
                     </select>
@@ -138,13 +216,13 @@ export default function DashboardPage() {
 
                 <div className="flex gap-4 pt-4">
                   <button 
-                    onClick={() => setIsDialogOpen(false)}
+                    onClick={() => setOpen(false)}
                     className="flex-1 py-4 rounded-2xl border border-border-dark text-muted font-bold text-xs uppercase tracking-widest hover:bg-white/5 hover:text-white transition-all"
                   >
                     Cancel
                   </button>
                   <button 
-                    onClick={() => setIsDialogOpen(false)}
+                    onClick={handleSaveExpense}
                     className="flex-1 py-4 rounded-2xl bg-[#00ff88] text-black font-black text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all glow"
                   >
                     Save Entry
