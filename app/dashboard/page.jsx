@@ -403,13 +403,13 @@ export default function DashboardPage() {
         onClick={() => setOpen(true)}
         style={{
           position: 'fixed',
-          bottom: '24px',
-          right: '24px',
+          bottom: '32px',
+          right: '32px',
           zIndex: 9999,
-          width: '56px',
-          height: '56px',
+          width: '60px',
+          height: '60px',
           borderRadius: '50%',
-          backgroundColor: '#00ff88',
+          background: 'linear-gradient(135deg, #00ff88, #00cc6a)',
           border: 'none',
           cursor: 'pointer',
           fontSize: '28px',
@@ -417,7 +417,9 @@ export default function DashboardPage() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          boxShadow: '0 4px 20px rgba(0,255,136,0.4)'
+          boxShadow: '0 0 0 0 rgba(0,255,136,0.4)',
+          animation: 'pulse 2s infinite',
+          fontWeight: 'bold'
         }}
       >
         +

@@ -103,36 +103,6 @@ export default function Sidebar() {
 
       {/* Bottom Section */}
       <div className="p-4 mt-auto space-y-4">
-        <button
-          onClick={() => setQuickOpen(true)}
-          style={{
-            width: '100%',
-            padding: '10px',
-            backgroundColor: '#00ff88',
-            border: 'none',
-            borderRadius: '8px',
-            color: '#000',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            fontSize: '13px',
-            marginBottom: '16px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '6px'
-          }}
-        >
-          + Add Expense
-        </button>
-
-        {/* Tier Card */}
-        <div className="bg-[#1a1f1a]/40 rounded-xl p-4 border border-border-dark/50">
-          <p className="text-[10px] text-muted font-bold mb-2">TIER</p>
-          <button className="w-full bg-[#00ff88] text-black text-[11px] font-bold py-2 rounded-lg hover:bg-[#00cc6a] transition-colors glow">
-            Upgrade to Pro
-          </button>
-        </div>
-
         {/* System Links */}
         <div className="space-y-1">
           <Link
