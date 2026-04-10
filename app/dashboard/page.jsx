@@ -24,6 +24,7 @@ export default function DashboardPage() {
   const [expenseType, setExpenseType] = useState('avoidable')
   const [addedExpenses, setAddedExpenses] = useState([])
   const [saving, setSaving] = useState(false)
+  const [expenseMood, setExpenseMood] = useState('neutral')
   
   // Dashboard UI states
   const [open, setOpen] = useState(false)
@@ -128,7 +129,7 @@ export default function DashboardPage() {
         title: expenseName.trim(),
         amount: parseFloat(expenseAmount),
         type: expenseType,
-        mood: 'neutral',
+        mood: expenseMood,
         date: new Date().toISOString().split('T')[0]
       }])
       .select()
@@ -430,7 +431,7 @@ export default function DashboardPage() {
         <div style={{
           position: 'fixed',
           top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.8)',
+          backgroundColor: 'rgba(0,0,0,0.85)',
           zIndex: 9998,
           display: 'flex',
           alignItems: 'center',
@@ -440,100 +441,248 @@ export default function DashboardPage() {
             backgroundColor: '#111311',
             border: '1px solid #1f2b1f',
             borderRadius: '16px',
-            padding: '32px',
-            width: '400px',
-            maxWidth: '90vw'
+            padding: '28px',
+            width: '420px',
+            maxWidth: '90vw',
+            boxShadow: '0 0 40px rgba(0,255,136,0.1)'
           }}>
-            <h2 style={{ color: '#fff', marginBottom: '24px',
-              fontSize: '20px', fontWeight: 'bold' }}>
-              Add Expense
-            </h2>
-            
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ color: '#6b7280', fontSize: '12px',
-                display: 'block', marginBottom: '8px' }}>
-                EXPENSE NAME
-              </label>
-              <input
-                type="text"
-                placeholder="e.g. Netflix, Rent, Food"
-                value={expenseName}
-                onChange={(e) => setExpenseName(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  backgroundColor: '#0a0a0a',
-                  border: '1px solid #1f2b1f',
-                  borderRadius: '8px',
-                  color: '#fff',
-                  fontSize: '14px',
-                  outline: 'none',
-                  boxSizing: 'border-box'
-                }}
-              />
-            </div>
 
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ color: '#6b7280', fontSize: '12px',
-                display: 'block', marginBottom: '8px' }}>
-                AMOUNT (₹)
-              </label>
-              <input
-                type="number"
-                placeholder="e.g. 500"
-                value={expenseAmount}
-                onChange={(e) => setExpenseAmount(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  backgroundColor: '#0a0a0a',
-                  border: '1px solid #1f2b1f',
-                  borderRadius: '8px',
+            {/* Header */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '24px'
+            }}>
+              <div>
+                <h2 style={{
                   color: '#fff',
-                  fontSize: '14px',
-                  outline: 'none',
-                  boxSizing: 'border-box'
-                }}
-              />
-            </div>
-
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{ color: '#6b7280', fontSize: '12px',
-                display: 'block', marginBottom: '8px' }}>
-                TYPE
-              </label>
-              <select
-                value={expenseType}
-                onChange={(e) => setExpenseType(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  backgroundColor: '#0a0a0a',
-                  border: '1px solid #1f2b1f',
-                  borderRadius: '8px',
-                  color: '#fff',
-                  fontSize: '14px',
-                  outline: 'none',
-                  boxSizing: 'border-box'
-                }}
-              >
-                <option value="avoidable">Avoidable</option>
-                <option value="unavoidable">Unavoidable</option>
-              </select>
-            </div>
-
-            <div style={{ display: 'flex', gap: '12px' }}>
+                  fontSize: '18px',
+                  fontWeight: 'bold',
+                  margin: 0
+                }}>
+                  Add Expense
+                </h2>
+                <p style={{
+                  color: '#6b7280',
+                  fontSize: '12px',
+                  margin: '4px 0 0 0'
+                }}>
+                  Track your spending instantly
+                </p>
+              </div>
               <button
                 onClick={() => setOpen(false)}
                 style={{
-                  flex: 1,
-                  padding: '12px',
                   backgroundColor: 'transparent',
                   border: '1px solid #1f2b1f',
                   borderRadius: '8px',
                   color: '#6b7280',
                   cursor: 'pointer',
-                  fontSize: '14px'
+                  width: '32px',
+                  height: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '16px'
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Expense Name */}
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{
+                color: '#6b7280',
+                fontSize: '11px',
+                letterSpacing: '1px',
+                display: 'block',
+                marginBottom: '8px'
+              }}>
+                EXPENSE NAME
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Netflix, Zomato, Rent"
+                value={expenseName}
+                onChange={e => setExpenseName(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  backgroundColor: '#0a0a0a',
+                  border: '1px solid #1f2b1f',
+                  borderRadius: '10px',
+                  color: '#fff',
+                  fontSize: '14px',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                  transition: 'border-color 0.2s'
+                }}
+                onFocus={e => e.target.style.borderColor = '#00ff88'}
+                onBlur={e => e.target.style.borderColor = '#1f2b1f'}
+              />
+            </div>
+
+            {/* Amount */}
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{
+                color: '#6b7280',
+                fontSize: '11px',
+                letterSpacing: '1px',
+                display: 'block',
+                marginBottom: '8px'
+              }}>
+                AMOUNT
+              </label>
+              <div style={{ position: 'relative' }}>
+                <span style={{
+                  position: 'absolute',
+                  left: '14px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: '#00ff88',
+                  fontSize: '16px',
+                  fontWeight: 'bold'
+                }}>
+                  ₹
+                </span>
+                <input
+                  type="number"
+                  placeholder="0.00"
+                  value={expenseAmount}
+                  onChange={e => setExpenseAmount(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px 12px 30px',
+                    backgroundColor: '#0a0a0a',
+                    border: '1px solid #1f2b1f',
+                    borderRadius: '10px',
+                    color: '#fff',
+                    fontSize: '14px',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                    transition: 'border-color 0.2s'
+                  }}
+                  onFocus={e => e.target.style.borderColor = '#00ff88'}
+                  onBlur={e => e.target.style.borderColor = '#1f2b1f'}
+                />
+              </div>
+            </div>
+
+            {/* Type Toggle */}
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{
+                color: '#6b7280',
+                fontSize: '11px',
+                letterSpacing: '1px',
+                display: 'block',
+                marginBottom: '8px'
+              }}>
+                EXPENSE TYPE
+              </label>
+              <div style={{
+                display: 'flex',
+                gap: '8px'
+              }}>
+                <button
+                  onClick={() => setExpenseType('avoidable')}
+                  style={{
+                    flex: 1,
+                    padding: '10px',
+                    backgroundColor: expenseType === 'avoidable'
+                      ? 'rgba(255,68,68,0.15)' : '#0a0a0a',
+                    border: expenseType === 'avoidable'
+                      ? '1px solid #ff4444' : '1px solid #1f2b1f',
+                    borderRadius: '10px',
+                    color: expenseType === 'avoidable'
+                      ? '#ff4444' : '#6b7280',
+                    cursor: 'pointer',
+                    fontSize: '13px',
+                    fontWeight: 'bold',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  😬 Avoidable
+                </button>
+                <button
+                  onClick={() => setExpenseType('unavoidable')}
+                  style={{
+                    flex: 1,
+                    padding: '10px',
+                    backgroundColor: expenseType === 'unavoidable'
+                      ? 'rgba(0,255,136,0.1)' : '#0a0a0a',
+                    border: expenseType === 'unavoidable'
+                      ? '1px solid #00ff88' : '1px solid #1f2b1f',
+                    borderRadius: '10px',
+                    color: expenseType === 'unavoidable'
+                      ? '#00ff88' : '#6b7280',
+                    cursor: 'pointer',
+                    fontSize: '13px',
+                    fontWeight: 'bold',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  ✅ Unavoidable
+                </button>
+              </div>
+            </div>
+
+            {/* Mood Selector */}
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{
+                color: '#6b7280',
+                fontSize: '11px',
+                letterSpacing: '1px',
+                display: 'block',
+                marginBottom: '8px'
+              }}>
+                YOUR MOOD
+              </label>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                {[
+                  { value: 'happy', emoji: '😊' },
+                  { value: 'neutral', emoji: '😐' },
+                  { value: 'sad', emoji: '😢' },
+                  { value: 'stressed', emoji: '😤' },
+                  { value: 'excited', emoji: '🤩' }
+                ].map(m => (
+                  <button
+                    key={m.value}
+                    onClick={() => setExpenseMood(m.value)}
+                    style={{
+                      flex: 1,
+                      padding: '10px 6px',
+                      backgroundColor: expenseMood === m.value
+                        ? 'rgba(0,255,136,0.1)' : '#0a0a0a',
+                      border: expenseMood === m.value
+                        ? '1px solid #00ff88' : '1px solid #1f2b1f',
+                      borderRadius: '10px',
+                      cursor: 'pointer',
+                      fontSize: '18px',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    {m.emoji}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                onClick={() => setOpen(false)}
+                style={{
+                  flex: 1,
+                  padding: '13px',
+                  backgroundColor: 'transparent',
+                  border: '1px solid #1f2b1f',
+                  borderRadius: '10px',
+                  color: '#6b7280',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: 'bold'
                 }}
               >
                 Cancel
@@ -543,20 +692,23 @@ export default function DashboardPage() {
                 disabled={saving}
                 style={{
                   flex: 2,
-                  padding: '12px',
-                  backgroundColor: '#00ff88',
+                  padding: '13px',
+                  background: saving
+                    ? '#1f2b1f'
+                    : 'linear-gradient(135deg, #00ff88, #00cc6a)',
                   border: 'none',
-                  borderRadius: '8px',
+                  borderRadius: '10px',
                   color: '#000',
-                  fontWeight: 'bold',
                   cursor: saving ? 'not-allowed' : 'pointer',
                   fontSize: '14px',
-                  opacity: saving ? 0.7 : 1
+                  fontWeight: 'bold',
+                  transition: 'all 0.2s'
                 }}
               >
-                {saving ? 'Saving...' : 'Save Entry'}
+                {saving ? 'Saving...' : '+ Save Expense'}
               </button>
             </div>
+
           </div>
         </div>
       )}
