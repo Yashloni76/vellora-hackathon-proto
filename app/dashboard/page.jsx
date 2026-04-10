@@ -12,7 +12,7 @@ import { supabase } from '@/lib/supabase'
 import { unavoidableExpenses as dummyUnavoidable, avoidableExpenses as dummyAvoidable, balance as dummyBalance } from "@/data/dummy"
 
 export default function DashboardPage() {
-  const { user, loading } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const router = useRouter()
   
   // Setup flow states
@@ -29,13 +29,17 @@ export default function DashboardPage() {
   // Dashboard UI states
   const [open, setOpen] = useState(false)
   const [dbExpenses, setDbExpenses] = useState([])
-  const [realBalance, setRealBalance] = useState(null)
+  const [realBalance, setRealBalance] = useState(0)
+  const [realSavings, setRealSavings] = useState(0)
+  const [savingsVelocity, setSavingsVelocity] = useState(0)
+  const [regretIndex, setRegretIndex] = useState('Low')
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!authLoading && !user) {
       router.push('/login')
     }
-  }, [user, loading])
+  }, [user, authLoading])
 
   const checkUserSetup = async () => {
     if (!user) return
@@ -48,25 +52,65 @@ export default function DashboardPage() {
     if (data && data.income && data.income > 0) {
       setUserIncome(data.income)
       setSetupStep(4)
-      fetchExpenses()
+      fetchAllData()
     } else {
       setSetupStep(1)
     }
   }
 
-  const fetchExpenses = async () => {
+  const fetchAllData = async () => {
     if (!user) return
-    const { data } = await supabase
+    setIsLoading(true)
+
+    const { data: userData } = await supabase
+      .from('users')
+      .select('income, goal')
+      .eq('id', user.id)
+      .single()
+
+    const income = userData?.income || 0
+    setUserIncome(income)
+
+    const { data: expenseData } = await supabase
       .from('expenses')
       .select('*')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
 
-    if (data) {
-      setDbExpenses(data)
-      const totalSpent = data.reduce((sum, e) => sum + e.amount, 0)
-      setRealBalance(userIncome - totalSpent)
+    if (expenseData) {
+      setDbExpenses(expenseData)
+
+      const totalSpent = expenseData.reduce(
+        (sum, e) => sum + e.amount, 0
+      )
+      const balance = income - totalSpent
+      setRealBalance(balance)
+
+      const avoidableTotal = expenseData
+        .filter(e => e.type === 'avoidable')
+        .reduce((sum, e) => sum + e.amount, 0)
+
+      const unavoidableTotal = expenseData
+        .filter(e => e.type === 'unavoidable')
+        .reduce((sum, e) => sum + e.amount, 0)
+
+      const savings = income - totalSpent
+      setRealSavings(savings)
+
+      const velocity = income > 0
+        ? ((savings / income) * 100).toFixed(1)
+        : 0
+      setSavingsVelocity(velocity)
+
+      const regretRatio = income > 0
+        ? (avoidableTotal / income) * 100
+        : 0
+      if (regretRatio < 20) setRegretIndex('Low')
+      else if (regretRatio < 40) setRegretIndex('Medium')
+      else setRegretIndex('High')
     }
+
+    setIsLoading(false)
   }
 
   useEffect(() => {
@@ -100,7 +144,7 @@ export default function DashboardPage() {
       setExpenseName('')
       setExpenseAmount('')
       setExpenseType('avoidable')
-      fetchExpenses()
+      fetchAllData()
     }
     setSaving(false)
   }
@@ -147,10 +191,10 @@ export default function DashboardPage() {
     })
     setSaving(false)
     setSetupStep(4)
-    fetchExpenses()
+    fetchAllData()
   }
 
-  if (loading || (user && setupStep === 0)) return (
+  if (authLoading || (user && setupStep === 0)) return (
     <div className="flex items-center justify-center h-screen bg-[#0a0a0a]">
       <div className="text-[#00ff88] text-xl">Loading...</div>
     </div>
@@ -317,8 +361,9 @@ export default function DashboardPage() {
   const avoid = dbExpenses.filter(e => e.type === 'avoidable')
   const unavoid = dbExpenses.filter(e => e.type === 'unavoidable')
 
+  const totalSpent = dbExpenses.reduce((sum, e) => sum + e.amount, 0)
   const totalExpenses = dbExpenses.length > 0
-    ? dbExpenses.reduce((sum, e) => sum + e.amount, 0)
+    ? totalSpent
     : [...dummyUnavoidable, ...dummyAvoidable].reduce((sum, e) => sum + e.amount, 0)
 
   return (
@@ -356,14 +401,22 @@ export default function DashboardPage() {
       {/* Main Content Sections */}
       <section className="space-y-12">
         <BalanceCard 
-          balance={realBalance !== null ? realBalance : dummyBalance} 
+          balance={isLoading ? "Calculating..." : `₹${realBalance.toLocaleString('en-IN')}`} 
           userIncome={userIncome} 
+          isLoading={isLoading}
         />
         <ExpenseList 
           avoidable={avoid.length > 0 ? avoid : dummyAvoidable} 
           unavoidable={unavoid.length > 0 ? unavoid : dummyUnavoidable} 
         />
-        <StatsRow totalExpenses={totalExpenses} userIncome={userIncome} />
+        <StatsRow 
+          totalExpenses={totalExpenses} 
+          userIncome={userIncome} 
+          savingsVelocity={savingsVelocity}
+          realSavings={realSavings}
+          regretIndex={regretIndex}
+          isLoading={isLoading}
+        />
       </section>
 
       {/* Floating Action Button */}
