@@ -5,13 +5,14 @@ import {
   Area, 
   XAxis, 
   YAxis, 
-  CartesianGrid, 
   Tooltip, 
   ResponsiveContainer 
 } from "recharts";
-import { savingsData } from "@/data/dummy";
+import { savingsData as dummySavingsData } from "@/data/dummy";
 
-export default function SavingsLineChart() {
+export default function SavingsLineChart({ savingsData }) {
+  const data = savingsData && savingsData.length > 0 ? savingsData : dummySavingsData;
+
   return (
     <div className="card bg-[#111311] border border-border-dark p-8 relative overflow-hidden group h-full flex flex-col">
       <div className="flex justify-between items-start mb-8">
@@ -28,7 +29,7 @@ export default function SavingsLineChart() {
 
       <div className="flex-1 w-full min-h-[300px]">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={savingsData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+          <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
             <defs>
               <linearGradient id="colorSavings" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#00ff88" stopOpacity={0.3} />

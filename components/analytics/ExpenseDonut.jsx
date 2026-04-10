@@ -3,10 +3,14 @@
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { avoidableExpenses, unavoidableExpenses } from "@/data/dummy";
 
-export default function ExpenseDonut() {
-  const avoidableTotal = avoidableExpenses.reduce((sum, item) => sum + item.amount, 0);
-  const unavoidableTotal = unavoidableExpenses.reduce((sum, item) => sum + item.amount, 0);
-  const ratio = (unavoidableTotal / avoidableTotal).toFixed(1);
+export default function ExpenseDonut({ avoidableTotal: propAvoidable, unavoidableTotal: propUnavoidable, ratio: propRatio }) {
+  const dummyAvoidable = avoidableExpenses.reduce((sum, item) => sum + item.amount, 0);
+  const dummyUnavoidable = unavoidableExpenses.reduce((sum, item) => sum + item.amount, 0);
+  const dummyRatio = (dummyUnavoidable / dummyAvoidable).toFixed(1);
+
+  const avoidableTotal = propAvoidable !== undefined ? propAvoidable : dummyAvoidable;
+  const unavoidableTotal = propUnavoidable !== undefined ? propUnavoidable : dummyUnavoidable;
+  const ratio = propRatio !== undefined ? propRatio : dummyRatio;
 
   const data = [
     { name: "AVOIDABLE", value: avoidableTotal, color: "#00ff88" },
