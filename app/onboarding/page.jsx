@@ -31,8 +31,43 @@ export default function OnboardingPage() {
     savingsGoal: "15000"
   });
 
+  const [expenseList, setExpenseList] = useState([
+    { name: '', amount: '', category: 'Food', type: 'avoidable' }
+  ])
+
   const nextStep = () => setStep((s) => Math.min(s + 1, 3));
   const prevStep = () => setStep((s) => Math.max(s - 1, 1));
+
+  const handleContinueToGoals = async () => {
+    if (!user) return
+    
+    const validExpenses = expenseList.filter(
+      e => e.name.trim() && e.amount
+    )
+    
+    if (validExpenses.length > 0) {
+      const expensesToInsert = validExpenses.map(e => ({
+        user_id: user.id,
+        title: e.name.trim(),
+        amount: parseFloat(e.amount),
+        type: e.category === 'Utilities' || 
+              e.category === 'Transport' ? 
+              'unavoidable' : 'avoidable',
+        mood: 'neutral',
+        date: new Date().toISOString().split('T')[0]
+      }))
+
+      const { error } = await supabase
+        .from('expenses')
+        .insert(expensesToInsert)
+
+      if (error) {
+        console.error('Error saving expenses:', error)
+      }
+    }
+    
+    nextStep()
+  }
 
   const handleFinish = async () => {
     if (user) {
@@ -121,9 +156,9 @@ export default function OnboardingPage() {
               )}
               {step === 2 && (
                 <Step2 
-                  formData={formData} 
-                  setFormData={setFormData} 
-                  onContinue={nextStep} 
+                  expenseList={expenseList}
+                  setExpenseList={setExpenseList}
+                  onContinue={handleContinueToGoals} 
                   onBack={prevStep}
                 />
               )}
@@ -276,7 +311,13 @@ function Step1({ formData, setFormData, onContinue }) {
   );
 }
 
-function Step2({ formData, setFormData, onContinue, onBack }) {
+function Step2({ expenseList, setExpenseList, onContinue, onBack }) {
+  const addAnotherExpense = () => {
+    setExpenseList([...expenseList, 
+      { name: '', amount: '', category: 'Food', type: 'avoidable' }
+    ])
+  }
+
   return (
     <div className="space-y-6">
       <div className="mb-10">
@@ -284,55 +325,75 @@ function Step2({ formData, setFormData, onContinue, onBack }) {
         <p className="text-muted text-sm">What does a typical month look like?</p>
       </div>
 
-      <div className="card space-y-6 bg-[#111311]">
-        <div className="space-y-3">
-          <label className="text-[10px] text-muted font-bold tracking-widest uppercase">Expense Name</label>
-          <input 
-            type="text" 
-            placeholder="e.g. Rent, Netflix, Dining"
-            value={formData.expenseName}
-            onChange={(e) => setFormData({...formData, expenseName: e.target.value})}
-            className="w-full bg-[#0a0a0a] border border-border-dark rounded-xl px-4 py-4 text-sm focus:border-[#00ff88] outline-none transition-colors"
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-3">
-            <label className="text-[10px] text-muted font-bold tracking-widest uppercase">Amount</label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#00ff88] font-bold">₹</span>
+      <div className="space-y-4 max-h-[360px] overflow-y-auto pr-2 custom-scrollbar">
+        {expenseList.map((expense, index) => (
+          <div key={index} className="card space-y-6 bg-[#111311] relative border border-border-dark/50 p-6 rounded-xl">
+            <div className="space-y-3">
+              <label className="text-[10px] text-muted font-bold tracking-widest uppercase">Expense Name</label>
               <input 
                 type="text" 
-                value={formData.expenseAmount}
-                onChange={(e) => setFormData({...formData, expenseAmount: e.target.value})}
-                className="w-full bg-[#0a0a0a] border border-border-dark rounded-xl pl-8 pr-4 py-4 text-sm focus:border-[#00ff88] outline-none transition-colors"
+                placeholder="e.g. Rent, Netflix, Dining"
+                value={expense.name}
+                onChange={(e) => {
+                  const updated = [...expenseList]
+                  updated[index].name = e.target.value
+                  setExpenseList(updated)
+                }}
+                className="w-full bg-[#0a0a0a] border border-border-dark rounded-xl px-4 py-4 text-sm focus:border-[#00ff88] outline-none transition-colors"
               />
             </div>
-          </div>
-          <div className="space-y-3">
-            <label className="text-[10px] text-muted font-bold tracking-widest uppercase">Category</label>
-            <div className="relative">
-              <select 
-                value={formData.expenseCategory}
-                onChange={(e) => setFormData({...formData, expenseCategory: e.target.value})}
-                className="w-full bg-[#0a0a0a] border border-border-dark rounded-xl px-4 py-4 text-sm focus:border-[#00ff88] outline-none appearance-none cursor-pointer transition-colors"
-              >
-                <option>Food</option>
-                <option>Rent</option>
-                <option>Entertainment</option>
-                <option>Tech</option>
-                <option>Lifestyle</option>
-              </select>
-              <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <label className="text-[10px] text-muted font-bold tracking-widest uppercase">Amount</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#00ff88] font-bold">₹</span>
+                  <input 
+                    type="number" 
+                    value={expense.amount}
+                    onChange={(e) => {
+                      const updated = [...expenseList]
+                      updated[index].amount = e.target.value
+                      setExpenseList(updated)
+                    }}
+                    className="w-full bg-[#0a0a0a] border border-border-dark rounded-xl pl-8 pr-4 py-4 text-sm focus:border-[#00ff88] outline-none transition-colors"
+                  />
+                </div>
+              </div>
+              <div className="space-y-3">
+                <label className="text-[10px] text-muted font-bold tracking-widest uppercase">Category</label>
+                <div className="relative">
+                  <select 
+                    value={expense.category}
+                    onChange={(e) => {
+                      const updated = [...expenseList]
+                      updated[index].category = e.target.value
+                      setExpenseList(updated)
+                    }}
+                    className="w-full bg-[#0a0a0a] border border-border-dark rounded-xl px-4 py-4 text-sm focus:border-[#00ff88] outline-none appearance-none cursor-pointer transition-colors"
+                  >
+                    <option>Food</option>
+                    <option>Transport</option>
+                    <option>Entertainment</option>
+                    <option>Utilities</option>
+                    <option>Health</option>
+                    <option>Other</option>
+                  </select>
+                  <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-
-        <button className="flex items-center justify-center gap-2 w-full py-3 border border-dashed border-border-dark rounded-xl text-muted hover:text-white hover:border-gray-500 transition-all text-sm font-medium">
-          <Plus size={16} />
-          Add another expense
-        </button>
+        ))}
       </div>
+
+      <button 
+        onClick={addAnotherExpense}
+        className="flex items-center justify-center gap-2 w-full py-3 border border-dashed border-border-dark rounded-xl text-muted hover:text-white hover:border-gray-500 transition-all text-sm font-medium"
+      >
+        <Plus size={16} />
+        Add another expense
+      </button>
 
       <div className="pt-4 flex gap-4">
         <button 
