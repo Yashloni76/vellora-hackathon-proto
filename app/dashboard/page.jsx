@@ -41,6 +41,11 @@ export default function DashboardPage() {
   
   // Dashboard UI states
   const [open, setOpen] = useState(false)
+  const [choiceOpen, setChoiceOpen] = useState(false)
+  const [incomeModalOpen, setIncomeModalOpen] = useState(false)
+  const [additionalIncome, setAdditionalIncome] = useState('')
+  const [incomeNote, setIncomeNote] = useState('')
+  const [addingIncome, setAddingIncome] = useState(false)
   const [dbExpenses, setDbExpenses] = useState([])
   const [realBalance, setRealBalance] = useState(0)
   const [realSavings, setRealSavings] = useState(0)
@@ -178,6 +183,23 @@ export default function DashboardPage() {
       fetchAllData()
     }
     setSaving(false)
+  }
+
+  const handleSaveIncome = async () => {
+    if (!additionalIncome || !user) return
+    setAddingIncome(true)
+    const newTotalIncome = userIncome + parseFloat(additionalIncome)
+    const { error } = await supabase
+      .from('users')
+      .update({ income: newTotalIncome })
+      .eq('id', user.id)
+    if (!error) {
+      setIncomeModalOpen(false)
+      setAdditionalIncome('')
+      setIncomeNote('')
+      fetchAllData()
+    }
+    setAddingIncome(false)
   }
 
   const handleSetupIncome = async () => {
@@ -437,7 +459,7 @@ export default function DashboardPage() {
 
       {/* Floating Action Button */}
       <button
-        onClick={() => setOpen(true)}
+        onClick={() => setChoiceOpen(true)}
         style={{
           position: 'fixed',
           bottom: '32px',
@@ -461,6 +483,137 @@ export default function DashboardPage() {
       >
         +
       </button>
+
+      {/* Choice Modal */}
+      {choiceOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.85)',
+          zIndex: 9998,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <div style={{
+            backgroundColor: '#111311',
+            border: '1px solid #1f2b1f',
+            borderRadius: '16px',
+            padding: '28px',
+            width: '380px',
+            maxWidth: '90vw',
+            boxShadow: '0 0 40px rgba(0,255,136,0.1)'
+          }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '24px'
+            }}>
+              <h2 style={{
+                color: '#fff',
+                fontSize: '18px',
+                fontWeight: 'bold',
+                margin: 0
+              }}>
+                What do you want to add?
+              </h2>
+              <button
+                onClick={() => setChoiceOpen(false)}
+                style={{
+                  backgroundColor: 'transparent',
+                  border: '1px solid #1f2b1f',
+                  borderRadius: '8px',
+                  color: '#6b7280',
+                  cursor: 'pointer',
+                  width: '32px',
+                  height: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '16px'
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <button
+                onClick={() => {
+                  setChoiceOpen(false)
+                  setOpen(true)
+                }}
+                style={{
+                  padding: '16px',
+                  backgroundColor: 'rgba(255,68,68,0.08)',
+                  border: '1px solid rgba(255,68,68,0.3)',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '14px',
+                  textAlign: 'left'
+                }}
+              >
+                <span style={{ fontSize: '28px' }}>💸</span>
+                <div>
+                  <div style={{
+                    color: '#fff',
+                    fontWeight: 'bold',
+                    fontSize: '15px',
+                    marginBottom: '4px'
+                  }}>
+                    Add Expense
+                  </div>
+                  <div style={{
+                    color: '#6b7280',
+                    fontSize: '12px'
+                  }}>
+                    Track money you spent
+                  </div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => {
+                  setChoiceOpen(false)
+                  setIncomeModalOpen(true)
+                }}
+                style={{
+                  padding: '16px',
+                  backgroundColor: 'rgba(0,255,136,0.08)',
+                  border: '1px solid rgba(0,255,136,0.3)',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '14px',
+                  textAlign: 'left'
+                }}
+              >
+                <span style={{ fontSize: '28px' }}>💰</span>
+                <div>
+                  <div style={{
+                    color: '#fff',
+                    fontWeight: 'bold',
+                    fontSize: '15px',
+                    marginBottom: '4px'
+                  }}>
+                    Add Income
+                  </div>
+                  <div style={{
+                    color: '#6b7280',
+                    fontSize: '12px'
+                  }}>
+                    Got extra money? Add it here
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Simple Working Modal */}
       {open && (
@@ -733,6 +886,128 @@ export default function DashboardPage() {
               </button>
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* Add Income Modal */}
+      {incomeModalOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.85)',
+          zIndex: 9998,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <div style={{
+            backgroundColor: '#111311',
+            border: '1px solid #1f2b1f',
+            borderRadius: '16px',
+            padding: '28px',
+            width: '400px',
+            maxWidth: '90vw',
+            boxShadow: '0 0 40px rgba(0,255,136,0.1)'
+          }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '24px'
+            }}>
+              <div>
+                <h2 style={{ color: '#fff', fontSize: '18px', fontWeight: 'bold', margin: 0 }}>
+                  Add Extra Income
+                </h2>
+                <p style={{ color: '#6b7280', fontSize: '12px', margin: '4px 0 0 0' }}>
+                  Boost your total monthly budget
+                </p>
+              </div>
+              <button
+                onClick={() => setIncomeModalOpen(false)}
+                style={{
+                  backgroundColor: 'transparent',
+                  border: '1px solid #1f2b1f',
+                  borderRadius: '8px',
+                  color: '#6b7280',
+                  cursor: 'pointer',
+                  width: '32px',
+                  height: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '16px'
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ color: '#6b7280', fontSize: '11px', letterSpacing: '1px', display: 'block', marginBottom: '8px' }}>
+                INCOME AMOUNT
+              </label>
+              <div style={{ position: 'relative' }}>
+                <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#00ff88', fontSize: '16px', fontWeight: 'bold' }}>₹</span>
+                <input
+                  type="number"
+                  placeholder="0.00"
+                  value={additionalIncome}
+                  onChange={e => setAdditionalIncome(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px 12px 30px',
+                    backgroundColor: '#0a0a0a',
+                    border: '1px solid #1f2b1f',
+                    borderRadius: '10px',
+                    color: '#fff',
+                    fontSize: '14px',
+                    outline: 'none',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ color: '#6b7280', fontSize: '11px', letterSpacing: '1px', display: 'block', marginBottom: '8px' }}>
+                SOURCE / NOTE
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Freelance, Bonus, Gift"
+                value={incomeNote}
+                onChange={e => setIncomeNote(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  backgroundColor: '#0a0a0a',
+                  border: '1px solid #1f2b1f',
+                  borderRadius: '10px',
+                  color: '#fff',
+                  fontSize: '14px',
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                onClick={() => setIncomeModalOpen(false)}
+                style={{ flex: 1, padding: '13px', backgroundColor: 'transparent', border: '1px solid #1f2b1f', borderRadius: '10px', color: '#6b7280', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveIncome}
+                disabled={addingIncome}
+                style={{ flex: 2, padding: '13px', background: addingIncome ? '#1f2b1f' : 'linear-gradient(135deg, #00ff88, #00cc6a)', border: 'none', borderRadius: '10px', color: '#000', cursor: addingIncome ? 'not-allowed' : 'pointer', fontSize: '14px', fontWeight: 'bold' }}
+              >
+                {addingIncome ? 'Adding...' : '+ Add Income'}
+              </button>
+            </div>
           </div>
         </div>
       )}
