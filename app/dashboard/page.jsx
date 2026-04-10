@@ -22,9 +22,22 @@ export default function DashboardPage() {
   const [expenseName, setExpenseName] = useState('')
   const [expenseAmount, setExpenseAmount] = useState('')
   const [expenseType, setExpenseType] = useState('avoidable')
+  const [expenseCategory, setExpenseCategory] = useState('food')
   const [addedExpenses, setAddedExpenses] = useState([])
   const [saving, setSaving] = useState(false)
   const [expenseMood, setExpenseMood] = useState('neutral')
+
+  const categories = [
+    { value: 'food', emoji: '🍔', label: 'Food' },
+    { value: 'travel', emoji: '🚗', label: 'Travel' },
+    { value: 'shopping', emoji: '🛍️', label: 'Shopping' },
+    { value: 'entertainment', emoji: '🎬', label: 'Entertainment' },
+    { value: 'health', emoji: '💊', label: 'Health' },
+    { value: 'rent', emoji: '🏠', label: 'Rent' },
+    { value: 'utilities', emoji: '⚡', label: 'Utilities' },
+    { value: 'education', emoji: '📚', label: 'Education' },
+    { value: 'other', emoji: '💸', label: 'Other' }
+  ]
   
   // Dashboard UI states
   const [open, setOpen] = useState(false)
@@ -115,30 +128,53 @@ export default function DashboardPage() {
   }, [user])
 
   const handleSaveExpense = async () => {
-    if (!user) return
-    if (!expenseName.trim() || !expenseAmount) {
-      alert('Please fill expense name and amount')
-      return
-    }
-    
+    if (!expenseName.trim() || !expenseAmount || !user) return
     setSaving(true)
-    const { data, error } = await supabase
+
+    let aiType = 'avoidable'
+    try {
+      const res = await fetch('/api/categorize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          expenses: [{
+            title: expenseName,
+            amount: parseFloat(expenseAmount),
+            category: expenseCategory
+          }]
+        })
+      })
+      const data = await res.json()
+      if (data && data[0] && data[0].category) {
+        aiType = data[0].category
+      }
+    } catch (err) {
+      console.error('AI categorize failed, using default')
+      const unavoidableCategories = [
+        'rent', 'utilities', 'health', 'education'
+      ]
+      aiType = unavoidableCategories.includes(expenseCategory)
+        ? 'unavoidable' : 'avoidable'
+    }
+
+    const { error } = await supabase
       .from('expenses')
       .insert([{
         user_id: user.id,
         title: expenseName.trim(),
         amount: parseFloat(expenseAmount),
-        type: expenseType,
+        type: aiType,
+        category: expenseCategory,
         mood: expenseMood,
         date: new Date().toISOString().split('T')[0]
       }])
-      .select()
 
-    if (data) {
+    if (!error) {
       setOpen(false)
       setExpenseName('')
       setExpenseAmount('')
-      setExpenseType('avoidable')
+      setExpenseCategory('food')
+      setExpenseMood('neutral')
       fetchAllData()
     }
     setSaving(false)
@@ -570,7 +606,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Type Toggle */}
+            {/* Category Selector */}
             <div style={{ marginBottom: '16px' }}>
               <label style={{
                 color: '#6b7280',
@@ -579,52 +615,40 @@ export default function DashboardPage() {
                 display: 'block',
                 marginBottom: '8px'
               }}>
-                EXPENSE TYPE
+                SELECT CATEGORY
               </label>
               <div style={{
-                display: 'flex',
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
                 gap: '8px'
               }}>
-                <button
-                  onClick={() => setExpenseType('avoidable')}
-                  style={{
-                    flex: 1,
-                    padding: '10px',
-                    backgroundColor: expenseType === 'avoidable'
-                      ? 'rgba(255,68,68,0.15)' : '#0a0a0a',
-                    border: expenseType === 'avoidable'
-                      ? '1px solid #ff4444' : '1px solid #1f2b1f',
-                    borderRadius: '10px',
-                    color: expenseType === 'avoidable'
-                      ? '#ff4444' : '#6b7280',
-                    cursor: 'pointer',
-                    fontSize: '13px',
-                    fontWeight: 'bold',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  😬 Avoidable
-                </button>
-                <button
-                  onClick={() => setExpenseType('unavoidable')}
-                  style={{
-                    flex: 1,
-                    padding: '10px',
-                    backgroundColor: expenseType === 'unavoidable'
-                      ? 'rgba(0,255,136,0.1)' : '#0a0a0a',
-                    border: expenseType === 'unavoidable'
-                      ? '1px solid #00ff88' : '1px solid #1f2b1f',
-                    borderRadius: '10px',
-                    color: expenseType === 'unavoidable'
-                      ? '#00ff88' : '#6b7280',
-                    cursor: 'pointer',
-                    fontSize: '13px',
-                    fontWeight: 'bold',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  ✅ Unavoidable
-                </button>
+                {categories.map(cat => (
+                  <button
+                    key={cat.value}
+                    onClick={() => setExpenseCategory(cat.value)}
+                    style={{
+                      padding: '10px 4px',
+                      backgroundColor: expenseCategory === cat.value
+                        ? 'rgba(0,255,136,0.1)' : '#0a0a0a',
+                      border: expenseCategory === cat.value
+                        ? '1px solid #00ff88' : '1px solid #1f2b1f',
+                      borderRadius: '10px',
+                      color: expenseCategory === cat.value
+                        ? '#00ff88' : '#6b7280',
+                      cursor: 'pointer',
+                      fontSize: '11px',
+                      fontWeight: 'bold',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '4px',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    <span style={{ fontSize: '16px' }}>{cat.emoji}</span>
+                    {cat.label}
+                  </button>
+                ))}
               </div>
             </div>
 
