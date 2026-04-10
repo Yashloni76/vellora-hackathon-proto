@@ -67,7 +67,8 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="w-[200px] h-screen bg-[#0f0f0f] border-r border-border-dark flex flex-col fixed left-0 top-0 z-50">
+    <>
+      <aside className="w-[200px] h-screen bg-[#0f0f0f] border-r border-border-dark flex flex-col fixed left-0 top-0 z-50">
       {/* Logo Section */}
       <div className="px-4 pt-4 pb-2 flex items-center justify-center">
         <img src="/logo.png" alt="SYMP's Logo" className="w-[150px] h-[150px] object-contain" />
@@ -308,5 +309,6 @@ export default function Sidebar() {
         </div>
       </div>
     )}
+    </>
   );
 }
