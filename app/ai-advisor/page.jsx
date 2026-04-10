@@ -1,17 +1,11 @@
 'use client'
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react'
+import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/AuthContext'
 import { useRouter } from 'next/navigation'
 import { motion } from "framer-motion";
-import { Sparkles, Brain, PlusCircle, Trash2, Loader2, ChevronRight } from "lucide-react";
+import { Sparkles, Brain, Loader2 } from "lucide-react";
 import SuggestionCard from "@/components/ai-advisor/SuggestionCard";
-
-const STATS = [
-  { label: "INCOME", value: "₹25,000", color: "text-white" },
-  { label: "UNAVOIDABLE", value: "₹12,100", color: "text-white" },
-  { label: "AVOIDABLE", value: "₹7,000", color: "text-yellow-400" },
-  { label: "SAVINGS", value: "₹5,900", color: "text-[#00ff88]" },
-];
 
 function SkeletonCard() {
   return (
@@ -26,91 +20,115 @@ function SkeletonCard() {
   );
 }
 
-
-
 export default function AIAdvisorPage() {
   const { user, loading } = useAuth()
   const router = useRouter()
+  const [userIncome, setUserIncome] = useState(0)
+  const [expenses, setExpenses] = useState([])
+  const [suggestions, setSuggestions] = useState([])
+  const [analyzing, setAnalyzing] = useState(false)
+  const [dataLoading, setDataLoading] = useState(true)
+  const [totalSpent, setTotalSpent] = useState(0)
+  const [avoidableTotal, setAvoidableTotal] = useState(0)
+  const [unavoidableTotal, setUnavoidableTotal] = useState(0)
+  const [savings, setSavings] = useState(0)
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login')
-    }
+    if (!loading && !user) router.push('/login')
   }, [user, loading])
 
-  if (loading) return (
+  const fetchUserData = async () => {
+    if (!user) return
+    setDataLoading(true)
+
+    const { data: userData } = await supabase
+      .from('users')
+      .select('income, goal')
+      .eq('id', user.id)
+      .single()
+
+    const income = Number(userData?.income) || 0
+    setUserIncome(income)
+
+    const { data: expenseData } = await supabase
+      .from('expenses')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+
+    const exp = expenseData || []
+    setExpenses(exp)
+
+    const total = exp.reduce((sum, e) => sum + Number(e.amount), 0)
+    const avoidable = exp
+      .filter(e => e.type === 'avoidable')
+      .reduce((sum, e) => sum + Number(e.amount), 0)
+    const unavoidable = exp
+      .filter(e => e.type === 'unavoidable')
+      .reduce((sum, e) => sum + Number(e.amount), 0)
+
+    setTotalSpent(total)
+    setAvoidableTotal(avoidable)
+    setUnavoidableTotal(unavoidable)
+    setSavings(income - total)
+    setDataLoading(false)
+  }
+
+  useEffect(() => {
+    if (user) fetchUserData()
+  }, [user])
+
+  const getAIAnalysis = async () => {
+    setAnalyzing(true)
+    setSuggestions([])
+
+    try {
+      const res = await fetch('/api/suggestions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          income: userIncome,
+          unavoidable: unavoidableTotal,
+          avoidable: avoidableTotal,
+          savings: savings,
+          expenses: expenses.map(e => ({
+            title: e.title,
+            amount: e.amount,
+            type: e.type,
+            category: e.category
+          }))
+        })
+      })
+      const data = await res.json()
+      if (data.suggestions) {
+        setSuggestions(data.suggestions)
+      }
+    } catch (err) {
+      console.error('AI error:', err)
+      setSuggestions([{
+        type: 'investment',
+        title: 'AI Unavailable',
+        desc: 'Could not connect to AI. Please try again.'
+      }])
+    }
+    setAnalyzing(false)
+  }
+
+  if (loading || dataLoading) return (
     <div className="flex items-center justify-center h-screen bg-[#0a0a0a]">
-      <div className="text-[#00ff88] text-xl">Loading...</div>
+      <div className="text-[#00ff88] text-xl">Loading profile...</div>
     </div>
   )
 
-  if (!user) return null
-
-  const [suggestions, setSuggestions] = useState([]);
-  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
-  const [suggestionError, setSuggestionError] = useState(null);
-
-  const [expenses, setExpenses] = useState([]);
-  const [expenseName, setExpenseName] = useState("");
-  const [expenseAmount, setExpenseAmount] = useState("");
-  const [categorized, setCategorized] = useState([]);
-  const [loadingCategorize, setLoadingCategorize] = useState(false);
-  const [categorizeError, setCategorizeError] = useState(null);
-
-  async function handleGetAnalysis() {
-    setLoadingSuggestions(true);
-    setSuggestions([]);
-    setSuggestionError(null);
-    try {
-      const res = await fetch("/api/suggestions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ income: 25000, unavoidable: 12100, avoidable: 7000, savings: 5900 }),
-      });
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
-      setSuggestions(data.suggestions);
-    } catch (e) {
-      setSuggestionError(e.message);
-    } finally {
-      setLoadingSuggestions(false);
-    }
-  }
-
-  function handleAddExpense() {
-    if (!expenseName.trim() || !expenseAmount) return;
-    setExpenses((prev) => [...prev, { title: expenseName.trim(), amount: Number(expenseAmount) }]);
-    setExpenseName("");
-    setExpenseAmount("");
-  }
-
-  function handleRemoveExpense(index) {
-    setExpenses((prev) => prev.filter((_, i) => i !== index));
-  }
-
-  async function handleCategorize() {
-    if (expenses.length === 0) return;
-    setLoadingCategorize(true);
-    setCategorized([]);
-    setCategorizeError(null);
-    try {
-      const res = await fetch("/api/categorize", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ expenses }),
-      });
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
-      setCategorized(data);
-    } catch (e) {
-      setCategorizeError(e.message);
-    } finally {
-      setLoadingCategorize(false);
-    }
-  }
-
   const investmentCards = suggestions.filter((s) => s.type === "investment");
   const savingCards = suggestions.filter((s) => s.type === "saving");
+
+  const STATS = [
+    { label: "INCOME", value: `₹${userIncome.toLocaleString()}`, color: "text-white" },
+    { label: "TOTAL SPENT", value: `₹${totalSpent.toLocaleString()}`, color: "text-white" },
+    { label: "AVOIDABLE", value: `₹${avoidableTotal.toLocaleString()}`, color: "text-yellow-400" },
+    { label: "SAVINGS", value: `₹${savings.toLocaleString()}`, color: "text-[#00ff88]" },
+  ];
 
   return (
     <motion.div 
@@ -149,34 +167,28 @@ export default function AIAdvisorPage() {
             <p className="text-[#555] text-xs mt-0.5">Smart analysis of your financial profile.</p>
           </div>
           <button
-            onClick={handleGetAnalysis}
-            disabled={loadingSuggestions}
+            onClick={getAIAnalysis}
+            disabled={analyzing}
             className="flex items-center gap-2 bg-[#00ff88] hover:bg-[#00e87a] text-black font-black text-sm px-5 py-2.5 rounded-xl transition-all shadow-[0_0_20px_rgba(0,255,136,0.25)] hover:shadow-[0_0_30px_rgba(0,255,136,0.4)] disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {loadingSuggestions ? (
+            {analyzing ? (
               <Loader2 size={15} className="animate-spin" />
             ) : (
               <Sparkles size={15} />
             )}
-            {loadingSuggestions ? "Analyzing..." : "Get AI Analysis"}
+            {analyzing ? "Analyzing..." : "Get AI Analysis"}
           </button>
         </div>
 
-        {suggestionError && (
-          <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 text-red-400 text-sm">
-            ⚠ {suggestionError}
-          </div>
-        )}
-
-        {/* Skeletons */}
-        {loadingSuggestions && (
+        {/* Loading Skeletons */}
+        {analyzing && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[...Array(6)].map((_, i) => <SkeletonCard key={i} />)}
           </div>
         )}
 
         {/* Results */}
-        {suggestions.length > 0 && !loadingSuggestions && (
+        {suggestions.length > 0 && !analyzing && (
           <div className="space-y-6">
             {/* Investment Suggestions */}
             {investmentCards.length > 0 && (
@@ -202,104 +214,13 @@ export default function AIAdvisorPage() {
             )}
           </div>
         )}
-      </section>
 
-      {/* Divider */}
-      <div className="border-t border-[#1a1f1a]" />
-
-      {/* Categorize Section */}
-      <section className="space-y-6">
-        <div>
-          <h2 className="text-lg font-bold text-white">Categorize My Expenses</h2>
-          <p className="text-[#555] text-xs mt-0.5">Add your expenses and let AI decide what&apos;s avoidable.</p>
-        </div>
-
-        {/* Input Row */}
-        <div className="flex gap-3 flex-wrap">
-          <input
-            type="text"
-            placeholder="Expense name (e.g. Netflix)"
-            value={expenseName}
-            onChange={(e) => setExpenseName(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleAddExpense()}
-            className="flex-1 min-w-[200px] bg-[#111311] border border-[#1a1f1a] text-white placeholder-[#444] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#00ff8850] transition-colors"
-          />
-          <input
-            type="number"
-            placeholder="Amount ₹"
-            value={expenseAmount}
-            onChange={(e) => setExpenseAmount(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleAddExpense()}
-            className="w-36 bg-[#111311] border border-[#1a1f1a] text-white placeholder-[#444] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#00ff8850] transition-colors"
-          />
-          <button
-            onClick={handleAddExpense}
-            className="flex items-center gap-2 bg-[#00ff8815] border border-[#00ff8830] hover:bg-[#00ff8825] text-[#00ff88] font-bold text-sm px-4 py-2.5 rounded-xl transition-all"
-          >
-            <PlusCircle size={15} />
-            Add
-          </button>
-        </div>
-
-        {/* Expense List */}
-        {expenses.length > 0 && (
-          <div className="space-y-2">
-            {expenses.map((exp, i) => (
-              <div key={i} className="flex items-center justify-between bg-[#111311] border border-[#1a1f1a] rounded-xl px-4 py-3">
-                <div className="flex items-center gap-3">
-                  <ChevronRight size={14} className="text-[#00ff88]" />
-                  <span className="text-white text-sm font-medium">{exp.title}</span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="text-[#888] text-sm font-bold">₹{exp.amount.toLocaleString()}</span>
-                  <button onClick={() => handleRemoveExpense(i)} className="text-[#444] hover:text-red-400 transition-colors">
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              </div>
-            ))}
-
-            <button
-              onClick={handleCategorize}
-              disabled={loadingCategorize}
-              className="mt-2 flex items-center gap-2 bg-[#00ff88] hover:bg-[#00e87a] text-black font-black text-sm px-5 py-2.5 rounded-xl transition-all shadow-[0_0_20px_rgba(0,255,136,0.25)] disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {loadingCategorize ? <Loader2 size={15} className="animate-spin" /> : <Brain size={15} />}
-              {loadingCategorize ? "Analyzing..." : "Analyze with AI"}
-            </button>
-          </div>
-        )}
-
-        {categorizeError && (
-          <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 text-red-400 text-sm">
-            ⚠ {categorizeError}
-          </div>
-        )}
-
-        {/* Categorized Results */}
-        {categorized.length > 0 && (
-          <div className="space-y-3">
-            <p className="text-[11px] font-black tracking-[0.2em] text-[#555] uppercase">Analysis Results</p>
-            {categorized.map((item, i) => (
-              <div key={i} className="bg-[#111311] border border-[#1a1f1a] rounded-2xl px-5 py-4 flex items-start justify-between gap-4">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-3">
-                    <span className="text-white font-bold text-sm">{item.title}</span>
-                    <span className="text-[#888] text-xs font-bold">₹{Number(item.amount).toLocaleString()}</span>
-                  </div>
-                  <p className="text-[#666] text-xs leading-relaxed">{item.reason}</p>
-                </div>
-                <span
-                  className={`flex-shrink-0 text-[10px] font-black tracking-wider px-3 py-1 rounded-full ${
-                    item.category === "unavoidable"
-                      ? "bg-[#00ff8820] text-[#00ff88]"
-                      : "bg-red-500/10 text-red-400"
-                  }`}
-                >
-                  {item.category?.toUpperCase()}
-                </span>
-              </div>
-            ))}
+        {suggestions.length === 0 && !analyzing && (
+          <div className="flex flex-col items-center justify-center p-12 border border-dashed border-[#1a1f1a] rounded-3xl space-y-4">
+             <div className="w-12 h-12 rounded-full bg-[#111] flex items-center justify-center">
+                <Brain size={24} className="text-[#333]" />
+             </div>
+             <p className="text-[#444] text-sm font-medium">Click the button above to generate AI suggestions based on your spending.</p>
           </div>
         )}
       </section>
