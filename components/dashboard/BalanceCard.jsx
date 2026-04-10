@@ -1,9 +1,9 @@
 "use client";
 
 import { BarChart, Bar, ResponsiveContainer } from "recharts";
-import { savingsData, balance } from "@/data/dummy";
+import { savingsData } from "@/data/dummy";
 
-export default function BalanceCard() {
+export default function BalanceCard({ balance = 0 }) {
   return (
     <div className="card glow flex items-center justify-between p-8 bg-[#111311] border border-border-dark hover:border-[#00ff88]/30 hover:bg-[#1a1f1a] transition-all duration-200 relative overflow-hidden group">
       <div className="space-y-2 relative z-10">

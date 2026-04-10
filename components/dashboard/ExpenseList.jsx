@@ -7,7 +7,6 @@ import {
   Briefcase,
   AlertCircle 
 } from "lucide-react";
-import { unavoidableExpenses, avoidableExpenses } from "@/data/dummy";
 import { cn } from "@/lib/utils";
 
 const IconMap = {
@@ -19,7 +18,7 @@ const IconMap = {
   briefcase: Briefcase
 };
 
-export default function ExpenseList() {
+export default function ExpenseList({ avoidable = [], unavoidable = [] }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
       {/* Unavoidable Expenses */}
@@ -29,9 +28,12 @@ export default function ExpenseList() {
           <span className="text-[10px] text-muted font-bold tracking-[0.2em] uppercase">Fixed Costs</span>
         </div>
         <div className="grid grid-cols-1 gap-3">
-          {unavoidableExpenses.map((expense) => (
+          {unavoidable.map((expense) => (
             <ExpenseItem key={expense.id} expense={expense} type="unavoidable" />
           ))}
+          {unavoidable.length === 0 && (
+            <p className="text-muted text-xs italic opacity-50">No unavoidable expenses added yet.</p>
+          )}
         </div>
       </div>
 
@@ -42,9 +44,12 @@ export default function ExpenseList() {
           <span className="text-[10px] text-muted font-bold tracking-[0.2em] uppercase">Lifestyle</span>
         </div>
         <div className="grid grid-cols-1 gap-3">
-          {avoidableExpenses.map((expense) => (
+          {avoidable.map((expense) => (
             <ExpenseItem key={expense.id} expense={expense} type="avoidable" />
           ))}
+          {avoidable.length === 0 && (
+            <p className="text-muted text-xs italic opacity-50">No avoidable expenses added yet.</p>
+          )}
         </div>
       </div>
     </div>

@@ -9,7 +9,6 @@ import StatsRow from "@/components/dashboard/StatsRow";
 import { useAuth } from '@/lib/AuthContext'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { unavoidableExpenses as dummyUnavoidable, avoidableExpenses as dummyAvoidable, balance as dummyBalance } from "@/data/dummy"
 
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth()
@@ -31,7 +30,7 @@ export default function DashboardPage() {
   const [dbExpenses, setDbExpenses] = useState([])
   const [realBalance, setRealBalance] = useState(0)
   const [realSavings, setRealSavings] = useState(0)
-  const [savingsVelocity, setSavingsVelocity] = useState(0)
+  const [savingsVelocity, setSavingsVelocity] = useState('0.0')
   const [regretIndex, setRegretIndex] = useState('Low')
   const [isLoading, setIsLoading] = useState(true)
 
@@ -68,7 +67,7 @@ export default function DashboardPage() {
       .eq('id', user.id)
       .single()
 
-    const income = userData?.income || 0
+    const income = Number(userData?.income) || 0
     setUserIncome(income)
 
     const { data: expenseData } = await supabase
@@ -77,38 +76,33 @@ export default function DashboardPage() {
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
 
-    if (expenseData) {
-      setDbExpenses(expenseData)
+    const expenses = expenseData || []
+    setDbExpenses(expenses)
 
-      const totalSpent = expenseData.reduce(
-        (sum, e) => sum + e.amount, 0
-      )
-      const balance = income - totalSpent
-      setRealBalance(balance)
+    const totalSpent = expenses.reduce(
+      (sum, e) => sum + Number(e.amount), 0
+    )
 
-      const avoidableTotal = expenseData
-        .filter(e => e.type === 'avoidable')
-        .reduce((sum, e) => sum + e.amount, 0)
+    const balance = income - totalSpent
+    setRealBalance(balance)
+    setRealSavings(balance)
 
-      const unavoidableTotal = expenseData
-        .filter(e => e.type === 'unavoidable')
-        .reduce((sum, e) => sum + e.amount, 0)
+    const velocity = income > 0
+      ? ((balance / income) * 100).toFixed(1)
+      : '0.0'
+    setSavingsVelocity(velocity)
 
-      const savings = income - totalSpent
-      setRealSavings(savings)
+    const avoidableTotal = expenses
+      .filter(e => e.type === 'avoidable')
+      .reduce((sum, e) => sum + Number(e.amount), 0)
 
-      const velocity = income > 0
-        ? ((savings / income) * 100).toFixed(1)
-        : 0
-      setSavingsVelocity(velocity)
+    const regretRatio = income > 0
+      ? (avoidableTotal / income) * 100
+      : 0
 
-      const regretRatio = income > 0
-        ? (avoidableTotal / income) * 100
-        : 0
-      if (regretRatio < 20) setRegretIndex('Low')
-      else if (regretRatio < 40) setRegretIndex('Medium')
-      else setRegretIndex('High')
-    }
+    if (regretRatio < 20) setRegretIndex('Low')
+    else if (regretRatio < 40) setRegretIndex('Medium')
+    else setRegretIndex('High')
 
     setIsLoading(false)
   }
@@ -361,11 +355,6 @@ export default function DashboardPage() {
   const avoid = dbExpenses.filter(e => e.type === 'avoidable')
   const unavoid = dbExpenses.filter(e => e.type === 'unavoidable')
 
-  const totalSpent = dbExpenses.reduce((sum, e) => sum + e.amount, 0)
-  const totalExpenses = dbExpenses.length > 0
-    ? totalSpent
-    : [...dummyUnavoidable, ...dummyAvoidable].reduce((sum, e) => sum + e.amount, 0)
-
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }} 
@@ -400,22 +389,12 @@ export default function DashboardPage() {
 
       {/* Main Content Sections */}
       <section className="space-y-12">
-        <BalanceCard 
-          balance={isLoading ? "Calculating..." : `₹${realBalance.toLocaleString('en-IN')}`} 
-          userIncome={userIncome} 
-          isLoading={isLoading}
-        />
-        <ExpenseList 
-          avoidable={avoid.length > 0 ? avoid : dummyAvoidable} 
-          unavoidable={unavoid.length > 0 ? unavoid : dummyUnavoidable} 
-        />
+        <BalanceCard balance={isLoading ? 0 : realBalance} />
+        <ExpenseList avoidable={avoid} unavoidable={unavoid} />
         <StatsRow 
-          totalExpenses={totalExpenses} 
-          userIncome={userIncome} 
-          savingsVelocity={savingsVelocity}
-          realSavings={realSavings}
-          regretIndex={regretIndex}
-          isLoading={isLoading}
+          savingsVelocity={savingsVelocity} 
+          savings={realSavings} 
+          regretIndex={regretIndex} 
         />
       </section>
 
