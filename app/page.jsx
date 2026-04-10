@@ -1,34 +1,35 @@
-'use client'
-import { useAuth } from '@/lib/AuthContext'
-import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+"use client"
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { supabase } from "@/lib/supabase"
 
 export default function Home() {
-  const { user, loading } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      router.push('/login')
-    }, 2000)
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
 
-    if (!loading) {
-      clearTimeout(timeout)
-      if (user) {
-        router.push('/dashboard')
-      } else {
+      if (!session) {
         router.push('/login')
+        return
+      }
+
+      const { data: income } = await supabase
+        .from('income')
+        .select('id')
+        .eq('user_id', session.user.id)
+        .limit(1)
+
+      if (!income || income.length === 0) {
+        router.push('/onboarding')
+      } else {
+        router.push('/dashboard')
       }
     }
 
-    return () => clearTimeout(timeout)
-  }, [user, loading])
+    checkUser()
+  }, [])
 
-  return (
-    <div className="flex items-center justify-center h-screen bg-[#0a0a0a]">
-      <div className="text-[#00ff88] text-xl font-bold tracking-tight">
-        Loading SYMP...
-      </div>
-    </div>
-  )
+  return null
 }

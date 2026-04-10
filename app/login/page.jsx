@@ -30,7 +30,7 @@ export default function LoginPage() {
         setError(authError.message)
         setLoading(false)
       } else {
-        router.push('/dashboard')
+        router.push('/')
       }
     } catch (err) {
       setError('An unexpected error occurred. Please try again.')

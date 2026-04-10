@@ -31,6 +31,10 @@ export default function AnalyticsPage() {
   const [savingsRate, setSavingsRate] = useState(0)
   const [loading, setLoading] = useState(true)
 
+  const [velocityView, setVelocityView] = useState('monthly')
+  const [rawExpenses, setRawExpenses] = useState([])
+  const [rawIncome, setRawIncome] = useState([])
+
   useEffect(() => {
     if (!authLoading && !user) {
       router.push('/login')
@@ -50,13 +54,16 @@ export default function AnalyticsPage() {
       .from('expenses')
       .select('*')
       .eq('user_id', user.id)
-      .order('created_at', { ascending: true })
+      .order('date', { ascending: true })
 
     // Fetch all income for user
     const { data: incomeData } = await supabase
       .from('income')
       .select('*')
       .eq('user_id', user.id)
+
+    setRawExpenses(expenses || [])
+    setRawIncome(incomeData || [])
 
     // Process category totals
     const categoryMap = {}
@@ -76,7 +83,8 @@ export default function AnalyticsPage() {
     // Process monthly savings
     const monthlyExpenses = {}
     expenses?.forEach(exp => {
-      const month = new Date(exp.created_at || new Date()).toLocaleString('default', { month: 'short' }).toUpperCase()
+      const dateStr = exp.date || new Date().toISOString().split('T')[0]
+      const month = new Date(dateStr).toLocaleString('default', { month: 'short' }).toUpperCase()
       monthlyExpenses[month] = (monthlyExpenses[month] || 0) + exp.amount
     })
 
@@ -101,6 +109,36 @@ export default function AnalyticsPage() {
     setSavingsRate(rate)
 
     setLoading(false)
+  }
+
+  const getFilteredSavingsData = () => {
+    if (velocityView === 'monthly') return savingsData
+ 
+    if (velocityView === 'weekly') {
+      const weeklyMap = {}
+      rawExpenses.forEach(exp => {
+        const date = new Date(exp.date)
+        const week = `W${Math.ceil(date.getDate() / 7)} ${date.toLocaleString('default', { month: 'short' })}`
+        weeklyMap[week] = (weeklyMap[week] || 0) + exp.amount
+      })
+      return Object.entries(weeklyMap).map(([month, spent]) => ({
+        month,
+        amount: Math.max(0, spent)
+      }))
+    }
+ 
+    if (velocityView === 'daily') {
+      const dailyMap = {}
+      rawExpenses.forEach(exp => {
+        const date = new Date(exp.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })
+        dailyMap[date] = (dailyMap[date] || 0) + exp.amount
+      })
+      return Object.entries(dailyMap).map(([month, spent]) => ({
+        month,
+        amount: Math.max(0, spent)
+      }))
+    }
+    return savingsData
   }
 
   if (loading || authLoading) return (
@@ -158,7 +196,11 @@ export default function AnalyticsPage() {
 
       {/* Top Row: Line + Gauge */}
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8">
-        <SavingsLineChart savingsData={savingsData} />
+        <SavingsLineChart 
+          savingsData={getFilteredSavingsData()} 
+          velocityView={velocityView} 
+          setVelocityView={setVelocityView} 
+        />
         <SavingsRateGauge rate={savingsRate} />
       </div>
 

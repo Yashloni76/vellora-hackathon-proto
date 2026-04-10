@@ -10,7 +10,7 @@ import {
 } from "recharts";
 import { savingsData as dummySavingsData } from "@/data/dummy";
 
-export default function SavingsLineChart({ savingsData }) {
+export default function SavingsLineChart({ savingsData, velocityView, setVelocityView }) {
   const data = savingsData && savingsData.length > 0 ? savingsData : dummySavingsData;
 
   return (
@@ -19,11 +19,36 @@ export default function SavingsLineChart({ savingsData }) {
         <div className="space-y-1">
           <h2 className="text-xl font-bold text-white tracking-tight">Savings Velocity</h2>
           <p className="text-muted text-[11px] font-medium uppercase tracking-widest">
-            Net accumulation over the last 6 fiscal months
+            Net accumulation over the selected arc
           </p>
         </div>
-        <div className="px-2 py-1 bg-[#00ff8815] border border-[#00ff8830] rounded text-[9px] text-[#00ff88] font-bold tracking-widest animate-pulse uppercase">
-          Real-time
+        <div className="flex items-center gap-4">
+          <div style={{ display: 'flex', gap: '4px' }}>
+            {['daily', 'weekly', 'monthly'].map(view => (
+              <button
+                key={view}
+                onClick={() => setVelocityView(view)}
+                style={{
+                  padding: '4px 10px',
+                  fontSize: '11px',
+                  borderRadius: '6px',
+                  border: '1px solid',
+                  cursor: 'pointer',
+                  textTransform: 'uppercase',
+                  fontWeight: 500,
+                  background: velocityView === view ? '#00ff88' : 'transparent',
+                  color: velocityView === view ? '#0a0a0a' : '#6b7280',
+                  borderColor: velocityView === view ? '#00ff88' : '#1f2b1f',
+                  transition: 'all 0.2s'
+                }}
+              >
+                {view}
+              </button>
+            ))}
+          </div>
+          <div className="px-2 py-1 bg-[#00ff8815] border border-[#00ff8830] rounded text-[9px] text-[#00ff88] font-bold tracking-widest animate-pulse uppercase">
+            Real-time
+          </div>
         </div>
       </div>
 
