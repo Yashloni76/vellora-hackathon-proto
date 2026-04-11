@@ -35,6 +35,7 @@ const FALLBACK_COLORS = ['#00ff88', '#00b4d8', '#f59e0b', '#a855f7', '#ff4444', 
 
 export default function AnalyticsPage() {
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [totalIncome, setTotalIncome] = useState(0)
   const [savingsRate, setSavingsRate] = useState(0)
   const [cashDrag, setCashDrag] = useState(0)
@@ -50,8 +51,55 @@ export default function AnalyticsPage() {
   const [rawIncome, setRawIncome] = useState([])
   const [filter, setFilter] = useState('all_time')
 
+  useEffect(() => {
+    const init = async () => {
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      console.log('SESSION:', session?.user?.id, sessionError)
+      
+      if (sessionError) {
+        setError(sessionError.message)
+        setLoading(false)
+        return
+      }
+
+      if (!session) {
+        console.log('No session found')
+        setLoading(false)
+        return
+      }
+      
+      await fetchAnalyticsData(session.user.id)
+    }
+
+    init()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth event:', event, session?.user?.id)
+      if (session?.user?.id) {
+        setError(null)
+        await fetchAnalyticsData(session.user.id)
+      } else {
+        setLoading(false)
+      }
+    })
+
+    // Real-time listener for database updates
+    const channel = supabase
+      .channel('analytics-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses' }, () => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (session) fetchAnalyticsData(session.user.id)
+        })
+      })
+      .subscribe()
+
+    return () => {
+      subscription.unsubscribe()
+      supabase.removeChannel(channel)
+    }
+  }, [])
+
   const processData = (expenses, income, filterValue) => {
-    // Filter expenses by time period
     const now = new Date()
     const filtered = expenses.filter(exp => {
       if (!exp.date) return true
@@ -70,32 +118,24 @@ export default function AnalyticsPage() {
       return true // all_time
     })
 
-    // Total income (never filtered — income is always total)
     const totalInc = income.reduce((sum, i) => sum + Number(i.amount || 0), 0)
     setTotalIncome(totalInc)
 
-    // Total spent from filtered expenses
     const totalSpent = filtered.reduce((sum, e) => sum + Number(e.amount || 0), 0)
-
-    // Savings rate
     const rate = totalInc > 0 ? Math.round(((totalInc - totalSpent) / totalInc) * 100) : 0
     setSavingsRate(rate)
 
-    // Avoidable vs unavoidable
     const avoidable = filtered.filter(e => e.type === 'avoidable').reduce((sum, e) => sum + Number(e.amount || 0), 0)
     const unavoidable = filtered.filter(e => e.type === 'unavoidable').reduce((sum, e) => sum + Number(e.amount || 0), 0)
     setAvoidableTotal(avoidable)
     setUnavoidableTotal(unavoidable)
 
-    // Lost potential
     const lost = Math.round(avoidable * 0.12 / 12)
     setLostPotential(lost)
 
-    // Cash drag
     const drag = totalInc > 0 ? Math.round((avoidable / totalInc) * 100) : 0
     setCashDrag(drag)
 
-    // Category map
     const guessCategory = (exp) => {
       if (exp.category && exp.category.trim() !== '' && exp.category !== 'null') return exp.category.trim()
       const t = (exp.title || '').toLowerCase()
@@ -114,7 +154,6 @@ export default function AnalyticsPage() {
     })
     setCategoryData(Object.entries(categoryMap).map(([name, value]) => ({ name, value })))
 
-    // Monthly income map
     const monthlyIncomeMap = {}
     income.forEach(inc => {
       const m = inc.month
@@ -125,7 +164,6 @@ export default function AnalyticsPage() {
       if (m) monthlyIncomeMap[m] = (monthlyIncomeMap[m] || 0) + Number(inc.amount || 0)
     })
 
-    // Monthly expense map from filtered
     const monthlySpent = {}
     filtered.forEach(exp => {
       if (!exp.date) return
@@ -133,7 +171,6 @@ export default function AnalyticsPage() {
       monthlySpent[m] = (monthlySpent[m] || 0) + Number(exp.amount || 0)
     })
 
-    // Active months from filtered data
     const activeMonthSet = new Set()
     filtered.forEach(exp => {
       if (!exp.date) return
@@ -159,46 +196,25 @@ export default function AnalyticsPage() {
     })
     setSavingsData(combinedChart)
 
-    // Peak liquidity
     const peak = combinedChart.reduce((best, s) => s.amount > (best?.amount || 0) ? s : best, null)
     setPeakMonth(peak?.month || '-')
   }
 
-  useEffect(() => {
-    fetchAnalyticsData()
-
-    // Real-time listener for updates
-    const channel = supabase
-      .channel('analytics-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses' }, () => {
-        fetchAnalyticsData()
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, () => {
-        fetchAnalyticsData()
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'income' }, () => {
-        fetchAnalyticsData()
-      })
-      .subscribe()
-
-    return () => {
-      supabase.removeChannel(channel)
-    }
-  }, [])
-
-  const fetchAnalyticsData = async () => {
+  const fetchAnalyticsData = async (userId) => {
     setLoading(true)
+    setError(null)
+    console.log('Fetching for user:', userId)
 
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) { setLoading(false); return }
-
-    const userId = session.user.id
-
-    const [{ data: expData }, { data: incData }, { data: userData }] = await Promise.all([
+    const [{ data: expData, error: expError }, { data: incData, error: incError }] = await Promise.all([
       supabase.from('expenses').select('*').eq('user_id', userId),
-      supabase.from('income').select('*').eq('user_id', userId),
-      supabase.from('users').select('income').eq('id', userId).single()
+      supabase.from('income').select('*').eq('user_id', userId)
     ])
+
+    if (expError) { console.error('Expense fetch error:', expError); setError(expError.message) }
+    if (incError) { console.error('Income fetch error:', incError); setError(incError.message) }
+
+    console.log('Expenses fetched:', expData?.length, expError)
+    console.log('Income fetched:', incData?.length, incError)
 
     const expenses = expData || []
     const income = incData || []
@@ -271,6 +287,12 @@ export default function AnalyticsPage() {
           <option value="all_time">All Time</option>
         </select>
       </div>
+
+      {error && (
+        <div style={{ color: '#ff4444', fontSize: '13px', padding: '12px', background: '#1a0000', border: '1px solid #ff444430', borderRadius: '8px', marginBottom: '16px' }}>
+          Error loading data: {error}
+        </div>
+      )}
 
        {/* Top Summary Row */}
        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
