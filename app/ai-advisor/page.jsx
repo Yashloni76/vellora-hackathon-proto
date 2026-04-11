@@ -26,12 +26,12 @@ export default function AIAdvisorPage() {
   const [userIncome, setUserIncome] = useState(0)
   const [expenses, setExpenses] = useState([])
   const [suggestions, setSuggestions] = useState([])
-  const [analyzing, setAnalyzing] = useState(false)
-  const [dataLoading, setDataLoading] = useState(true)
-  const [totalSpent, setTotalSpent] = useState(0)
-  const [avoidableTotal, setAvoidableTotal] = useState(0)
-  const [unavoidableTotal, setUnavoidableTotal] = useState(0)
   const [savings, setSavings] = useState(0)
+  const [analysisData, setAnalysisData] = useState({
+    patternAnalysis: "",
+    biggestMistake: "",
+    moodWarning: ""
+  })
 
   useEffect(() => {
     if (!loading && !user) router.push('/login')
@@ -91,18 +91,25 @@ export default function AIAdvisorPage() {
           unavoidable: unavoidableTotal,
           avoidable: avoidableTotal,
           savings: savings,
-          expenses: expenses.map(e => ({
-            title: e.title,
-            amount: e.amount,
-            type: e.type,
-            category: e.category
-          }))
+            expenses: expenses.map(e => ({
+              title: e.title,
+              amount: e.amount,
+              type: e.type,
+              category: e.category,
+              mood: e.mood,
+              date: e.date
+            }))
+          })
         })
-      })
-      const data = await res.json()
-      if (data.suggestions) {
-        setSuggestions(data.suggestions)
-      }
+        const data = await res.json()
+        if (data.suggestions) {
+          setSuggestions(data.suggestions)
+          setAnalysisData({
+            patternAnalysis: data.patternAnalysis || "",
+            biggestMistake: data.biggestMistake || "",
+            moodWarning: data.moodWarning || ""
+          })
+        }
     } catch (err) {
       console.error('AI error:', err)
       setSuggestions([{
@@ -145,7 +152,7 @@ export default function AIAdvisorPage() {
         </div>
         <p className="text-[#666] text-sm font-medium flex items-center gap-2">
           <Brain size={14} className="text-[#00ff88]" />
-          Powered by Google Gemini — personalized intelligence for your financial profile
+          Powered by Groq LLaMA-3 — deep transaction intelligence for your financial profile
         </p>
       </header>
 
@@ -189,23 +196,67 @@ export default function AIAdvisorPage() {
 
         {/* Results */}
         {suggestions.length > 0 && !analyzing && (
-          <div className="space-y-6">
+          <div className="space-y-8">
+            {/* Analysis Header Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <motion.div 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="bg-[#111311] border border-red-500/20 rounded-2xl p-6 relative overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 w-24 h-24 bg-red-500/5 blur-2xl -mr-12 -mt-12" />
+                <p className="text-[10px] font-black tracking-widest text-red-400 mb-2 uppercase">🚨 BIGGEST MISTAKE</p>
+                <p className="text-white text-sm font-medium leading-relaxed">{analysisData.biggestMistake}</p>
+              </motion.div>
+
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="bg-[#111311] border border-orange-500/20 rounded-2xl p-6 relative overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 w-24 h-24 bg-orange-500/5 blur-2xl -mr-12 -mt-12" />
+                <p className="text-[10px] font-black tracking-widest text-orange-400 mb-2 uppercase">🎭 MOOD TRIGGER</p>
+                <p className="text-white text-sm font-medium leading-relaxed">{analysisData.moodWarning}</p>
+              </motion.div>
+
+              <motion.div 
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 }}
+                className="bg-[#111311] border border-[#00ff88]/20 rounded-2xl p-6 relative overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 w-24 h-24 bg-[#00ff88]/5 blur-2xl -mr-12 -mt-12" />
+                <p className="text-[10px] font-black tracking-widest text-[#00ff88] mb-2 uppercase">📉 PATTERN ANALYSIS</p>
+                <p className="text-white text-sm font-medium leading-relaxed">{analysisData.patternAnalysis}</p>
+              </motion.div>
+            </div>
+
             {/* Investment Suggestions */}
             {investmentCards.length > 0 && (
-              <div className="space-y-3">
-                <p className="text-[11px] font-black tracking-[0.2em] text-[#00ff88] uppercase">Investment Suggestions</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-4 pt-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#1a1f1a] to-transparent" />
+                  <p className="text-[11px] font-black tracking-[0.2em] text-[#00ff88] uppercase">Growth Strategies</p>
+                  <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#1a1f1a] to-transparent" />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {investmentCards.map((s, i) => (
                     <SuggestionCard key={i} text={`${s.title}: ${s.desc}`} type="investment" index={i} />
                   ))}
                 </div>
               </div>
             )}
+
             {/* Saving Tips */}
             {savingCards.length > 0 && (
-              <div className="space-y-3">
-                <p className="text-[11px] font-black tracking-[0.2em] text-emerald-400 uppercase">Ways to Cut Expenses</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-4 pt-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#1a1f1a] to-transparent" />
+                  <p className="text-[11px] font-black tracking-[0.2em] text-emerald-400 uppercase">Leaky Bucket Fixes</p>
+                  <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#1a1f1a] to-transparent" />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {savingCards.map((s, i) => (
                     <SuggestionCard key={i} text={`${s.title}: ${s.desc}`} type="saving" index={i} />
                   ))}
