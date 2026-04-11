@@ -54,6 +54,14 @@ export default function DashboardPage() {
   const [regretIndex, setRegretIndex] = useState('Low')
   const [isLoading, setIsLoading] = useState(true)
 
+  // New logic states
+  const [spendingLimit, setSpendingLimit] = useState(0)
+  const [remainingSafe, setRemainingSafe] = useState(0)
+  const [dailySafe, setDailySafe] = useState(0)
+  const [weeklySaved, setWeeklySaved] = useState(0)
+  const [weeklyGoal, setWeeklyGoal] = useState(0)
+  const [streak, setStreak] = useState(0)
+
   useEffect(() => {
     if (!authLoading && !user) {
       router.push('/login')
@@ -64,7 +72,7 @@ export default function DashboardPage() {
     if (!user) return
     const { data } = await supabase
       .from('users')
-      .select('income, goal')
+      .select('income, goal, streak')
       .eq('id', user.id)
       .single()
 
@@ -83,12 +91,16 @@ export default function DashboardPage() {
 
     const { data: userData } = await supabase
       .from('users')
-      .select('income, goal')
+      .select('income, goal, streak')
       .eq('id', user.id)
       .single()
 
     const income = Number(userData?.income) || 0
+    const goal = Number(userData?.goal) || 0
+    const userStreak = Number(userData?.streak) || 0
+    
     setUserIncome(income)
+    setStreak(userStreak)
 
     const { data: expenseData } = await supabase
       .from('expenses')
@@ -99,30 +111,55 @@ export default function DashboardPage() {
     const expenses = expenseData || []
     setDbExpenses(expenses)
 
+    // CORE LOGIC: Spending Limit = Income - Goal
+    const limit = income - goal
+    setSpendingLimit(limit)
+
     const totalSpent = expenses.reduce(
       (sum, e) => sum + Number(e.amount), 0
     )
 
-    const balance = income - totalSpent
-    setRealBalance(balance)
-    setRealSavings(balance)
+    // REMAINING SAFE = Limit - Total Spent
+    const safeBalance = limit - totalSpent
+    setRemainingSafe(safeBalance)
+    setRealBalance(safeBalance) // Fallback for components using realBalance
+    setRealSavings(income - totalSpent)
 
-    const velocity = income > 0
-      ? ((balance / income) * 100).toFixed(1)
-      : '0.0'
-    setSavingsVelocity(velocity)
+    // DAILY GUIDANCE: Remaining Safe / Days Left in Month
+    const now = new Date()
+    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
+    const daysLeft = lastDayOfMonth - now.getDate() + 1
+    const dSafe = daysLeft > 0 ? Math.max(0, safeBalance / daysLeft) : 0
+    setDailySafe(dSafe)
 
-    const avoidableTotal = expenses
-      .filter(e => e.type === 'avoidable')
+    // WEEKLY STREAK LOGIC (Monday start)
+    const startOfWeek = new Date(now)
+    const day = now.getDay() // 0 is Sunday
+    const diff = now.getDate() - day + (day === 0 ? -6 : 1) // adjust to Monday
+    startOfWeek.setDate(diff)
+    startOfWeek.setHours(0, 0, 0, 0)
+
+    const weekExpenses = expenses
+      .filter(e => {
+        const expDate = new Date(e.date || e.created_at)
+        return expDate >= startOfWeek
+      })
       .reduce((sum, e) => sum + Number(e.amount), 0)
+    
+    const wLimit = limit / 4
+    const wGoal = goal / 4
+    const wSaved = wLimit - weekExpenses
+    
+    setWeeklySaved(wSaved)
+    setWeeklyGoal(wGoal)
 
-    const regretRatio = income > 0
-      ? (avoidableTotal / income) * 100
-      : 0
+    // Update Regret Index to reflect Streak Status or Spending Health
+    const spendingProgress = limit > 0 ? (totalSpent / limit) * 100 : 0
+    setSavingsVelocity(spendingProgress.toFixed(1))
 
-    if (regretRatio < 20) setRegretIndex('Low')
-    else if (regretRatio < 40) setRegretIndex('Medium')
-    else setRegretIndex('High')
+    if (spendingProgress < 80) setRegretIndex('On Track')
+    else if (spendingProgress < 100) setRegretIndex('Warning')
+    else setRegretIndex('Limit Exceeded')
 
     setIsLoading(false)
   }
@@ -492,12 +529,18 @@ export default function DashboardPage() {
 
       {/* Main Content Sections */}
       <section className="space-y-12">
-        <BalanceCard balance={isLoading ? 0 : realBalance} />
+        <BalanceCard 
+          balance={isLoading ? 0 : remainingSafe} 
+          dailySafe={dailySafe}
+          streak={streak}
+        />
         <ExpenseList avoidable={avoid} unavoidable={unavoid} onDelete={handleDeleteExpense} />
         <StatsRow 
           savingsVelocity={savingsVelocity} 
           savings={realSavings} 
-          regretIndex={regretIndex} 
+          regretIndex={regretIndex}
+          weeklySaved={weeklySaved}
+          weeklyGoal={weeklyGoal}
         />
       </section>
 
