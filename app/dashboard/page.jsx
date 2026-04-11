@@ -223,6 +223,7 @@ export default function DashboardPage() {
       title: expenseName,
       amount: parseFloat(expenseAmount),
       type: expenseType,
+      category: expenseCategory,
       mood: 'neutral',
       date: new Date().toISOString().split('T')[0]
     }
@@ -338,6 +339,23 @@ export default function DashboardPage() {
             >
               <option value="avoidable">Avoidable</option>
               <option value="unavoidable">Unavoidable</option>
+            </select>
+
+            <select
+              value={expenseCategory}
+              onChange={(e) => setExpenseCategory(e.target.value)}
+              className="w-full bg-[#0a0a0a] border border-[#222] rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[#00ff88]/50 transition-colors appearance-none"
+            >
+              <option value="">Select Category</option>
+              <option value="Food">Food</option>
+              <option value="Transport">Transport</option>
+              <option value="Entertainment">Entertainment</option>
+              <option value="Utilities">Utilities</option>
+              <option value="Health">Health</option>
+              <option value="Shopping">Shopping</option>
+              <option value="Education">Education</option>
+              <option value="Rent">Rent</option>
+              <option value="Other">Other</option>
             </select>
 
             <button

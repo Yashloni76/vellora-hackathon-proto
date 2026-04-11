@@ -43,6 +43,7 @@ export default function Sidebar() {
   const [title, setTitle] = useState('')
   const [amount, setAmount] = useState('')
   const [type, setType] = useState('avoidable')
+  const [category, setCategory] = useState('')
   const [saving, setSaving] = useState(false)
 
   const handleLogout = async () => {
@@ -58,12 +59,14 @@ export default function Sidebar() {
       title: title.trim(),
       amount: parseFloat(amount),
       type: type,
+      category: category,
       mood: 'neutral',
       date: new Date().toISOString().split('T')[0]
     }])
     setTitle('')
     setAmount('')
     setType('avoidable')
+    setCategory('')
     setSaving(false)
     setQuickOpen(false)
   }
@@ -214,7 +217,7 @@ export default function Sidebar() {
             />
           </div>
 
-          <div style={{ marginBottom: '24px' }}>
+          <div style={{ marginBottom: '14px' }}>
             <label style={{
               color: '#6b7280',
               fontSize: '11px',
@@ -241,6 +244,44 @@ export default function Sidebar() {
             >
               <option value="avoidable">Avoidable</option>
               <option value="unavoidable">Unavoidable</option>
+            </select>
+          </div>
+
+          <div style={{ marginBottom: '24px' }}>
+            <label style={{
+              color: '#6b7280',
+              fontSize: '11px',
+              display: 'block',
+              marginBottom: '6px',
+              letterSpacing: '1px'
+            }}>
+              CATEGORY
+            </label>
+            <select
+              value={category}
+              onChange={e => setCategory(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                background: '#0a0a0a',
+                border: '1px solid #1f2b1f',
+                borderRadius: '8px',
+                color: '#ffffff',
+                fontSize: '13px',
+                marginBottom: '8px',
+                boxSizing: 'border-box'
+              }}
+            >
+              <option value="">Select Category</option>
+              <option value="Food">Food</option>
+              <option value="Transport">Transport</option>
+              <option value="Entertainment">Entertainment</option>
+              <option value="Utilities">Utilities</option>
+              <option value="Health">Health</option>
+              <option value="Shopping">Shopping</option>
+              <option value="Education">Education</option>
+              <option value="Rent">Rent</option>
+              <option value="Other">Other</option>
             </select>
           </div>
 

@@ -108,11 +108,25 @@ export default function AnalyticsPage() {
     setRawIncome(income)
 
     // Category totals
+    const guessCategory = (exp) => {
+      if (exp.category && exp.category.trim() !== '' && exp.category.toLowerCase() !== 'null') {
+        return exp.category.trim()
+      }
+      const t = (exp.title || '').toLowerCase()
+      if (t.includes('bus') || t.includes('auto') || t.includes('petrol') || t.includes('travel') || t.includes('uber') || t.includes('ola') || t.includes('train') || t.includes('metro')) return 'Transport'
+      if (t.includes('food') || t.includes('canteen') || t.includes('zomato') || t.includes('swiggy') || t.includes('misal') || t.includes('restaurant') || t.includes('cafe') || t.includes('chai')) return 'Food'
+      if (t.includes('netflix') || t.includes('amazon') || t.includes('prime') || t.includes('hotstar') || t.includes('movie') || t.includes('spotify') || t.includes('youtube')) return 'Entertainment'
+      if (t.includes('rent') || t.includes('house') || t.includes('pg') || t.includes('hostel')) return 'Rent'
+      if (t.includes('electric') || t.includes('water') || t.includes('wifi') || t.includes('internet') || t.includes('bill') || t.includes('recharge')) return 'Utilities'
+      if (t.includes('medicine') || t.includes('doctor') || t.includes('hospital') || t.includes('pharmacy')) return 'Health'
+      if (t.includes('shopping') || t.includes('clothes') || t.includes('amazon') || t.includes('flipkart') || t.includes('myntra')) return 'Shopping'
+      if (t.includes('college') || t.includes('book') || t.includes('course') || t.includes('fee') || t.includes('tuition')) return 'Education'
+      return exp.type === 'avoidable' ? 'Lifestyle' : 'Essential'
+    }
+
     const categoryMap = {}
     expenses.forEach(exp => {
-      const cat = exp.category && exp.category.trim() !== ''
-        ? exp.category
-        : exp.type === 'avoidable' ? 'Avoidable' : 'Essential'
+      const cat = guessCategory(exp)
       categoryMap[cat] = (categoryMap[cat] || 0) + Number(exp.amount)
     })
     setCategoryData(Object.entries(categoryMap).map(([name, value]) => ({ name, value })))
@@ -507,6 +521,20 @@ function SavingsRateGauge({ rate, setShowGoalModal }) {
   );
 }
 
+const CATEGORY_COLORS = {
+  'Food': '#00ff88',
+  'Transport': '#00b4d8',
+  'Entertainment': '#f59e0b',
+  'Utilities': '#a855f7',
+  'Health': '#ff4444',
+  'Shopping': '#f97316',
+  'Education': '#06b6d4',
+  'Rent': '#6366f1',
+  'Lifestyle': '#ec4899',
+  'Essential': '#6b7280',
+  'Other': '#84cc16'
+}
+
 function CategoryDistribution({ data }) {
   return (
     <div className="card bg-[#111311] border border-border-dark p-8 relative overflow-hidden flex flex-col h-full group">
@@ -541,6 +569,7 @@ function CategoryDistribution({ data }) {
                   contentStyle={{ backgroundColor: "#111311", border: "1px solid #1f2b1f", borderRadius: "8px", fontSize: "11px", color: "#fff" }}
                   itemStyle={{ color: "#00ff88" }}
                   cursor={{ fill: "#1a1f1a" }}
+                  formatter={(value) => [`₹${value.toLocaleString()}`, 'Spent']}
                 />
                 <Bar 
                   dataKey="value" 
@@ -550,9 +579,7 @@ function CategoryDistribution({ data }) {
                   {data.map((entry, index) => (
                     <Cell 
                       key={`cell-${index}`} 
-                      fill={index === 0 ? "#00ff88" : "#1a1f1a"} 
-                      stroke={index === 0 ? "none" : "#1f2b1f"}
-                      className="hover:fill-[#00ff88] transition-all cursor-pointer"
+                      fill={CATEGORY_COLORS[entry.name] || '#00ff88'}
                     />
                   ))}
                 </Bar>
