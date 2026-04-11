@@ -151,11 +151,6 @@ export default function AnalyticsPage() {
         return d.toLocaleString('en-US', { month: 'short' }).toUpperCase()
       })
       
-      // Fallback: If no income records exist, assume the user earns primaryIncome every month
-      if (Object.keys(monthlyIncomeMap).length === 0 && primaryIncome > 0) {
-        last6.forEach(m => monthlyIncomeMap[m] = primaryIncome)
-      }
-
       let cum = 0
       return last6.map(m => {
         const spent = filteredExp
@@ -189,10 +184,6 @@ export default function AnalyticsPage() {
          weeksPerMonth[m] = (weeksPerMonth[m] || 0) + 1
       })
 
-      if (Object.keys(monthlyIncomeMap).length === 0 && primaryIncome > 0) {
-        Object.values(weeklyExp).forEach(w => { monthlyIncomeMap[w.m] = primaryIncome })
-      }
-
       let cum = 0
       return Object.entries(weeklyExp).map(([wk, { spent, m }]) => {
         const weekInc = (monthlyIncomeMap[m] || 0) / (weeksPerMonth[m] || 1)
@@ -223,10 +214,6 @@ export default function AnalyticsPage() {
          daysPerMonth[m] = (daysPerMonth[m] || 0) + 1
       })
 
-      if (Object.keys(monthlyIncomeMap).length === 0 && primaryIncome > 0) {
-        Object.values(dailyExp).forEach(d => { monthlyIncomeMap[d.m] = primaryIncome })
-      }
-
       let cum = 0
       return Object.entries(dailyExp).map(([day, { spent, m }]) => {
         const dayInc = (monthlyIncomeMap[m] || 0) / (daysPerMonth[m] || 1)
@@ -236,15 +223,14 @@ export default function AnalyticsPage() {
     }
   
     return []
-  }, [velocityView, rawExpenses, rawIncome, filter, primaryIncome])
+  }, [velocityView, rawExpenses, rawIncome, filter])
 
   const computedSavingsRate = useMemo(() => {
     const filteredExp = getFilteredExpenses()
     const totalSpent = filteredExp.reduce((s, e) => s + Number(e.amount), 0)
-    const totalIncRec = rawIncome.reduce((s, i) => s + Number(i.amount), 0)
-    const totalInc = totalIncRec > 0 ? totalIncRec : primaryIncome
+    const totalInc = rawIncome.reduce((s, i) => s + Number(i.amount), 0)
     return totalInc > 0 ? Math.round(((totalInc - totalSpent) / totalInc) * 100) : 0
-  }, [rawExpenses, rawIncome, filter, primaryIncome])
+  }, [rawExpenses, rawIncome, filter])
 
   useEffect(() => {
     if (loading) return;
@@ -285,8 +271,7 @@ export default function AnalyticsPage() {
     setPeakMonth(peak && peak.amount > 0 ? peak.month : '-')
 
     // Cash drag
-    const totalIncFromRecords = rawIncome.reduce((sum, i) => sum + Number(i.amount), 0)
-    const totalInc = totalIncFromRecords > 0 ? totalIncFromRecords : primaryIncome
+    const totalInc = rawIncome.reduce((sum, i) => sum + Number(i.amount), 0)
     setTotalIncome(totalInc)
 
     const drag = totalInc > 0 ? Math.round((avoidable / totalInc) * 100) : 0
