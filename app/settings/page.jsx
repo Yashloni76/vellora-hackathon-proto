@@ -233,7 +233,6 @@ export default function SettingsPage() {
         <nav className="flex-1 mt-4 px-3 space-y-1">
           {[
             { id: 'profile', label: 'Profile', icon: User },
-            { id: 'appearance', label: 'Appearance', icon: Palette },
             { id: 'finance', label: 'Finance', icon: DollarSign },
             { id: 'notifications', label: 'Notifications', icon: Bell },
             { id: 'security', label: 'Security', icon: Lock },
@@ -302,56 +301,6 @@ export default function SettingsPage() {
                       className={btnPrimary}
                     >
                       {saveLoading ? <Loader2 className="animate-spin" size={20} /> : 'Save Profile'}
-                    </button>
-                    {message.type && <span className={`text-sm font-medium ${message.type === 'success' ? 'text-[#00ff88]' : 'text-red-500'}`}>{message.text}</span>}
-                  </div>
-                </div>
-              </motion.section>
-            )}
-
-            {/* SECTION 2: APPEARANCE */}
-            {activeTab === 'appearance' && (
-              <motion.section 
-                key="appearance"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-6"
-              >
-                <h3 className="text-lg font-bold mb-6">Appearance</h3>
-                <div className="space-y-8">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-semibold">Dark Mode</h4>
-                      <p className="text-sm text-[var(--text-muted)]">Toggle between light and dark theme</p>
-                    </div>
-                    <Switch 
-                      checked={isDark} 
-                      onCheckedChange={toggleTheme} 
-                    />
-                  </div>
-
-                  <div>
-                    <label className={labelBase}>Currency</label>
-                    <select 
-                      value={currency}
-                      onChange={(e) => setCurrency(e.target.value)}
-                      className={inputBase + " appearance-none"}
-                    >
-                      <option value="INR">INR ₹</option>
-                      <option value="USD">USD $</option>
-                      <option value="EUR">EUR €</option>
-                      <option value="GBP">GBP £</option>
-                    </select>
-                  </div>
-
-                  <div className="pt-4 flex items-center gap-4">
-                    <button 
-                      onClick={() => handleSave('Appearance', { currency })}
-                      disabled={saveLoading}
-                      className={btnPrimary}
-                    >
-                      {saveLoading ? <Loader2 className="animate-spin" size={20} /> : 'Save Appearance'}
                     </button>
                     {message.type && <span className={`text-sm font-medium ${message.type === 'success' ? 'text-[#00ff88]' : 'text-red-500'}`}>{message.text}</span>}
                   </div>
