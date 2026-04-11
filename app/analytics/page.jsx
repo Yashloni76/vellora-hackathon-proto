@@ -87,31 +87,37 @@ export default function AnalyticsPage() {
     setAvoidableTotal(avoidable)
     setUnavoidableTotal(unavoidable)
 
-    // Monthly expenses grouped by month from date field
+    // Normalize month key helper
+    const getMonthKey = (dateStr) => {
+      return new Date(dateStr).toLocaleString('en-US', { month: 'short' }).toUpperCase()
+    }
+
+    // Monthly expenses from date field
     const monthlyExpenses = {}
     expenses.forEach(exp => {
-      const month = new Date(exp.date).toLocaleString('default', { month: 'short' }).toUpperCase()
-      monthlyExpenses[month] = (monthlyExpenses[month] || 0) + exp.amount
+      const month = getMonthKey(exp.date)
+      monthlyExpenses[month] = (monthlyExpenses[month] || 0) + Number(exp.amount)
     })
 
-    // Monthly income — try both `month` field and `created_at`
+    // Monthly income — normalize however it is stored
     const monthlyIncome = {}
     income.forEach(inc => {
       let month = null
       if (inc.month) {
-        month = inc.month.toUpperCase().slice(0, 3)
+        // stored as "APR", "JAN" etc — normalize to 3 char uppercase
+        month = inc.month.trim().toUpperCase().slice(0, 3)
       } else if (inc.created_at) {
-        month = new Date(inc.created_at).toLocaleString('default', { month: 'short' }).toUpperCase()
+        month = getMonthKey(inc.created_at)
       }
       if (month) {
-        monthlyIncome[month] = (monthlyIncome[month] || 0) + inc.amount
+        monthlyIncome[month] = (monthlyIncome[month] || 0) + Number(inc.amount)
       }
     })
 
     console.log('monthlyExpenses:', monthlyExpenses)
     console.log('monthlyIncome:', monthlyIncome)
 
-    // Build savings = income - expenses per month
+    // Build savings = income - expenses, never below 0
     const allMonths = [...new Set([...Object.keys(monthlyIncome), ...Object.keys(monthlyExpenses)])]
     const savings = allMonths.map(m => ({
       month: m,
@@ -122,9 +128,11 @@ export default function AnalyticsPage() {
     setSavingsData(savings)
 
     // Savings rate
-    const totalIncome = income.reduce((sum, i) => sum + i.amount, 0)
-    const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0)
-    const rate = totalIncome > 0 ? Math.round(((totalIncome - totalExpenses) / totalIncome) * 100) : 0
+    const totalIncome = income.reduce((sum, i) => sum + Number(i.amount), 0)
+    const totalExpenses = expenses.reduce((sum, e) => sum + Number(e.amount), 0)
+    const rate = totalIncome > 0
+      ? Math.round(((totalIncome - totalExpenses) / totalIncome) * 100)
+      : 0
     setSavingsRate(rate)
 
     setLoading(false)
