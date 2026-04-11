@@ -70,14 +70,16 @@ export default function OnboardingPage() {
   }
 
   const handleFinish = async () => {
-    const { data: { session } } = await supabase.auth.getSession()
-
-    if (session) {
-      await supabase.from('income').insert({
-        user_id: session.user.id,
-        amount: parseFloat(formData.amount) || 0,
-        month: new Date().toLocaleString('default', { month: 'short' }).toUpperCase()
+    if (user) {
+      const { error } = await supabase.from('users').upsert({
+        id: user.id,
+        email: user.email,
+        income: parseFloat(formData.amount) || 0,
+        goal: parseFloat(formData.savingsGoal) || 0
       })
+      if (error) {
+        console.error('Error saving user data:', error)
+      }
     }
     
     router.push('/dashboard')
