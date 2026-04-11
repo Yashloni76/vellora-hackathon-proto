@@ -122,7 +122,7 @@ ${expenses.map((e, i) =>
 
 Return ONLY a JSON array, absolutely no extra text,
 no markdown, no explanation outside the array:
-[{"title":"exact expense title","amount":exact_amount,"category":"avoidable or unavoidable","reason":"one line reason specific to why"}]`
+[{"title":"exact expense title","amount":exact_amount,"category":"avoidable or unavoidable","semanticCategory":"categorize into exactly one of: food, travel, shopping, entertainment, health, rent, utilities, education, other","reason":"one line reason specific to why"}]`
 
   try {
     const response = await callAI(prompt)
@@ -171,6 +171,17 @@ no markdown, no explanation outside the array:
       'accessories', 'gadget', 'headphone', 'watch'
     ]
 
+    const semanticCategoryMap = {
+      food: ['zomato', 'swiggy', 'restaurant', 'cafe', 'starbucks', 'mcdonalds', 'kfc', 'dominos', 'pizza', 'burger', 'rice', 'wheat', 'dal', 'vegetables', 'sabzi', 'grocery', 'groceries', 'milk', 'eggs', 'oil', 'canteen', 'mess', 'tiffin', 'dabba', 'hostel', 'alcohol', 'beer', 'wine'],
+      travel: ['bus', 'metro', 'train', 'transport', 'commute', 'petrol', 'diesel', 'fuel', 'vehicle', 'uber', 'ola', 'rapido', 'trip', 'vacation', 'travel', 'hotel'],
+      shopping: ['amazon', 'flipkart', 'shopping', 'clothes', 'accessories', 'gadget', 'watch'],
+      entertainment: ['netflix', 'prime', 'hotstar', 'spotify', 'movie', 'cinema', 'concert', 'event', 'gaming', 'game', 'party', 'celebration', 'outing', 'hangout'],
+      health: ['medicine', 'medical', 'doctor', 'hospital', 'pharmacy', 'health', 'insurance', 'checkup', 'salon', 'spa', 'parlour', 'skincare'],
+      rent: ['rent', 'emi', 'society', 'property', 'maintenance', 'loan'],
+      utilities: ['electricity', 'electric', 'bill', 'water', 'gas', 'lpg', 'cylinder', 'repair', 'mobile', 'recharge', 'internet', 'wifi', 'broadband'],
+      education: ['tuition', 'fees', 'college', 'school', 'exam', 'books', 'stationery', 'notebook', 'laptop']
+    };
+
     const fallback = expenses.map(e => {
       const titleLower = e.title.toLowerCase()
 
@@ -193,10 +204,19 @@ no markdown, no explanation outside the array:
         reason = 'Could not determine, marked as avoidable by default'
       }
 
+      let semanticCategory = 'other';
+      for (const [cat, words] of Object.entries(semanticCategoryMap)) {
+        if (words.some(w => titleLower.includes(w))) {
+          semanticCategory = cat;
+          break;
+        }
+      }
+
       return {
         title: e.title,
         amount: e.amount,
         category,
+        semanticCategory,
         reason
       }
     })

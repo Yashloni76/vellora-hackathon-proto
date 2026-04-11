@@ -137,6 +137,7 @@ export default function DashboardPage() {
     setSaving(true)
 
     let aiType = 'avoidable'
+    let finalCategory = expenseCategory
 
     try {
       const catRes = await fetch('/api/categorize', {
@@ -150,8 +151,9 @@ export default function DashboardPage() {
         })
       })
       const catData = await catRes.json()
-      if (catData && catData[0] && catData[0].category) {
-        aiType = catData[0].category
+      if (catData && catData[0]) {
+        if (catData[0].category) aiType = catData[0].category
+        if (catData[0].semanticCategory) finalCategory = catData[0].semanticCategory
       }
     } catch (err) {
       console.error('Categorize API failed:', err)
@@ -171,7 +173,7 @@ export default function DashboardPage() {
         title: expenseName.trim(),
         amount: parseFloat(expenseAmount),
         type: aiType,
-        category: expenseCategory,
+        category: finalCategory,
         mood: expenseMood,
         date: new Date().toISOString().split('T')[0]
       }])
