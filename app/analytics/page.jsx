@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from '@/lib/AuthContext'
 import { useRouter } from 'next/navigation'
 import { motion } from "framer-motion";
@@ -24,24 +24,22 @@ export default function AnalyticsPage() {
   const { user, loading: authLoading } = useAuth()
   const router = useRouter()
 
-  const [categoryData, setCategoryData] = useState([])
-  const [avoidableTotal, setAvoidableTotal] = useState(0)
-  const [unavoidableTotal, setUnavoidableTotal] = useState(0)
-  const [loading, setLoading] = useState(true)
-
-  const [velocityView, setVelocityView] = useState('monthly')
   const [rawExpenses, setRawExpenses] = useState([])
   const [rawIncome, setRawIncome] = useState([])
   const [totalIncome, setTotalIncome] = useState(0)
-  const [primaryIncome, setPrimaryIncome] = useState(0)
-  
+  const [savingsRate, setSavingsRate] = useState(0)
+  const [avoidableTotal, setAvoidableTotal] = useState(0)
+  const [unavoidableTotal, setUnavoidableTotal] = useState(0)
+  const [categoryData, setCategoryData] = useState([])
+  const [savingsData, setSavingsData] = useState([])
+  const [peakMonth, setPeakMonth] = useState('-')
+  const [cashDrag, setCashDrag] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const [velocityView, setVelocityView] = useState('monthly')
+  const [filter, setFilter] = useState('all_time')
   const [showGoalModal, setShowGoalModal] = useState(false)
   const [goalTarget, setGoalTarget] = useState('')
   const [savedGoal, setSavedGoal] = useState(null)
-
-  const [filter, setFilter] = useState('this_month')
-  const [peakMonth, setPeakMonth] = useState('-')
-  const [cashDrag, setCashDrag] = useState(0)
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -78,206 +76,117 @@ export default function AnalyticsPage() {
     setLoading(true)
 
     const { data: { session } } = await supabase.auth.getSession()
-    if (!session) return
+    if (!session) { setLoading(false); return }
 
-    const { data: expensesData, error: expError } = await supabase
-      .from('expenses')
-      .select('*')
-      .eq('user_id', session.user.id)
-      .order('date', { ascending: true })
+    const userId = session.user.id
 
-    const { data: incomeRecords, error: incError } = await supabase
-      .from('income')
-      .select('*')
-      .eq('user_id', session.user.id)
-    
-    if (incError && incError.code !== 'PGRST205') {
-       console.error('Income table fetch error:', incError)
-    }
+    const [{ data: expData }, { data: incData }] = await Promise.all([
+      supabase.from('expenses').select('*').eq('user_id', userId),
+      supabase.from('income').select('*').eq('user_id', userId)
+    ])
 
-    const { data: userData } = await supabase
-      .from('users')
-      .select('income')
-      .eq('id', session.user.id)
-      .single()
+    const expenses = expData || []
+    const income = incData || []
+
+    console.log('EXPENSES:', expenses.length, expenses[0])
+    console.log('INCOME:', income.length, income[0])
+
+    setRawExpenses(expenses)
+    setRawIncome(income)
 
     const { data: goalData } = await supabase
       .from('income')
       .select('savings_goal')
-      .eq('user_id', session.user.id)
+      .eq('user_id', userId)
       .limit(1)
       .single()
 
     if (goalData?.savings_goal) setSavedGoal(Number(goalData.savings_goal))
 
-    setRawExpenses(expensesData || [])
-    setRawIncome(incomeRecords || [])
-    setPrimaryIncome(Number(userData?.income) || 0)
-    setLoading(false)
-  }
+    // TOTAL INCOME — sum all income records for this user
+    const totalIncomeCalc = income.reduce((sum, i) => sum + Number(i.amount || 0), 0)
+    setTotalIncome(totalIncomeCalc)
+    console.log('TOTAL INCOME:', totalIncomeCalc)
 
-  const getFilteredExpenses = () => {
-    const now = new Date()
-    return rawExpenses.filter(exp => {
-      const d = new Date(exp.date + 'T00:00:00')
-      if (filter === 'this_month') {
-        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
-      }
-      if (filter === 'last_3') {
-        const cutoff = new Date(now); cutoff.setMonth(now.getMonth() - 3)
-        return d >= cutoff
-      }
-      if (filter === 'last_6') {
-        const cutoff = new Date(now); cutoff.setMonth(now.getMonth() - 6)
-        return d >= cutoff
-      }
-      return true // all_time
-    })
-  }
+    // TOTAL EXPENSES
+    const totalSpent = expenses.reduce((sum, e) => sum + Number(e.amount || 0), 0)
+    console.log('TOTAL SPENT:', totalSpent)
 
-  const chartData = useMemo(() => {
-    const filteredExp = getFilteredExpenses()
-  
-    if (velocityView === 'monthly') {
-      const monthlyIncomeMap = {}
-      rawIncome.forEach(inc => {
-        const m = inc.month
-          ? inc.month.trim().toUpperCase().slice(0, 3)
-          : new Date(inc.created_at).toLocaleString('en-US', { month: 'short' }).toUpperCase()
-        monthlyIncomeMap[m] = (monthlyIncomeMap[m] || 0) + Number(inc.amount)
-      })
-      const last6 = Array.from({ length: 6 }, (_, i) => {
-        const d = new Date(); d.setMonth(d.getMonth() - (5 - i))
-        return d.toLocaleString('en-US', { month: 'short' }).toUpperCase()
-      })
-      
-      let cum = 0
-      return last6.map(m => {
-        const spent = filteredExp
-          .filter(e => new Date(e.date + 'T00:00:00').toLocaleString('en-US', { month: 'short' }).toUpperCase() === m)
-          .reduce((s, e) => s + Number(e.amount), 0)
-        const inc = monthlyIncomeMap[m] || 0
-        cum += Math.max(0, inc - spent)
-        return { month: m, amount: cum }
-      })
-    }
-  
-    if (velocityView === 'weekly') {
-      const monthlyIncomeMap = {}
-      rawIncome.forEach(inc => {
-        const m = inc.month
-          ? inc.month.trim().toUpperCase().slice(0, 3)
-          : new Date(inc.created_at).toLocaleString('en-US', { month: 'short' }).toUpperCase()
-        monthlyIncomeMap[m] = (monthlyIncomeMap[m] || 0) + Number(inc.amount)
-      })
-      const weeklyExp = {}
-      filteredExp.forEach(exp => {
-        const date = new Date(exp.date + 'T00:00:00')
-        const m = date.toLocaleString('en-US', { month: 'short' }).toUpperCase()
-        const wk = `W${Math.ceil(date.getDate() / 7)} ${date.toLocaleString('en-US', { month: 'short' })}`
-        if (!weeklyExp[wk]) weeklyExp[wk] = { spent: 0, m }
-        weeklyExp[wk].spent += Number(exp.amount)
-      })
-      const weeksPerMonth = {}
-      Object.keys(weeklyExp).forEach(wk => {
-         const m = weeklyExp[wk].m
-         weeksPerMonth[m] = (weeksPerMonth[m] || 0) + 1
-      })
+    // SAVINGS
+    const saved = Math.max(0, totalIncomeCalc - totalSpent)
+    console.log('SAVED:', saved)
 
-      let cum = 0
-      return Object.entries(weeklyExp).map(([wk, { spent, m }]) => {
-        const weekInc = (monthlyIncomeMap[m] || 0) / (weeksPerMonth[m] || 1)
-        cum += Math.max(0, weekInc - spent)
-        return { month: wk, amount: cum }
-      })
-    }
-  
-    if (velocityView === 'daily') {
-      const monthlyIncomeMap = {}
-      rawIncome.forEach(inc => {
-        const m = inc.month
-          ? inc.month.trim().toUpperCase().slice(0, 3)
-          : new Date(inc.created_at).toLocaleString('en-US', { month: 'short' }).toUpperCase()
-        monthlyIncomeMap[m] = (monthlyIncomeMap[m] || 0) + Number(inc.amount)
-      })
-      const dailyExp = {}
-      filteredExp.forEach(exp => {
-        const date = new Date(exp.date + 'T00:00:00')
-        const m = date.toLocaleString('en-US', { month: 'short' }).toUpperCase()
-        const day = date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })
-        if (!dailyExp[day]) dailyExp[day] = { spent: 0, m }
-        dailyExp[day].spent += Number(exp.amount)
-      })
-      const daysPerMonth = {}
-      Object.keys(dailyExp).forEach(day => {
-         const m = dailyExp[day].m
-         daysPerMonth[m] = (daysPerMonth[m] || 0) + 1
-      })
+    // SAVINGS RATE
+    const rate = totalIncomeCalc > 0 ? Math.round((saved / totalIncomeCalc) * 100) : 0
+    setSavingsRate(rate)
 
-      let cum = 0
-      return Object.entries(dailyExp).map(([day, { spent, m }]) => {
-        const dayInc = (monthlyIncomeMap[m] || 0) / (daysPerMonth[m] || 1)
-        cum += Math.max(0, dayInc - spent)
-        return { month: day, amount: cum }
-      })
-    }
-  
-    return []
-  }, [velocityView, rawExpenses, rawIncome, filter])
-
-  const computedSavingsRate = useMemo(() => {
-    const filteredExp = getFilteredExpenses()
-    const totalSpent = filteredExp.reduce((s, e) => s + Number(e.amount), 0)
-    const totalInc = rawIncome.reduce((s, i) => s + Number(i.amount), 0)
-    return totalInc > 0 ? Math.round(((totalInc - totalSpent) / totalInc) * 100) : 0
-  }, [rawExpenses, rawIncome, filter])
-
-  useEffect(() => {
-    if (loading) return;
-
-    const filteredExpenses = getFilteredExpenses();
-
-    // 1. Category Data
-    const guessCategory = (exp) => {
-      if (exp.category && exp.category.trim() !== '' && exp.category.toLowerCase() !== 'null') {
-        return exp.category.trim()
-      }
-      const t = (exp.title || '').toLowerCase()
-      if (t.includes('bus') || t.includes('auto') || t.includes('petrol') || t.includes('travel') || t.includes('uber') || t.includes('ola') || t.includes('train') || t.includes('metro')) return 'Transport'
-      if (t.includes('food') || t.includes('canteen') || t.includes('zomato') || t.includes('swiggy') || t.includes('misal') || t.includes('restaurant') || t.includes('cafe') || t.includes('chai')) return 'Food'
-      if (t.includes('netflix') || t.includes('amazon') || t.includes('prime') || t.includes('hotstar') || t.includes('movie') || t.includes('spotify') || t.includes('youtube')) return 'Entertainment'
-      if (t.includes('rent') || t.includes('house') || t.includes('pg') || t.includes('hostel')) return 'Rent'
-      if (t.includes('electric') || t.includes('water') || t.includes('wifi') || t.includes('internet') || t.includes('bill') || t.includes('recharge')) return 'Utilities'
-      if (t.includes('medicine') || t.includes('doctor') || t.includes('hospital') || t.includes('pharmacy')) return 'Health'
-      if (t.includes('shopping') || t.includes('clothes') || t.includes('amazon') || t.includes('flipkart') || t.includes('myntra')) return 'Shopping'
-      if (t.includes('college') || t.includes('book') || t.includes('course') || t.includes('fee') || t.includes('tuition')) return 'Education'
-      return exp.type === 'avoidable' ? 'Lifestyle' : 'Essential'
-    }
-
-    const categoryMap = {}
-    filteredExpenses.forEach(exp => {
-      const cat = guessCategory(exp)
-      categoryMap[cat] = (categoryMap[cat] || 0) + Number(exp.amount)
-    })
-    setCategoryData(Object.entries(categoryMap).map(([name, value]) => ({ name, value })))
-
-    // 2. Avoidable vs Unavoidable
-    const avoidable = filteredExpenses.filter(e => e.type === 'avoidable').reduce((sum, e) => sum + e.amount, 0)
-    const unavoidable = filteredExpenses.filter(e => e.type === 'unavoidable').reduce((sum, e) => sum + e.amount, 0)
+    // AVOIDABLE vs UNAVOIDABLE
+    const avoidable = expenses
+      .filter(e => e.type === 'avoidable')
+      .reduce((sum, e) => sum + Number(e.amount || 0), 0)
+    const unavoidable = expenses
+      .filter(e => e.type === 'unavoidable')
+      .reduce((sum, e) => sum + Number(e.amount || 0), 0)
     setAvoidableTotal(avoidable)
     setUnavoidableTotal(unavoidable)
 
-    const peak = chartData.reduce((best, s) => s.amount > (best?.amount || 0) ? s : best, null)
-    setPeakMonth(peak && peak.amount > 0 ? peak.month : '-')
+    // CATEGORY MAP — guess from title if category is null
+    const guessCategory = (exp) => {
+      if (exp.category && exp.category.trim() !== '' && exp.category !== 'null') return exp.category.trim()
+      const t = (exp.title || '').toLowerCase()
+      if (t.includes('bus') || t.includes('auto') || t.includes('petrol') || t.includes('travel') || t.includes('uber') || t.includes('ola') || t.includes('train')) return 'Transport'
+      if (t.includes('food') || t.includes('canteen') || t.includes('zomato') || t.includes('swiggy') || t.includes('misal') || t.includes('restaurant') || t.includes('cafe')) return 'Food'
+      if (t.includes('netflix') || t.includes('amazon') || t.includes('prime') || t.includes('hotstar') || t.includes('movie') || t.includes('spotify')) return 'Entertainment'
+      if (t.includes('rent') || t.includes('pg') || t.includes('hostel')) return 'Rent'
+      if (t.includes('electric') || t.includes('water') || t.includes('wifi') || t.includes('bill') || t.includes('recharge')) return 'Utilities'
+      if (t.includes('medicine') || t.includes('doctor') || t.includes('hospital')) return 'Health'
+      return exp.type === 'avoidable' ? 'Lifestyle' : 'Essential'
+    }
+    const categoryMap = {}
+    expenses.forEach(exp => {
+      const cat = guessCategory(exp)
+      categoryMap[cat] = (categoryMap[cat] || 0) + Number(exp.amount || 0)
+    })
+    setCategoryData(Object.entries(categoryMap).map(([name, value]) => ({ name, value })))
 
-    // Cash drag
-    const totalInc = rawIncome.reduce((sum, i) => sum + Number(i.amount), 0)
-    setTotalIncome(totalInc)
+    // MONTHLY SAVINGS CHART — group expenses by month, subtract from monthly income share
+    const monthlySpent = {}
+    expenses.forEach(exp => {
+      if (!exp.date) return
+      const m = new Date(exp.date + 'T00:00:00').toLocaleString('en-US', { month: 'short' }).toUpperCase()
+      monthlySpent[m] = (monthlySpent[m] || 0) + Number(exp.amount || 0)
+    })
 
-    const drag = totalInc > 0 ? Math.round((avoidable / totalInc) * 100) : 0
+    // Distribute income evenly across all months that have expense data
+    const activeMonths = Object.keys(monthlySpent)
+    const incomePerMonth = activeMonths.length > 0 ? totalIncomeCalc / activeMonths.length : 0
+
+    // Build last 6 months ordered
+    const last6 = Array.from({ length: 6 }, (_, i) => {
+      const d = new Date()
+      d.setMonth(d.getMonth() - (5 - i))
+      return d.toLocaleString('en-US', { month: 'short' }).toUpperCase()
+    })
+
+    let cumulative = 0
+    const savingsChart = last6.map(m => {
+      const spent = monthlySpent[m] || 0
+      const inc = monthlySpent[m] !== undefined ? incomePerMonth : 0
+      cumulative += Math.max(0, inc - spent)
+      return { month: m, amount: Math.round(cumulative) }
+    })
+    setSavingsData(savingsChart)
+
+    // PEAK LIQUIDITY
+    const peakEntry = savingsChart.reduce((best, s) => s.amount > (best?.amount || 0) ? s : best, null)
+    setPeakMonth(peakEntry?.month || '-')
+
+    // CASH DRAG
+    const drag = totalIncomeCalc > 0 ? Math.round((avoidable / totalIncomeCalc) * 100) : 0
     setCashDrag(drag)
 
-  }, [rawExpenses, rawIncome, filter, primaryIncome, loading, chartData])
+    setLoading(false)
+  }
 
   const handleSaveGoal = async () => {
     const { data: { session } } = await supabase.auth.getSession()
@@ -381,12 +290,12 @@ export default function AnalyticsPage() {
       {/* Top Row: Line + Gauge */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', width: '100%', boxSizing: 'border-box' }}>
         <SavingsLineChart 
-          savingsData={chartData} 
+          savingsData={savingsData} 
           velocityView={velocityView} 
           setVelocityView={setVelocityView} 
         />
         <SavingsRateGauge 
-          computedSavingsRate={computedSavingsRate} 
+          savingsRate={savingsRate} 
           savedGoal={savedGoal}
           setShowGoalModal={setShowGoalModal}
         />
@@ -400,7 +309,7 @@ export default function AnalyticsPage() {
         </div>
         <div className="card bg-[#111311] border border-border-dark p-6 rounded-xl relative overflow-hidden">
            <p className="text-muted text-[10px] uppercase tracking-widest mb-1">Savings Rate</p>
-           <p style={{ color: '#00ff88', fontSize: '22px', fontWeight: 600 }}>{computedSavingsRate}%</p>
+           <p style={{ color: '#00ff88', fontSize: '22px', fontWeight: 600 }}>{savingsRate}%</p>
         </div>
         <div className="card bg-[#111311] border border-border-dark p-6 rounded-xl relative overflow-hidden">
            <p className="text-muted text-[10px] uppercase tracking-widest mb-1">Cash Drag</p>
@@ -432,7 +341,7 @@ export default function AnalyticsPage() {
           }}>
             <h3 style={{ color: '#ffffff', marginBottom: '8px' }}>Set Savings Goal</h3>
             <p style={{ color: '#6b7280', fontSize: '13px', marginBottom: '24px' }}>
-              Your current savings rate is {computedSavingsRate}%. Set a new monthly target.
+              Your current savings rate is {savingsRate}%. Set a new monthly target.
             </p>
             <input
               type="number"
@@ -474,9 +383,9 @@ export default function AnalyticsPage() {
   );
 }
 
-function SavingsRateGauge({ computedSavingsRate, savedGoal, setShowGoalModal }) {
+function SavingsRateGauge({ savingsRate, savedGoal, setShowGoalModal }) {
   const data = [
-    { name: "Rate", value: computedSavingsRate, fill: "#00ff88" }
+    { name: "Rate", value: savingsRate, fill: "#00ff88" }
   ];
 
   return (
@@ -510,7 +419,7 @@ function SavingsRateGauge({ computedSavingsRate, savedGoal, setShowGoalModal }) 
             </ResponsiveContainer>
           </div>
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-            <span className="text-5xl font-bold text-white tracking-tighter shadow-sm">{computedSavingsRate}%</span>
+            <span className="text-5xl font-bold text-white tracking-tighter shadow-sm">{savingsRate}%</span>
             <span className="text-[10px] text-muted font-bold tracking-widest uppercase mt-2">Active Ratio</span>
           </div>
        </div>
@@ -518,8 +427,8 @@ function SavingsRateGauge({ computedSavingsRate, savedGoal, setShowGoalModal }) 
        <div className="mt-6 pt-6 border-t border-border-dark/50">
           <p style={{ color: '#6b7280', fontSize: '13px', textAlign: 'center', marginBottom: '16px' }}>
             {savedGoal
-              ? `Goal: ₹${savedGoal.toLocaleString()} — you are saving ${computedSavingsRate}% of income`
-              : `Your savings efficiency is currently at ${computedSavingsRate}%`
+              ? `Goal: ₹${savedGoal.toLocaleString()} — you are saving ${savingsRate}% of income`
+              : `Your savings efficiency is currently at ${savingsRate}%`
             }
           </p>
           <button
@@ -611,5 +520,3 @@ function CategoryDistribution({ data }) {
     </div>
   );
 }
-
-
