@@ -1,35 +1,128 @@
 import { callAI } from '@/lib/claude'
 
 export async function POST(req) {
-  const { expenses } = await req.json()
+  const { expenses, userContext } = await req.json()
 
   if (!expenses || expenses.length === 0) {
     return Response.json([])
   }
 
   const prompt = `You are a personal finance
-categorizer for Indian users.
+categorizer for young Indian users (students and
+working professionals aged 18-25).
 
-Categorize each expense as avoidable or unavoidable.
+USER CONTEXT:
+${userContext || 'Young Indian student or working professional'}
 
-Rules:
-unavoidable = rent, electricity, water, gas,
-medicine, school fees, EMI, insurance,
-transport to work, groceries, internet,
-mobile recharge, utility bills
+UNAVOIDABLE EXPENSES (essential for survival and daily life):
 
-avoidable = dining out, zomato, swiggy,
-movies, shopping, games, OTT subscriptions,
-salon, junk food, accessories, gadgets,
-entertainment, cafe, coffee, alcohol
+HOUSING:
+- Rent, house EMI, property tax
+- Society maintenance charges
+- Electricity bill, water bill
+- Cooking gas (LPG, pipeline gas)
+- Basic home repairs (leak, wiring)
 
-Expenses:
+FOOD (basic nutrition only):
+- Basic groceries (rice, wheat, dal, vegetables, oil)
+- Milk, eggs, basic protein sources
+- Drinking water if purchased
+- Essential cooking items (salt, spices, masalas)
+- Canteen food, mess fees, tiffin service
+  (if it is their PRIMARY daily meal source)
+- Dabba service, hostel mess
+
+HEALTH:
+- Doctor consultations
+- Medicines, pharmacy
+- Health insurance premium
+- Emergency treatments
+- Basic health checkups
+- Gym membership (if used regularly for health)
+
+TRANSPORT (daily commute only):
+- Daily bus/metro/train pass for college or work
+- Minimum required fuel for daily commute
+- Auto/rickshaw for regular daily route
+- Basic vehicle maintenance (oil change, tyre)
+
+COMMUNICATION:
+- Basic mobile recharge (calls and data)
+- Internet/WiFi if needed for study or work
+- Essential communication costs
+
+EDUCATION:
+- Tuition fees, course fees
+- Books and study material
+- Exam fees
+- Basic devices (laptop/phone for study/work)
+- Stationery, notebooks
+
+FINANCIAL COMMITMENTS:
+- EMI payments (loan, credit card minimum)
+- Insurance premiums (life, health, vehicle)
+- SIP/investments already committed
+- Bank charges
+
+AVOIDABLE EXPENSES (lifestyle choices that can be reduced):
+
+FOOD AND DINING:
+- Restaurant dining (occasional)
+- Zomato, Swiggy, food delivery apps
+- Cafes, Starbucks, coffee shops
+- Fast food chains (McDonald's, KFC, Dominos)
+- Alcohol, cold drinks, packaged snacks
+- Party food, celebration meals
+- Junk food, chips, chocolates
+
+ENTERTAINMENT:
+- Movies, concerts, events, shows
+- OTT subscriptions (Netflix, Prime, Hotstar)
+- Gaming, in-app purchases, game credits
+- Amusement parks, adventure activities
+- Streaming music premium plans
+
+SHOPPING:
+- Clothes beyond necessity
+- Amazon, Flipkart online shopping
+- Accessories, jewellery, watches
+- Home decor items
+- Gadgets beyond necessity (extra headphones etc)
+
+PERSONAL CARE (beyond basic):
+- Salon, spa, parlour visits
+- Premium skincare, makeup
+- Perfumes, grooming extras
+
+TRAVEL (beyond daily commute):
+- Trips, vacations, weekend getaways
+- Ola/Uber for non-essential rides
+- Luxury transport upgrades
+
+SUBSCRIPTIONS:
+- Premium app subscriptions
+- Magazine, newsletter subscriptions
+- Any recurring non-essential subscription
+
+CONTEXT RULES:
+1. If expense title suggests DAILY/REGULAR necessity
+   for their life = unavoidable
+2. If expense title suggests OCCASIONAL/LUXURY
+   choice = avoidable
+3. When in doubt about food: if it is their primary
+   meal source = unavoidable, if it is extra/treat = avoidable
+4. Transport: daily commute = unavoidable,
+   leisure travel = avoidable
+
+Expenses to categorize:
 ${expenses.map((e, i) =>
-  `${i + 1}. ${e.title}: Rs ${e.amount}`
+  `${i + 1}. "${e.title}": Rs ${e.amount} 
+  (selected category: ${e.category || 'general'})`
 ).join('\n')}
 
-Return ONLY a JSON array, no extra text, no markdown:
-[{"title":"name","amount":0,"category":"avoidable or unavoidable","reason":"one line"}]`
+Return ONLY a JSON array, absolutely no extra text,
+no markdown, no explanation outside the array:
+[{"title":"exact expense title","amount":exact_amount,"category":"avoidable or unavoidable","reason":"one line reason specific to why"}]`
 
   try {
     const response = await callAI(prompt)
@@ -42,32 +135,69 @@ Return ONLY a JSON array, no extra text, no markdown:
     const end = clean.lastIndexOf(']') + 1
     const jsonStr = clean.slice(start, end)
     const parsed = JSON.parse(jsonStr)
-
     return Response.json(parsed)
 
   } catch (error) {
     console.error('Groq categorize failed:', error.message)
 
     const unavoidableKeywords = [
-      'rent', 'electricity', 'bill', 'water', 'gas',
-      'medicine', 'medical', 'school', 'fees', 'emi',
-      'insurance', 'transport', 'grocery', 'groceries',
-      'internet', 'mobile', 'recharge', 'travel',
-      'petrol', 'diesel', 'bus', 'train', 'metro'
+      'rent', 'emi', 'electricity', 'electric', 'bill',
+      'water', 'gas', 'lpg', 'cylinder', 'repair',
+      'rice', 'wheat', 'dal', 'vegetables', 'sabzi',
+      'grocery', 'groceries', 'milk', 'eggs', 'oil',
+      'medicine', 'medical', 'doctor', 'hospital',
+      'pharmacy', 'health', 'insurance', 'checkup',
+      'bus', 'metro', 'train', 'transport', 'commute',
+      'petrol', 'diesel', 'fuel', 'vehicle maintenance',
+      'mobile', 'recharge', 'internet', 'wifi', 'broadband',
+      'tuition', 'fees', 'college', 'school', 'exam',
+      'books', 'stationery', 'notebook', 'laptop',
+      'canteen', 'mess', 'tiffin', 'dabba', 'hostel',
+      'maintenance', 'society', 'property tax',
+      'loan', 'emi', 'sip', 'investment committed'
+    ]
+
+    const avoidableKeywords = [
+      'zomato', 'swiggy', 'restaurant', 'cafe',
+      'starbucks', 'mcdonalds', 'kfc', 'dominos',
+      'pizza', 'burger', 'alcohol', 'beer', 'wine',
+      'netflix', 'prime', 'hotstar', 'spotify',
+      'movie', 'cinema', 'concert', 'event',
+      'amazon', 'flipkart', 'shopping', 'clothes',
+      'salon', 'spa', 'parlour', 'makeup', 'skincare',
+      'gaming', 'game', 'uber', 'ola', 'rapido',
+      'trip', 'vacation', 'travel', 'hotel',
+      'party', 'celebration', 'outing', 'hangout',
+      'accessories', 'gadget', 'headphone', 'watch'
     ]
 
     const fallback = expenses.map(e => {
       const titleLower = e.title.toLowerCase()
+
+      const isAvoidable = avoidableKeywords
+        .some(k => titleLower.includes(k))
       const isUnavoidable = unavoidableKeywords
         .some(k => titleLower.includes(k))
+
+      let category = 'avoidable'
+      let reason = 'Lifestyle expense that can be reduced'
+
+      if (isUnavoidable && !isAvoidable) {
+        category = 'unavoidable'
+        reason = 'Essential expense required for daily life'
+      } else if (isAvoidable) {
+        category = 'avoidable'
+        reason = 'Lifestyle choice that can be reduced or skipped'
+      } else {
+        category = 'avoidable'
+        reason = 'Could not determine, marked as avoidable by default'
+      }
+
       return {
         title: e.title,
         amount: e.amount,
-        category: isUnavoidable
-          ? 'unavoidable' : 'avoidable',
-        reason: isUnavoidable
-          ? 'Essential expense that cannot be avoided'
-          : 'Lifestyle expense that can be reduced'
+        category,
+        reason
       }
     })
 
