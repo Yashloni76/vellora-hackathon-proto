@@ -49,7 +49,7 @@ const InvestmentsPage = () => {
   const bestPerformer = "Nifty 50"; // Static as per request
 
   return (
-    <div className="p-10 max-w-7xl mx-auto min-h-screen text-[var(--text-primary)] bg-primary">
+    <div className="p-10 max-w-7xl mx-auto min-h-screen" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       {/* Title & Subtitle */}
       <motion.div 
         initial={{ opacity: 0, x: -20 }}
@@ -68,7 +68,8 @@ const InvestmentsPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-[var(--bg-card)] border border-[var(--border)] p-8 rounded-3xl group hover:border-[#00ff88]/30 transition-all"
+          className="p-8 rounded-3xl group transition-all"
+          style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}
         >
           <div className="flex items-center gap-4 mb-4">
             <div className="p-3 rounded-xl bg-blue-500/10 text-blue-400">
@@ -83,7 +84,8 @@ const InvestmentsPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-[var(--bg-card)] border border-[var(--border)] p-8 rounded-3xl group hover:border-[#00ff88]/30 transition-all"
+          className="p-8 rounded-3xl group transition-all"
+          style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}
         >
           <div className="flex items-center gap-4 mb-4">
             <div className="p-3 rounded-xl bg-[#00ff88]/10 text-[#00ff88]">
@@ -101,7 +103,8 @@ const InvestmentsPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-[var(--bg-card)] border border-[var(--border)] p-8 rounded-3xl group hover:border-[#00ff88]/30 transition-all"
+          className="p-8 rounded-2xl group transition-all"
+          style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}
         >
           <div className="flex items-center gap-4 mb-4">
             <div className="p-3 rounded-xl bg-purple-500/10 text-purple-400">
@@ -125,16 +128,17 @@ const InvestmentsPage = () => {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.4 + i * 0.1 }}
-              className="bg-card border border-border-dark p-6 px-10 rounded-[2rem] flex flex-col md:flex-row items-center justify-between group hover:border-[var(--border)] transition-all duration-500"
+              className="p-6 px-10 rounded-[2rem] flex flex-col md:flex-row items-center justify-between group transition-all duration-500"
+              style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}
             >
               <div className="flex items-center gap-8 w-full md:w-auto">
                 <div className="p-5 rounded-2xl bg-[var(--bg-primary)] text-[#00ff88] group-hover:bg-[#00ff88] group-hover:text-black transition-all duration-500">
                   <Icon size={28} />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-black tracking-tight text-[var(--text-primary)]">{inv.title}</h3>
+                  <h3 className="text-2xl font-black tracking-tight" style={{ color: 'var(--text-primary)' }}>{inv.title}</h3>
                   <div className="flex items-center gap-3 mt-1.5 font-bold uppercase tracking-widest text-[10px]">
-                    <span className="text-[var(--text-muted)]">{inv.type}</span>
+                    <span style={{ color: 'var(--text-muted)' }}>{inv.type}</span>
                     <span className="opacity-20">•</span>
                     <span className={cn(
                       "px-2 py-0.5 rounded-md border",

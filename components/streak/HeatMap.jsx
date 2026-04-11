@@ -11,7 +11,7 @@ export default function HeatMap() {
   }, []);
 
   return (
-    <div className="card bg-[var(--bg-card)] border border-[var(--border)] p-8 relative overflow-hidden flex flex-col h-full group">
+    <div className="card relative overflow-hidden flex flex-col h-full group" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '24px' }}>
       <div className="flex justify-between items-start mb-10">
         <h2 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">Financial Contribution Map</h2>
         <div className="flex items-center gap-3">

@@ -33,6 +33,7 @@ export default function StreakPage() {
       animate={{ opacity: 1, y: 0 }} 
       transition={{ duration: 0.4 }}
       className="p-12 space-y-12 pb-24 relative min-h-screen"
+      style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}
     >
       {/* Header Area */}
       <header className="flex justify-between items-start">

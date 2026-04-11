@@ -13,7 +13,7 @@ export default function ActiveStreakCard() {
             {streakData.currentStreak} <span className="text-3xl font-bold tracking-tight">Days</span>
           </h2>
         </div>
-        <div className="w-14 h-14 bg-[var(--bg-primary)] rounded-2xl flex items-center justify-center text-[#00ff88] shadow-2xl relative z-10">
+        <div className="w-14 h-14 bg-[var(--bg-card)] rounded-2xl flex items-center justify-center text-[#00ff88] shadow-2xl relative z-10">
           <Zap size={32} fill="currentColor" />
         </div>
       </div>
@@ -27,9 +27,9 @@ export default function ActiveStreakCard() {
            <p className="text-2xl font-black text-[var(--bg-primary)]/30 tracking-widest">{streakData.milestoneProgress}%</p>
         </div>
         
-        <div className="w-full h-3 bg-[var(--bg-primary)]/10 rounded-full overflow-hidden border border-[var(--bg-primary)]/5">
+        <div className="w-full h-3 bg-[var(--bg-card)]/10 rounded-full overflow-hidden border border-[var(--bg-card)]/5">
            <div 
-             className="h-full bg-[var(--bg-primary)] shadow-[0_0_15px_rgba(0,0,0,0.3)]" 
+             className="h-full bg-[var(--bg-card)] shadow-[0_0_15px_rgba(0,0,0,0.3)]" 
              style={{ width: `${streakData.milestoneProgress}%` }} 
            />
         </div>
@@ -37,7 +37,7 @@ export default function ActiveStreakCard() {
 
       {/* Decorative lightning blast effect */}
       <div className="absolute -right-10 -top-10 w-48 h-48 bg-white/20 rounded-full blur-[60px] pointer-events-none transition-transform group-hover:scale-150 duration-700" />
-      <div className="absolute -left-10 -bottom-10 w-48 h-48 bg-[var(--bg-primary)]/5 rounded-full blur-[60px] pointer-events-none" />
+      <div className="absolute -left-10 -bottom-10 w-48 h-48 bg-[var(--bg-card)]/5 rounded-full blur-[60px] pointer-events-none" />
     </div>
   );
 }

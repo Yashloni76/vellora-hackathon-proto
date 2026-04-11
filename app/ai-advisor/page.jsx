@@ -136,6 +136,7 @@ export default function AIAdvisorPage() {
       animate={{ opacity: 1, y: 0 }} 
       transition={{ duration: 0.4 }}
       className="p-10 space-y-12 pb-24 min-h-screen"
+      style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}
     >
       {/* Header */}
       <header className="space-y-2">

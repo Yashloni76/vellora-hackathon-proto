@@ -221,7 +221,7 @@ export default function SettingsPage() {
   if (authLoading) return <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center"><Loader2 className="animate-spin text-[#00ff88]" size={32} /></div>
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] flex text-[var(--text-primary)] font-sans selection:bg-[#00ff88] selection:text-[var(--bg-primary)]">
+    <div className="min-h-screen flex font-sans selection:bg-[#00ff88] selection:text-[var(--bg-primary)]" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       
       {/* Sidebar */}
       <aside className="w-[220px] bg-[var(--bg-primary)] border-r border-[var(--border)] flex flex-col fixed h-full z-40">

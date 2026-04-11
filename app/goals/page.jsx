@@ -60,7 +60,7 @@ const GoalsPage = () => {
   };
 
   return (
-    <div className="p-10 max-w-7xl mx-auto min-h-screen text-[var(--text-primary)] bg-primary">
+    <div className="p-10 max-w-7xl mx-auto min-h-screen" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       {/* Title & Subtitle */}
       <motion.div
         initial={{ opacity: 0, x: -20 }}
@@ -113,7 +113,8 @@ const GoalsPage = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3 + i * 0.1 }}
-              className="bg-[var(--bg-card)] border border-[var(--border)] p-8 rounded-[2.5rem] relative overflow-hidden group hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] hover:border-[var(--text-primary)]/10 transition-all duration-500"
+              className="p-8 rounded-[2.5rem] relative overflow-hidden group transition-all duration-500"
+              style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}
             >
               {/* Card Header */}
               <div className="flex justify-between items-start mb-10">
@@ -122,7 +123,7 @@ const GoalsPage = () => {
                     <Icon size={28} />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-black tracking-tight group-hover:text-[#00ff88] transition-colors">{goal.title}</h3>
+                    <h3 className="text-2xl font-black tracking-tight group-hover:text-[#00ff88] transition-colors" style={{ color: 'var(--text-primary)' }}>{goal.title}</h3>
                     <div className="flex items-center gap-2 mt-1.5 text-muted transition-colors group-hover:text-white/60">
                       <Calendar size={14} />
                       <span className="text-sm font-bold uppercase tracking-wider">{goal.deadline}</span>
@@ -139,7 +140,7 @@ const GoalsPage = () => {
                 <div className="flex justify-between items-end">
                   <div className="space-y-1">
                     <p className="text-muted text-[10px] font-black uppercase tracking-widest">Current Balance</p>
-                    <p className="text-2xl font-black text-[var(--text-primary)]">₹{goal.current.toLocaleString()}</p>
+                    <p className="text-2xl font-black" style={{ color: 'var(--text-primary)' }}>₹{goal.current.toLocaleString()}</p>
                   </div>
                   <div className="text-right space-y-1">
                     <p className="text-muted text-[10px] font-black uppercase tracking-widest">Target Goal</p>

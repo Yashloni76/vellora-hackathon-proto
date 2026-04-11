@@ -70,7 +70,7 @@ const FeedbackPage = () => {
   };
 
   return (
-    <div className="p-10 max-w-4xl mx-auto min-h-screen text-[var(--text-primary)] bg-[var(--bg-primary)] pb-32">
+    <div className="p-10 max-w-4xl mx-auto min-h-screen pb-32" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       {/* Title & Subtitle */}
       <motion.div 
         initial={{ opacity: 0, x: -20 }}

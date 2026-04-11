@@ -54,7 +54,7 @@ const JournalPage = () => {
   };
 
   return (
-    <div className="p-10 max-w-6xl mx-auto min-h-screen text-[var(--text-primary)] bg-primary">
+    <div className="p-10 max-w-6xl mx-auto min-h-screen" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       {/* Header Section */}
       <motion.div 
         initial={{ opacity: 0, x: -20 }}
@@ -68,7 +68,7 @@ const JournalPage = () => {
       </motion.div>
 
       {/* Mood Summary Row */}
-      <div className="flex flex-wrap gap-4 mb-12">
+      <div className="flex flex-wrap gap-4 mb-12" style={{ backgroundColor: 'var(--bg-primary)' }}>
         {Object.entries(moodConfig).map(([key, config], i) => (
           <motion.div
             key={key}
@@ -101,7 +101,8 @@ const JournalPage = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 + i * 0.1 }}
-              className="group relative bg-[var(--bg-card)] border border-[var(--border)] p-8 md:p-10 rounded-[2.5rem] hover:border-[var(--text-primary)]/10 transition-all duration-500 overflow-hidden"
+              className="group relative p-8 md:p-10 rounded-[2.5rem] transition-all duration-500 overflow-hidden"
+              style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}
             >
               {/* Date Badge */}
               <div className="absolute top-8 right-10 flex items-center gap-2 text-[var(--text-muted)] uppercase tracking-[0.2em] font-black text-[10px]">
@@ -118,8 +119,8 @@ const JournalPage = () => {
                   </div>
                 </div>
 
-                <h3 className="text-3xl font-black mb-4 group-hover:text-[#00ff88] transition-colors">{entry.title}</h3>
-                <p className="text-lg text-muted leading-relaxed mb-8 max-w-3xl italic">
+                <h3 className="text-3xl font-black mb-4 group-hover:text-[#00ff88] transition-colors" style={{ color: 'var(--text-primary)' }}>{entry.title}</h3>
+                <p className="text-lg leading-relaxed mb-8 max-w-3xl italic" style={{ color: 'var(--text-muted)' }}>
                   "{entry.body}"
                 </p>
 

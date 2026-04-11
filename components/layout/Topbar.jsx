@@ -40,7 +40,7 @@ export default function Topbar() {
   }, [user])
 
   return (
-    <div className="flex items-center gap-6">
+    <div className="flex items-center gap-6" style={{ backgroundColor: 'var(--bg-card)', borderBottom: '1px solid var(--border)' }}>
       <button className="relative w-10 h-10 rounded-xl bg-[var(--bg-card)] border border-[var(--border)] flex items-center justify-center hover:bg-[var(--bg-card-hover)] transition-colors">
         <Bell size={18} className="text-[var(--text-muted)]" />
         <div className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-red border-2 border-[var(--bg-card)] shadow-[0_0_8px_rgba(255,68,68,0.5)]" />
