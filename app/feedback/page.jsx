@@ -70,14 +70,14 @@ const FeedbackPage = () => {
   };
 
   return (
-    <div className="p-10 max-w-4xl mx-auto min-h-screen text-white bg-primary pb-32">
+    <div className="p-10 max-w-4xl mx-auto min-h-screen text-[var(--text-primary)] bg-[var(--bg-primary)] pb-32">
       {/* Title & Subtitle */}
       <motion.div 
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         className="mb-12"
       >
-        <h1 className="text-5xl font-black tracking-tight mb-3 bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent italic">
+        <h1 className="text-5xl font-black tracking-tight mb-3 bg-gradient-to-r from-[var(--text-primary)] to-[var(--text-primary)]/60 bg-clip-text text-transparent italic">
           FEEDBACK
         </h1>
         <p className="text-muted text-xl font-medium uppercase tracking-[0.15em]">Help us improve SYMP</p>
@@ -87,13 +87,13 @@ const FeedbackPage = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-card border border-border-dark p-10 md:p-14 rounded-[3rem] shadow-2xl relative overflow-hidden"
+        className="bg-[var(--bg-card)] border border-[var(--border)] p-10 md:p-14 rounded-[3rem] shadow-2xl relative overflow-hidden"
       >
         <form onSubmit={handleSubmit} className="space-y-12 relative z-10">
           
           {/* Rating Section */}
           <div className="space-y-6">
-            <label className="block text-sm font-black text-white/50 uppercase tracking-[0.2em]">
+            <label className="block text-sm font-black text-[var(--text-primary)]/50 uppercase tracking-[0.2em]">
               How would you rate SYMP?
             </label>
             <div className="flex gap-4">
@@ -113,7 +113,7 @@ const FeedbackPage = () => {
                       "transition-all duration-300 drop-shadow-lg",
                       (hoverRating || rating) >= star 
                         ? "fill-[#00ff88] text-[#00ff88] scale-110" 
-                        : "text-white/10"
+                        : "text-[var(--text-primary)]/10"
                     )}
                   />
                 </button>
@@ -135,8 +135,8 @@ const FeedbackPage = () => {
                   className={cn(
                     "px-6 py-3 rounded-2xl border-2 font-bold text-xs uppercase tracking-widest transition-all",
                     selectedCategories.includes(cat)
-                      ? "bg-[#00ff88] text-black border-[#00ff88] shadow-[0_0_20px_rgba(0,255,136,0.2)]"
-                      : "bg-white/5 text-white/40 border-white/5 hover:border-white/10 hover:bg-white/10"
+                      ? "bg-[#00ff88] text-[var(--bg-primary)] border-[#00ff88] shadow-[0_0_20px_rgba(0,255,136,0.2)]"
+                      : "bg-[var(--bg-primary)] text-[var(--text-primary)]/40 border-[var(--border)] hover:border-[var(--text-primary)]/10 hover:bg-[var(--bg-card-hover)]"
                   )}
                 >
                   {cat}
@@ -147,7 +147,7 @@ const FeedbackPage = () => {
 
           {/* Feedback Textarea Section */}
           <div className="space-y-6">
-            <label className="block text-sm font-black text-white/50 uppercase tracking-[0.2em]">
+            <label className="block text-sm font-black text-[var(--text-primary)]/50 uppercase tracking-[0.2em]">
               Tell us more...
             </label>
             <div className="relative group">
@@ -173,7 +173,7 @@ const FeedbackPage = () => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   type="submit"
-                  className="w-full bg-[#00ff88] text-[#0a0a0a] h-full rounded-[2rem] font-black text-xl flex items-center justify-center gap-4 hover:shadow-[0_20px_60px_rgba(0,255,136,0.25)] transition-all"
+                  className="w-full bg-[#00ff88] text-[var(--bg-primary)] h-full rounded-[2rem] font-black text-xl flex items-center justify-center gap-4 hover:shadow-[0_20px_60px_rgba(0,255,136,0.25)] transition-all"
                 >
                   <Zap size={24} strokeWidth={3} />
                   SUBMIT FEEDBACK
@@ -214,7 +214,7 @@ const FeedbackPage = () => {
             <p className="text-muted font-bold tracking-tight">Report it directly to our team</p>
           </div>
         </div>
-        <button className="px-10 py-4 rounded-2xl border-2 border-[#00ff88] text-[#00ff88] font-black uppercase tracking-widest hover:bg-[#00ff88] hover:text-[#0a0a0a] transition-all flex items-center gap-3 active:scale-95 group-hover:shadow-[0_0_20px_rgba(0,255,136,0.2)]">
+        <button className="px-10 py-4 rounded-2xl border-2 border-[#00ff88] text-[#00ff88] font-black uppercase tracking-widest hover:bg-[#00ff88] hover:text-[var(--bg-primary)] transition-all flex items-center gap-3 active:scale-95 group-hover:shadow-[0_0_20px_rgba(0,255,136,0.2)]">
           REPORT BUG
           <ArrowRight size={20} />
         </button>

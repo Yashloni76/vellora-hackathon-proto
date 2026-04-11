@@ -70,7 +70,10 @@ export default function Sidebar() {
 
   return (
     <>
-      <aside className="w-[200px] h-screen bg-[var(--bg-primary)] border-r border-[var(--border)] flex flex-col fixed left-0 top-0 z-50">
+      <aside 
+        className="w-[200px] h-screen border-r flex flex-col fixed left-0 top-0 z-50"
+        style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border)' }}
+      >
       {/* Logo Section */}
       <div className="px-4 pt-4 pb-2 flex items-center justify-center">
         <img src="/logo.png" alt="SYMP's Logo" className="w-[150px] h-[150px] object-contain" />
@@ -90,8 +93,8 @@ export default function Sidebar() {
               className={cn(
                 "flex items-center gap-3 px-6 py-3 text-[11px] font-bold tracking-wider transition-all duration-200 border-l-[3px]",
                 isActive 
-                  ? "bg-[#00ff8812] text-[#00ff88] border-[#00ff88]" 
-                  : "text-[var(--text-muted)] border-transparent hover:text-[var(--text-primary)] hover:bg-[var(--text-primary)]/5"
+                  ? "bg-[var(--bg-card-hover)] text-[#00ff88] border-[#00ff88]" 
+                  : "text-[var(--text-muted)] border-transparent"
               )}
             >
               <Icon size={16} className={isActive ? "text-[#00ff88]" : "text-[var(--text-muted)]"} />
@@ -114,7 +117,7 @@ export default function Sidebar() {
           </Link>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-2 py-2 text-[11px] font-bold text-red hover:brightness-125 transition-all text-left"
+            className="w-full flex items-center gap-3 px-2 py-2 text-[11px] font-bold text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all text-left"
           >
             <LogOut size={16} />
             LOGOUT

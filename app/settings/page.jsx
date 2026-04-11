@@ -20,7 +20,7 @@ const Switch = ({ checked, onCheckedChange, disabled }) => (
     disabled={disabled}
     onClick={() => onCheckedChange(!checked)}
     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#00ff88] focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)] ${
-      checked ? 'bg-[#00ff88]' : 'bg-[#1f2b1f]'
+      checked ? 'bg-[#00ff88]' : 'bg-[var(--border)]'
     } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
   >
     <span
@@ -48,7 +48,7 @@ const AlertDialog = ({ open, title, description, onConfirm, onCancel, confirmTex
         <div className="flex justify-end gap-3">
           <button 
             onClick={onCancel}
-            className="px-4 py-2 rounded-lg bg-[#1a1f1a] text-white hover:bg-[#252a25] transition-colors"
+            className="px-4 py-2 rounded-lg bg-[var(--bg-card-hover)] text-white hover:bg-[var(--bg-primary)] transition-colors"
           >
             Cancel
           </button>
@@ -215,13 +215,13 @@ export default function SettingsPage() {
 
   // Styles
   const inputBase = "w-full bg-[var(--bg-card)] border border-[var(--border)] focus:border-[#00ff88] text-[var(--text-primary)] rounded-lg px-4 py-2 outline-none transition-all placeholder:text-[var(--text-muted)]"
-  const btnPrimary = "bg-[#00ff88] text-black font-semibold rounded-lg px-6 py-2 hover:opacity-90 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+  const btnPrimary = "bg-[#00ff88] text-[var(--bg-primary)] font-semibold rounded-lg px-6 py-2 hover:opacity-90 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
   const labelBase = "block text-[11px] font-bold tracking-wider text-[var(--text-muted)] mb-2 uppercase"
 
   if (authLoading) return <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center"><Loader2 className="animate-spin text-[#00ff88]" size={32} /></div>
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] flex text-[var(--text-primary)] font-sans selection:bg-[#00ff88] selection:text-black">
+    <div className="min-h-screen bg-[var(--bg-primary)] flex text-[var(--text-primary)] font-sans selection:bg-[#00ff88] selection:text-[var(--bg-primary)]">
       
       {/* Sidebar */}
       <aside className="w-[220px] bg-[var(--bg-primary)] border-r border-[var(--border)] flex flex-col fixed h-full z-40">
@@ -292,7 +292,7 @@ export default function SettingsPage() {
                       type="email" 
                       value={user?.email || ''}
                       disabled
-                      className={`${inputBase} bg-[#1a1a1a] opacity-60 cursor-not-allowed`}
+                      className={`${inputBase} bg-[var(--bg-primary)] opacity-60 cursor-not-allowed`}
                     />
                   </div>
                   <div className="pt-4 flex items-center gap-4">
@@ -347,7 +347,7 @@ export default function SettingsPage() {
 
                   <div className="pt-4 flex items-center gap-4">
                     <button 
-                      onClick={() => handleSave('Appearance', { theme: isDark ? 'dark' : 'light', currency })}
+                      onClick={() => handleSave('Appearance', { currency })}
                       disabled={saveLoading}
                       className={btnPrimary}
                     >
@@ -547,7 +547,7 @@ export default function SettingsPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="bg-[#1a0a0a] border border-red-500/30 rounded-xl p-6"
+                className="bg-red-500/5 border border-red-500/30 rounded-xl p-6"
               >
                 <div className="flex items-center gap-2 mb-4">
                   <Octagon className="text-red-500" size={24} />

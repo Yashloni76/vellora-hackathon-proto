@@ -169,7 +169,7 @@ export default function AIAdvisorPage() {
           <button
             onClick={getAIAnalysis}
             disabled={analyzing}
-            className="flex items-center gap-2 bg-[#00ff88] hover:bg-[#00e87a] text-black font-black text-sm px-5 py-2.5 rounded-xl transition-all shadow-[0_0_20px_rgba(0,255,136,0.25)] hover:shadow-[0_0_30px_rgba(0,255,136,0.4)] disabled:opacity-60 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 bg-[#00ff88] hover:bg-[#00e87a] text-[var(--bg-primary)] font-black text-sm px-5 py-2.5 rounded-xl transition-all shadow-[0_0_20px_rgba(0,255,136,0.25)] hover:shadow-[0_0_30px_rgba(0,255,136,0.4)] disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {analyzing ? (
               <Loader2 size={15} className="animate-spin" />
@@ -216,11 +216,11 @@ export default function AIAdvisorPage() {
         )}
 
         {suggestions.length === 0 && !analyzing && (
-          <div className="flex flex-col items-center justify-center p-12 border border-dashed border-[#1a1f1a] rounded-3xl space-y-4">
-             <div className="w-12 h-12 rounded-full bg-[#111] flex items-center justify-center">
-                <Brain size={24} className="text-[#333]" />
+          <div className="flex flex-col items-center justify-center p-12 border border-dashed border-[var(--border)] rounded-3xl space-y-4">
+             <div className="w-12 h-12 rounded-full bg-[var(--bg-card)] flex items-center justify-center">
+                <Brain size={24} className="text-[var(--text-muted)]" />
              </div>
-             <p className="text-[#444] text-sm font-medium">Click the button above to generate AI suggestions based on your spending.</p>
+             <p className="text-[var(--text-muted)] text-sm font-medium">Click the button above to generate AI suggestions based on your spending.</p>
           </div>
         )}
       </section>

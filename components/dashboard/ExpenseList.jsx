@@ -88,9 +88,9 @@ function ExpenseItem({ expense, type }) {
                   "bg-blue-500/15 text-blue-400": expense.tag === "UTILITY",
                   "bg-yellow-500/15 text-yellow-500": expense.tag === "LOGISTICS"
                 } : {
-                  "bg-[#ff4444] text-white": expense.mood === "REGRET",
-                  "bg-[#00ff88] text-black": expense.mood === "HAPPY",
-                  "bg-[#374151] text-white": expense.mood === "NEUTRAL"
+                  "bg-[#ff4444] text-[var(--text-primary)]": expense.mood === "REGRET",
+                  "bg-[#00ff88] text-[var(--bg-primary)]": expense.mood === "HAPPY",
+                  "bg-[var(--bg-card-hover)] text-[var(--text-primary)]": expense.mood === "NEUTRAL"
                 }
               )}>
                 {type === "unavoidable" ? expense.tag : expense.mood}
@@ -109,8 +109,8 @@ function ExpenseItem({ expense, type }) {
         </div>
         {type === "avoidable" && (
           <div className="flex flex-col items-center gap-1.5">
-             <div className="w-4 h-4 rounded-full bg-gradient-to-tr from-yellow-500 to-orange-400 shadow-[0_0_8px_rgba(244,114,22,0.4)] border-2 border-[#111311]" />
-             <span className="text-[7px] text-muted font-bold tracking-tighter uppercase leading-none">Emotion</span>
+             <div className="w-4 h-4 rounded-full bg-gradient-to-tr from-yellow-500 to-orange-400 shadow-[0_0_8px_rgba(244,114,22,0.4)] border-2 border-[var(--bg-card)]" />
+             <span className="text-[7px] text-[var(--text-muted)] font-bold tracking-tighter uppercase leading-none">Emotion</span>
           </div>
         )}
       </div>

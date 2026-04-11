@@ -68,7 +68,7 @@ const InvestmentsPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-card border border-border-dark p-8 rounded-3xl group hover:border-[#00ff88]/30 transition-all"
+          className="bg-[var(--bg-card)] border border-[var(--border)] p-8 rounded-3xl group hover:border-[#00ff88]/30 transition-all"
         >
           <div className="flex items-center gap-4 mb-4">
             <div className="p-3 rounded-xl bg-blue-500/10 text-blue-400">
@@ -83,7 +83,7 @@ const InvestmentsPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-card border border-border-dark p-8 rounded-3xl group hover:border-[#00ff88]/30 transition-all"
+          className="bg-[var(--bg-card)] border border-[var(--border)] p-8 rounded-3xl group hover:border-[#00ff88]/30 transition-all"
         >
           <div className="flex items-center gap-4 mb-4">
             <div className="p-3 rounded-xl bg-[#00ff88]/10 text-[#00ff88]">
@@ -101,7 +101,7 @@ const InvestmentsPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-card border border-border-dark p-8 rounded-3xl group hover:border-[#00ff88]/30 transition-all"
+          className="bg-[var(--bg-card)] border border-[var(--border)] p-8 rounded-3xl group hover:border-[#00ff88]/30 transition-all"
         >
           <div className="flex items-center gap-4 mb-4">
             <div className="p-3 rounded-xl bg-purple-500/10 text-purple-400">
@@ -174,7 +174,7 @@ const InvestmentsPage = () => {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8 }}
-        className="bg-card border-2 border-[#00ff88]/20 p-10 rounded-[3rem] relative overflow-hidden group hover:border-[#00ff88]/40 transition-all"
+        className="bg-[var(--bg-card)] border-2 border-[#00ff88]/20 p-10 rounded-[3rem] relative overflow-hidden group hover:border-[#00ff88]/40 transition-all"
       >
         <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
           <div className="p-6 rounded-[2rem] bg-[#00ff88]/10 text-[#00ff88] animate-pulse">
@@ -189,7 +189,7 @@ const InvestmentsPage = () => {
               Powered by Claude AI
             </p>
           </div>
-          <button className="bg-[#00ff88] text-[#0a0a0a] px-8 py-4 rounded-2xl font-black hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(0,255,136,0.2)]">
+          <button className="bg-[#00ff88] text-[var(--bg-primary)] px-8 py-4 rounded-2xl font-black hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(0,255,136,0.2)]">
             Review Plan
           </button>
         </div>

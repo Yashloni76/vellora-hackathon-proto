@@ -40,7 +40,7 @@ export default function StreakPage() {
           <h1 className="text-4xl font-black tracking-tight text-[var(--text-primary)] uppercase italic">Momentum Engine</h1>
           {/* Banner */}
           <div className="bg-[#00ff8815] border border-[#00ff8830] px-6 py-4 rounded-2xl flex items-center gap-4 group hover:bg-[#00ff8820] transition-all">
-            <div className="w-10 h-10 rounded-full bg-[#00ff88] flex items-center justify-center text-black shadow-[0_0_20px_rgba(0,255,136,0.4)]">
+            <div className="w-10 h-10 rounded-full bg-[#00ff88] flex items-center justify-center text-[var(--bg-primary)] shadow-[0_0_20px_rgba(0,255,136,0.4)]">
               <Zap size={20} fill="currentColor" />
             </div>
             <p className="text-sm font-bold text-[var(--text-primary)] leading-relaxed">

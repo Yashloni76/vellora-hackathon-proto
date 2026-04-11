@@ -82,7 +82,7 @@ export default function WhatIfSlider() {
                      <ShieldCheck size={20} />
                   </div>
                </div>
-               <p className="text-[10px] text-muted font-bold tracking-[0.3em] uppercase mt-2">Adjusted Spending Target</p>
+               <p className="text-[10px] text-[var(--text-muted)] font-bold tracking-[0.3em] uppercase mt-2">Adjusted Spending Target</p>
             </div>
          </div>
 
@@ -115,7 +115,7 @@ export default function WhatIfSlider() {
                <h3 className="text-lg font-bold text-[var(--text-primary)] tracking-tight">Cumulative Growth Curve</h3>
                <p className="text-[var(--text-muted)] text-[10px] font-bold tracking-widest uppercase italic">12-Month Projection based on current logic</p>
             </div>
-            <div className="px-3 py-1 bg-gray-900 border border-border-dark rounded-full text-[9px] font-bold text-[#00ff88] uppercase tracking-widest">
+            <div className="px-3 py-1 bg-[var(--bg-primary)] border border-[var(--border)] rounded-full text-[9px] font-bold text-[#00ff88] uppercase tracking-widest">
               Live Forecast
             </div>
          </div>
@@ -132,16 +132,16 @@ export default function WhatIfSlider() {
                     dataKey="month" 
                     axisLine={false} 
                     tickLine={false} 
-                    tick={{ fill: "#4b5563", fontSize: 10, fontWeight: 700 }}
+                    tick={{ fill: "var(--text-muted)", fontSize: 10, fontWeight: 700 }}
                     dy={10}
                   />
                   <YAxis 
                     axisLine={false} 
                     tickLine={false} 
-                    tick={{ fill: "#4b5563", fontSize: 10, fontWeight: 700 }}
+                    tick={{ fill: "var(--text-muted)", fontSize: 10, fontWeight: 700 }}
                   />
                   <Tooltip 
-                    contentStyle={{ backgroundColor: "#111311", border: "1px solid #1f2b1f", borderRadius: "12px", fontSize: "11px", color: "#fff" }}
+                    contentStyle={{ backgroundColor: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: "12px", fontSize: "11px", color: "var(--text-primary)" }}
                     itemStyle={{ color: "#00ff88" }}
                     cursor={{ stroke: "#00ff88", strokeWidth: 1, strokeDasharray: "4 4" }}
                   />
@@ -175,7 +175,7 @@ function SummaryCard({ label, value, color }) {
 
 function ProjectionCard({ label, value, subtitle, highlight }) {
   return (
-    <div className={`card p-8 flex flex-col justify-between h-48 relative overflow-hidden group transition-all duration-500 ${highlight ? "bg-black border-[#00ff8830] hover:border-[#00ff8850]" : "bg-[#111311] border-border-dark"}`}>
+    <div className={`card p-8 flex flex-col justify-between h-48 relative overflow-hidden group transition-all duration-500 ${highlight ? "bg-[var(--bg-primary)] border-[#00ff8830] hover:border-[#00ff8850]" : "bg-[var(--bg-card)] border-[var(--border)]"}`}>
        <div className="space-y-1 relative z-10">
           <span className="text-[10px] text-[var(--text-muted)] font-bold tracking-[0.2em] uppercase">{label}</span>
           <div className="flex items-center gap-2">

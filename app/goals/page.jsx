@@ -85,7 +85,7 @@ const GoalsPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
-            className="bg-card border border-border-dark p-6 rounded-3xl flex items-center gap-6 group hover:border-white/10 transition-colors"
+            className="bg-[var(--bg-card)] border border-[var(--border)] p-6 rounded-3xl flex items-center gap-6 group hover:border-[var(--text-primary)]/10 transition-colors"
           >
             <div className={cn("p-5 rounded-2xl transition-transform group-hover:scale-110", stat.bg, stat.color)}>
               <stat.icon size={32} strokeWidth={2.5} />
@@ -113,12 +113,12 @@ const GoalsPage = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3 + i * 0.1 }}
-              className="bg-card border border-border-dark p-8 rounded-[2.5rem] relative overflow-hidden group hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] hover:border-white/10 transition-all duration-500"
+              className="bg-[var(--bg-card)] border border-[var(--border)] p-8 rounded-[2.5rem] relative overflow-hidden group hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] hover:border-[var(--text-primary)]/10 transition-all duration-500"
             >
               {/* Card Header */}
               <div className="flex justify-between items-start mb-10">
                 <div className="flex items-center gap-5">
-                  <div className="p-5 rounded-2xl bg-white/5 text-[#00ff88] group-hover:bg-[#00ff88] group-hover:text-black transition-all duration-500 ease-out">
+                  <div className="p-5 rounded-2xl bg-[var(--bg-primary)] text-[#00ff88] group-hover:bg-[#00ff88] group-hover:text-[var(--bg-primary)] transition-all duration-500 ease-out">
                     <Icon size={28} />
                   </div>
                   <div>
@@ -147,7 +147,7 @@ const GoalsPage = () => {
                   </div>
                 </div>
 
-                <div className="relative h-4 w-full bg-white/5 rounded-full overflow-hidden">
+                <div className="relative h-4 w-full bg-[var(--bg-primary)] rounded-full overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${percent}%` }}
@@ -173,7 +173,7 @@ const GoalsPage = () => {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setIsDialogOpen(true)}
-          className="group flex items-center gap-4 bg-[#00ff88] text-[#0a0a0a] px-10 py-5 rounded-[2rem] font-black text-xl hover:shadow-[0_0_30px_rgba(0,255,136,0.4)] transition-all"
+          className="group flex items-center gap-4 bg-[#00ff88] text-[var(--bg-primary)] px-10 py-5 rounded-[2rem] font-black text-xl hover:shadow-[0_0_30px_rgba(0,255,136,0.4)] transition-all"
         >
           <div className="p-1 rounded-lg bg-black/10 group-hover:rotate-90 transition-transform duration-300">
             <Plus size={24} strokeWidth={3} />
@@ -191,7 +191,7 @@ const GoalsPage = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsDialogOpen(false)}
-              className="absolute inset-0 bg-black/90 backdrop-blur-md"
+              className="absolute inset-0 bg-[var(--bg-primary)]/90 backdrop-blur-md"
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 30 }}
@@ -247,7 +247,7 @@ const GoalsPage = () => {
                 </div>
 
                 <button
-                  className="w-full bg-[#00ff88] text-[#0a0a0a] py-5 rounded-2xl font-black text-lg hover:shadow-[0_10px_30px_rgba(0,255,136,0.2)] hover:bg-[#00ff88]/90 transition-all mt-4"
+                  className="w-full bg-[#00ff88] text-[var(--bg-primary)] py-5 rounded-2xl font-black text-lg hover:shadow-[0_10px_30px_rgba(0,255,136,0.2)] hover:bg-[#00ff88]/90 transition-all mt-4"
                 >
                   Create Milestone
                 </button>

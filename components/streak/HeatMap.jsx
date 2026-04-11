@@ -43,7 +43,7 @@ export default function HeatMap() {
         
         <div className="mt-8 flex justify-between">
            {["OCT 2023", "JAN 2024", "APR 2024", "JUL 2024", "TODAY"].map(label => (
-             <span key={label} className="text-[10px] text-muted font-bold tracking-widest uppercase">
+             <span key={label} className="text-[10px] text-[var(--text-muted)] font-bold tracking-widest uppercase">
                {label}
              </span>
            ))}

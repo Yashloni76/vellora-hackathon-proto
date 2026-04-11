@@ -287,7 +287,7 @@ export default function DashboardPage() {
             <button
               onClick={handleSetupIncome}
               disabled={!incomeInput || saving}
-              className="w-full bg-[#00ff88] text-black font-bold py-4 rounded-xl hover:bg-[#00cc6e] transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-[#00ff88] text-[var(--bg-primary)] font-bold py-4 rounded-xl hover:bg-[#00cc6e] transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {saving ? 'Saving...' : 'Next →'}
             </button>
@@ -362,7 +362,7 @@ export default function DashboardPage() {
 
           <button
             onClick={() => setSetupStep(3)}
-            className="w-full bg-[#00ff88] text-black font-bold py-4 rounded-xl hover:bg-[#00cc6e] transition-all"
+            className="w-full bg-[#00ff88] text-[var(--bg-primary)] font-bold py-4 rounded-xl hover:bg-[#00cc6e] transition-all"
           >
             Next →
           </button>
@@ -400,7 +400,7 @@ export default function DashboardPage() {
             <button
               onClick={handleSetupGoal}
               disabled={!goalInput || saving}
-              className="w-full bg-[#00ff88] text-black font-bold py-4 rounded-xl hover:bg-[#00cc6e] transition-all"
+              className="w-full bg-[#00ff88] text-[var(--bg-primary)] font-bold py-4 rounded-xl hover:bg-[#00cc6e] transition-all"
             >
               {saving ? 'Finalizing...' : 'Get Started →'}
             </button>
@@ -471,8 +471,7 @@ export default function DashboardPage() {
           background: 'linear-gradient(135deg, #00ff88, #00cc6a)',
           border: 'none',
           cursor: 'pointer',
-          fontSize: '28px',
-          color: '#000',
+          color: 'var(--bg-primary)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -875,7 +874,7 @@ export default function DashboardPage() {
                     : 'linear-gradient(135deg, #00ff88, #00cc6a)',
                   border: 'none',
                   borderRadius: '10px',
-                  color: '#000',
+                  color: 'var(--bg-primary)',
                   cursor: saving ? 'not-allowed' : 'pointer',
                   fontSize: '14px',
                   fontWeight: 'bold',
@@ -1003,7 +1002,7 @@ export default function DashboardPage() {
               <button
                 onClick={handleSaveIncome}
                 disabled={addingIncome}
-                style={{ flex: 2, padding: '13px', background: addingIncome ? 'var(--border)' : 'linear-gradient(135deg, #00ff88, #00cc6a)', border: 'none', borderRadius: '10px', color: '#000', cursor: addingIncome ? 'not-allowed' : 'pointer', fontSize: '14px', fontWeight: 'bold' }}
+                style={{ flex: 2, padding: '13px', background: addingIncome ? 'var(--border)' : 'linear-gradient(135deg, #00ff88, #00cc6a)', border: 'none', borderRadius: '10px', color: 'var(--bg-primary)', cursor: addingIncome ? 'not-allowed' : 'pointer', fontSize: '14px', fontWeight: 'bold' }}
               >
                 {addingIncome ? 'Adding...' : '+ Add Income'}
               </button>

@@ -300,7 +300,7 @@ function Step1({ formData, setFormData, onContinue }) {
       <div className="pt-4 space-y-4">
         <button 
           onClick={onContinue}
-          className="w-full bg-[#00ff88] text-black font-bold py-4 rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all glow text-[13px] uppercase tracking-wider"
+          className="w-full bg-[#00ff88] text-[var(--bg-primary)] font-bold py-4 rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all glow text-[13px] uppercase tracking-wider"
         >
           Continue to Expenses
         </button>
@@ -405,7 +405,7 @@ function Step2({ expenseList, setExpenseList, onContinue, onBack }) {
         </button>
         <button 
           onClick={onContinue}
-          className="flex-[2] bg-[#00ff88] text-black font-bold py-4 rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all glow text-[13px] uppercase tracking-wider"
+          className="flex-[2] bg-[#00ff88] text-[var(--bg-primary)] font-bold py-4 rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all glow text-[13px] uppercase tracking-wider"
         >
           Continue to Goals
         </button>
@@ -468,7 +468,7 @@ function Step3({ formData, setFormData, onBack, onComplete }) {
         </button>
         <button 
           onClick={onComplete}
-          className="flex-[2] bg-[#00ff88] text-black font-bold py-4 rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all glow text-[13px] uppercase tracking-wider flex items-center justify-center gap-2"
+          className="flex-[2] bg-[#00ff88] text-[var(--bg-primary)] font-bold py-4 rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all glow text-[13px] uppercase tracking-wider flex items-center justify-center gap-2"
         >
           Get Started
           <ArrowRight size={18} />
