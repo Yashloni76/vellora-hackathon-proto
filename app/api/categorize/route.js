@@ -1,18 +1,27 @@
 import { callAI } from '@/lib/claude'
 
 export async function POST(req) {
-  const { expenses, userContext } = await req.json()
+  const { expenses, userProfile } = await req.json()
 
   if (!expenses || expenses.length === 0) {
     return Response.json([])
   }
 
   const prompt = `You are a personal finance
-categorizer for young Indian users (students and
-working professionals aged 18-25).
+categorizer. You must categorize expenses based on the specific USER PROFILE provided below.
 
-USER CONTEXT:
-${userContext || 'Young Indian student or working professional'}
+USER PROFILE:
+${userProfile ? `
+- AGE: ${userProfile.age}
+- OCCUPATION: ${userProfile.occupation}
+- LIVING SITUATION: ${userProfile.living_situation}
+` : 'Identity: Young Indian student or working professional (Default context)'}
+
+CONTEXTUAL CATEGORIZATION RULES:
+1. If AGE is < 22 and OCCUPATION is "College Student", tolerate higher "Entertainment" spend but be strict on "Food" delivery.
+2. If LIVING SITUATION is "Living with Parents", then "Rent" or "Electricity" titles are SUSPICIOUS and should likely be "Avoidable" (optional contributions) unless they are the primary breadwinner.
+3. If OCCUPATION is "Business Owner", acknowledge "Travel" might be more linked to UNAVOIDABLE networking.
+4. Always prioritize survival (Rent, Basic Groceries, Commute, Health) as UNAVOIDABLE based on their life stage.
 
 UNAVOIDABLE EXPENSES (essential for survival and daily life):
 

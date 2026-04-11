@@ -28,7 +28,10 @@ export default function OnboardingPage() {
     expenseName: "",
     expenseAmount: "",
     expenseCategory: "Food",
-    savingsGoal: "15000"
+    savingsGoal: "15000",
+    age: "",
+    occupation: "Corporate Professional",
+    livingSituation: "Renting Alone"
   });
 
   const [expenseList, setExpenseList] = useState([
@@ -75,7 +78,10 @@ export default function OnboardingPage() {
         id: user.id,
         email: user.email,
         income: parseFloat(formData.amount) || 0,
-        goal: parseFloat(formData.savingsGoal) || 0
+        goal: parseFloat(formData.savingsGoal) || 0,
+        age: parseInt(formData.age) || null,
+        occupation: formData.occupation,
+        living_situation: formData.livingSituation
       })
       if (error) {
         console.error('Error saving user data:', error)
@@ -208,95 +214,107 @@ function Step1({ formData, setFormData, onContinue }) {
   return (
     <div className="space-y-6">
       <div className="mb-10">
-        <h1 className="text-3xl font-bold tracking-tight mb-2">Income Setup</h1>
-        <p className="text-muted text-sm">Let&apos;s map out your financial inflow.</p>
+        <h1 className="text-3xl font-bold tracking-tight mb-2">Profile & Income Setup</h1>
+        <p className="text-muted text-sm">Let&apos;s personalize your wealth journey.</p>
       </div>
 
       <div className="card space-y-6 bg-[#111311]">
-        {/* Source */}
-        <div className="space-y-3">
-          <label className="text-[10px] text-muted font-bold tracking-widest uppercase">Primary Source</label>
-          <div className="relative">
+        {/* Personal Details */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-3">
+            <label className="text-[10px] text-muted font-bold tracking-widest uppercase">Age</label>
             <input 
-              type="text" 
-              value={formData.incomeSource}
-              onChange={(e) => setFormData({...formData, incomeSource: e.target.value})}
+              type="number" 
+              placeholder="e.g. 24"
+              value={formData.age}
+              onChange={(e) => setFormData({...formData, age: e.target.value})}
               className="w-full bg-[#0a0a0a] border border-border-dark rounded-xl px-4 py-4 text-sm focus:border-[#00ff88] outline-none transition-colors"
             />
-            <Pencil size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted" />
-          </div>
-          <div className="flex gap-2">
-            <button 
-              onClick={() => setFormData({...formData, incomeType: "PROFESSIONAL"})}
-              className={cn(
-                "px-4 py-1.5 rounded-full text-[10px] font-bold tracking-wider border transition-all",
-                formData.incomeType === "PROFESSIONAL" 
-                  ? "bg-[#00ff8815] text-[#00ff88] border-[#00ff88]" 
-                  : "bg-transparent text-muted border-gray-800"
-              )}
-            >
-              PROFESSIONAL
-            </button>
-            <button 
-              onClick={() => setFormData({...formData, incomeType: "STUDENT"})}
-              className={cn(
-                "px-4 py-1.5 rounded-full text-[10px] font-bold tracking-wider border transition-all",
-                formData.incomeType === "STUDENT" 
-                  ? "bg-[#00ff8815] text-[#00ff88] border-[#00ff88]" 
-                  : "bg-transparent text-muted border-gray-800"
-              )}
-            >
-              STUDENT FRIENDLY
-            </button>
-          </div>
-        </div>
-
-        {/* Amount */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-3">
-            <label className="text-[10px] text-muted font-bold tracking-widest uppercase">Amount</label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#00ff88] font-bold">₹</span>
-              <input 
-                type="text" 
-                value={formData.amount}
-                onChange={(e) => setFormData({...formData, amount: e.target.value})}
-                className="w-full bg-[#0a0a0a] border border-border-dark rounded-xl pl-8 pr-4 py-4 text-sm focus:border-[#00ff88] outline-none transition-colors"
-              />
-            </div>
           </div>
           <div className="space-y-3">
-            <label className="text-[10px] text-muted font-bold tracking-widest uppercase">Frequency</label>
+            <label className="text-[10px] text-muted font-bold tracking-widest uppercase">Occupation</label>
             <div className="relative">
               <select 
-                value={formData.frequency}
-                onChange={(e) => setFormData({...formData, frequency: e.target.value})}
+                value={formData.occupation}
+                onChange={(e) => setFormData({...formData, occupation: e.target.value})}
                 className="w-full bg-[#0a0a0a] border border-border-dark rounded-xl px-4 py-4 text-sm focus:border-[#00ff88] outline-none appearance-none cursor-pointer transition-colors"
               >
-                <option>Monthly</option>
-                <option>Weekly</option>
-                <option>Daily</option>
+                <option>College Student</option>
+                <option>Corporate Professional</option>
+                <option>Freelancer</option>
+                <option>Business Owner</option>
+                <option>Other</option>
               </select>
               <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
             </div>
           </div>
         </div>
 
-        {/* Common Sources */}
-        <div className="space-y-3 pt-2">
-          <label className="text-[10px] text-muted font-bold tracking-widest uppercase">Common Sources</label>
-          <div className="flex flex-wrap gap-2">
-            {["Pocket Money", "Part-time Job", "Allowance"].map((src) => (
-              <button 
-                key={src}
-                onClick={() => setFormData({...formData, incomeSource: src})}
-                className="px-4 py-2 bg-[#0a0a0a] border border-border-dark rounded-lg text-[11px] text-muted hover:text-white hover:border-gray-600 transition-all font-medium"
-              >
-                {src}
-              </button>
-            ))}
+        {/* Living Situation */}
+        <div className="space-y-3">
+          <label className="text-[10px] text-muted font-bold tracking-widest uppercase">Living Situation</label>
+          <div className="relative">
+            <select 
+              value={formData.livingSituation}
+              onChange={(e) => setFormData({...formData, livingSituation: e.target.value})}
+              className="w-full bg-[#0a0a0a] border border-border-dark rounded-xl px-4 py-4 text-sm focus:border-[#00ff88] outline-none appearance-none cursor-pointer transition-colors"
+            >
+              <option>Living with Parents</option>
+              <option>Renting Alone</option>
+              <option>Flatmates</option>
+              <option>Homeowner</option>
+            </select>
+            <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
           </div>
         </div>
+
+        <div className="border-t border-border-dark/30 pt-6">
+          {/* Source */}
+          <div className="space-y-3">
+            <label className="text-[10px] text-muted font-bold tracking-widest uppercase">Primary Income Source</label>
+            <div className="relative">
+              <input 
+                type="text" 
+                value={formData.incomeSource}
+                onChange={(e) => setFormData({...formData, incomeSource: e.target.value})}
+                className="w-full bg-[#0a0a0a] border border-border-dark rounded-xl px-4 py-4 text-sm focus:border-[#00ff88] outline-none transition-colors"
+              />
+              <Pencil size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted" />
+            </div>
+          </div>
+
+          {/* Amount */}
+          <div className="grid grid-cols-2 gap-4 mt-6">
+            <div className="space-y-3">
+              <label className="text-[10px] text-muted font-bold tracking-widest uppercase">Income Amount</label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#00ff88] font-bold">₹</span>
+                <input 
+                  type="text" 
+                  value={formData.amount}
+                  onChange={(e) => setFormData({...formData, amount: e.target.value})}
+                  className="w-full bg-[#0a0a0a] border border-border-dark rounded-xl pl-8 pr-4 py-4 text-sm focus:border-[#00ff88] outline-none transition-colors"
+                />
+              </div>
+            </div>
+            <div className="space-y-3">
+              <label className="text-[10px] text-muted font-bold tracking-widest uppercase">Frequency</label>
+              <div className="relative">
+                <select 
+                  value={formData.frequency}
+                  onChange={(e) => setFormData({...formData, frequency: e.target.value})}
+                  className="w-full bg-[#0a0a0a] border border-border-dark rounded-xl px-4 py-4 text-sm focus:border-[#00ff88] outline-none appearance-none cursor-pointer transition-colors"
+                >
+                  <option>Monthly</option>
+                  <option>Weekly</option>
+                  <option>Daily</option>
+                </select>
+                <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <div className="pt-4 space-y-4">

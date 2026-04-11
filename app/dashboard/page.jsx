@@ -19,6 +19,7 @@ export default function DashboardPage() {
   const [userIncome, setUserIncome] = useState(0)
   const [incomeInput, setIncomeInput] = useState('')
   const [goalInput, setGoalInput] = useState('')
+  const [userProfile, setUserProfile] = useState(null)
   const [expenseName, setExpenseName] = useState('')
   const [expenseAmount, setExpenseAmount] = useState('')
   const [expenseType, setExpenseType] = useState('avoidable')
@@ -64,12 +65,17 @@ export default function DashboardPage() {
     if (!user) return
     const { data } = await supabase
       .from('users')
-      .select('income, goal')
+      .select('income, goal, age, occupation, living_situation')
       .eq('id', user.id)
       .single()
 
     if (data && data.income && data.income > 0) {
       setUserIncome(data.income)
+      setUserProfile({
+        age: data.age,
+        occupation: data.occupation,
+        living_situation: data.living_situation
+      })
       setSetupStep(4)
       fetchAllData()
     } else {
@@ -83,12 +89,17 @@ export default function DashboardPage() {
 
     const { data: userData } = await supabase
       .from('users')
-      .select('income, goal')
+      .select('income, goal, age, occupation, living_situation')
       .eq('id', user.id)
       .single()
 
     const income = Number(userData?.income) || 0
     setUserIncome(income)
+    setUserProfile({
+      age: userData?.age,
+      occupation: userData?.occupation,
+      living_situation: userData?.living_situation
+    })
 
     const { data: expenseData } = await supabase
       .from('expenses')
@@ -170,7 +181,10 @@ export default function DashboardPage() {
       const catRes = await fetch('/api/categorize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ expenses: expensesToProcess })
+        body: JSON.stringify({ 
+          expenses: expensesToProcess,
+          userProfile
+        })
       })
       aiResults = await catRes.json()
     } catch (err) {
