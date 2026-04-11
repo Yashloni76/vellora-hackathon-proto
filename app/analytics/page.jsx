@@ -34,6 +34,9 @@ export default function AnalyticsPage() {
   const [velocityView, setVelocityView] = useState('monthly')
   const [rawExpenses, setRawExpenses] = useState([])
   const [rawIncome, setRawIncome] = useState([])
+  const [totalIncome, setTotalIncome] = useState(0)
+  const [showGoalModal, setShowGoalModal] = useState(false)
+  const [goalTarget, setGoalTarget] = useState('')
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -88,7 +91,10 @@ export default function AnalyticsPage() {
     // Category totals
     const categoryMap = {}
     expenses.forEach(exp => {
-      categoryMap[exp.category] = (categoryMap[exp.category] || 0) + exp.amount
+      const cat = exp.category && exp.category.trim() !== ''
+        ? exp.category
+        : exp.type === 'avoidable' ? 'Avoidable' : 'Essential'
+      categoryMap[cat] = (categoryMap[cat] || 0) + Number(exp.amount)
     })
     setCategoryData(Object.entries(categoryMap).map(([name, value]) => ({ name, value })))
 
@@ -164,11 +170,12 @@ export default function AnalyticsPage() {
     // Savings rate
     // Calculate total income and total expenses, including fallback primaryIncome
     const totalIncomeFromRecords = income.reduce((sum, i) => sum + Number(i.amount), 0)
-    const totalIncome = totalIncomeFromRecords > 0 ? totalIncomeFromRecords : primaryIncome
+    const totalInc = totalIncomeFromRecords > 0 ? totalIncomeFromRecords : primaryIncome
+    setTotalIncome(totalInc)
     const totalExpenses = expenses.reduce((sum, e) => sum + Number(e.amount), 0)
     
-    const rate = totalIncome > 0
-      ? Math.round(((totalIncome - totalExpenses) / totalIncome) * 100)
+    const rate = totalInc > 0
+      ? Math.round(((totalInc - totalExpenses) / totalInc) * 100)
       : 0
     setSavingsRate(rate)
 
@@ -285,7 +292,13 @@ export default function AnalyticsPage() {
           velocityView={velocityView} 
           setVelocityView={setVelocityView} 
         />
-        <SavingsRateGauge rate={savingsRate} />
+        <SavingsRateGauge 
+          rate={savingsRate} 
+          setShowGoalModal={setShowGoalModal}
+          showGoalModal={showGoalModal}
+          goalTarget={goalTarget}
+          setGoalTarget={setGoalTarget}
+        />
       </div>
 
       {/* Middle Row: Donut + Distribution */}
@@ -293,15 +306,71 @@ export default function AnalyticsPage() {
         <ExpenseDonut 
           avoidableTotal={avoidableTotal} 
           unavoidableTotal={unavoidableTotal} 
-          ratio={ratio} 
+          savingsAmount={totalIncome - (avoidableTotal + unavoidableTotal)}
+          ratio={unavoidableTotal > 0 
+            ? (avoidableTotal / unavoidableTotal).toFixed(1) 
+            : '0'} 
         />
         <CategoryDistribution data={categoryData} />
       </div>
+
+      {showGoalModal && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50
+        }}>
+          <div style={{
+            background: '#111311', border: '1px solid #1f2b1f',
+            borderRadius: '16px', padding: '32px', width: '400px'
+          }}>
+            <h3 style={{ color: '#ffffff', marginBottom: '8px' }}>Set Savings Goal</h3>
+            <p style={{ color: '#6b7280', fontSize: '13px', marginBottom: '24px' }}>
+              Your current savings rate is {savingsRate}%. Set a new monthly target.
+            </p>
+            <input
+              type="number"
+              placeholder="Enter target savings amount (₹)"
+              value={goalTarget}
+              onChange={e => setGoalTarget(e.target.value)}
+              style={{
+                width: '100%', padding: '10px 14px', background: '#0a0a0a',
+                border: '1px solid #1f2b1f', borderRadius: '8px',
+                color: '#ffffff', fontSize: '14px', marginBottom: '16px'
+              }}
+            />
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                onClick={() => setShowGoalModal(false)}
+                style={{
+                  flex: 1, padding: '10px', background: 'transparent',
+                  border: '1px solid #1f2b1f', color: '#6b7280',
+                  borderRadius: '8px', cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  alert(`Goal set to ₹${goalTarget} per month!`)
+                  setShowGoalModal(false)
+                }}
+                style={{
+                  flex: 1, padding: '10px', background: '#00ff88',
+                  border: 'none', color: '#0a0a0a', fontWeight: 600,
+                  borderRadius: '8px', cursor: 'pointer'
+                }}
+              >
+                Save Goal
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 }
 
-function SavingsRateGauge({ rate }) {
+function SavingsRateGauge({ rate, setShowGoalModal }) {
   const data = [
     { name: "Rate", value: rate, fill: "#00ff88" }
   ];
@@ -346,8 +415,21 @@ function SavingsRateGauge({ rate }) {
           <p className="text-[11px] text-muted leading-relaxed font-medium">
             Your savings efficiency is currently at <span className="text-[#00ff88] font-bold">{rate}%</span>.
           </p>
-          <button className="w-full bg-[#1a1f1a] border border-border-dark text-white text-[10px] font-bold tracking-widest uppercase py-3 rounded-lg hover:border-[#00ff88] transition-colors cursor-pointer">
-            Recalibrate Goal
+          <button
+            onClick={() => setShowGoalModal(true)}
+            style={{
+              width: '100%',
+              padding: '10px',
+              background: 'transparent',
+              border: '1px solid #1f2b1f',
+              color: '#ffffff',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '12px',
+              letterSpacing: '1px'
+            }}
+          >
+            RECALIBRATE GOAL
           </button>
        </div>
     </div>

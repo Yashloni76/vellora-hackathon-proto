@@ -86,6 +86,7 @@ export default function SavingsLineChart({ savingsData, velocityView, setVelocit
               axisLine={false} 
               tickLine={false} 
               tick={{ fill: "#6b7280", fontSize: 10, fontWeight: 600 }}
+              domain={[0, 'auto']}
             />
             <Tooltip content={<CustomTooltip />} />
             <Area 
