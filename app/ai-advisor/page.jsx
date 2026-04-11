@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/AuthContext'
 import { useRouter } from 'next/navigation'
 import { motion } from "framer-motion";
-import { Sparkles, Brain, Loader2 } from "lucide-react";
+import { Sparkles, Brain, Loader2, Send, User, MessageCircle } from "lucide-react";
 import SuggestionCard from "@/components/ai-advisor/SuggestionCard";
 
 function SkeletonCard() {
@@ -38,6 +38,13 @@ export default function AIAdvisorPage() {
     biggestMistake: "",
     moodWarning: ""
   })
+  
+  // Chat State
+  const [messages, setMessages] = useState([
+    { role: 'assistant', content: "Hello! I'm your Senior Investment Consultant. Ask me anything about SIPs, Mutual Funds, or financial terms, and I'll help you with research-backed info!" }
+  ])
+  const [chatInput, setChatInput] = useState("")
+  const [chatLoading, setChatLoading] = useState(false)
 
   useEffect(() => {
     if (!loading && !user) router.push('/login')
@@ -128,6 +135,39 @@ export default function AIAdvisorPage() {
       }])
     }
     setAnalyzing(false)
+  }
+
+  const handleSendMessage = async (e) => {
+    e.preventDefault()
+    if (!chatInput.trim() || chatLoading) return
+
+    const userMsg = { role: 'user', content: chatInput }
+    setMessages(prev => [...prev, userMsg])
+    setChatInput("")
+    setChatLoading(true)
+
+    try {
+      const res = await fetch('/api/advisor/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [...messages, userMsg],
+          userContext: {
+            income: userIncome,
+            savings: savings,
+            avoidable: avoidableTotal,
+            goal: userGoal
+          }
+        })
+      })
+      const data = await res.json()
+      setMessages(prev => [...prev, { role: 'assistant', content: data.message }])
+    } catch (err) {
+      console.error('Chat error:', err)
+      setMessages(prev => [...prev, { role: 'assistant', content: "I encountered an error. Please try asking again." }])
+    } finally {
+      setChatLoading(false)
+    }
   }
 
   if (loading || dataLoading) return (
@@ -297,6 +337,89 @@ export default function AIAdvisorPage() {
              <p className="text-[#444] text-sm font-medium">Click the button above to generate AI suggestions based on your spending.</p>
           </div>
         )}
+
+        {/* Chatbot Section */}
+        <section className="pt-12 space-y-6">
+          <div className="flex items-center gap-3">
+             <div className="w-10 h-10 rounded-xl bg-[#00ff8815] flex items-center justify-center border border-[#00ff88]/20 text-[#00ff88]">
+                <MessageCircle size={20} />
+             </div>
+             <div>
+                <h2 className="text-xl font-black text-white tracking-tight">Ask Advisor</h2>
+                <p className="text-[#555] text-xs font-medium">Clear your doubts about investments and planning.</p>
+             </div>
+          </div>
+
+          <div className="bg-[#111311] border border-[#1a1f1a] rounded-3xl overflow-hidden flex flex-col h-[500px] shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+            {/* Chat Messages */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-[#1a1f1a]">
+              {messages.map((m, i) => (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  key={i} 
+                  className={`flex gap-4 ${m.role === 'user' ? 'flex-row-reverse' : ''}`}
+                >
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-1 ${
+                    m.role === 'user' ? 'bg-[#00ff88] text-black' : 'bg-[#1a1f1a] text-[#00ff88]'
+                  }`}>
+                    {m.role === 'user' ? <User size={14} /> : <Brain size={14} />}
+                  </div>
+                  <div className={`max-w-[80%] rounded-2xl p-4 text-sm leading-relaxed ${
+                    m.role === 'user' 
+                      ? 'bg-[#00ff8810] border border-[#00ff88]/20 text-white' 
+                      : 'bg-[#151a15] border border-white/5 text-[#ccc]'
+                  }`}>
+                    {m.content}
+                  </div>
+                </motion.div>
+              ))}
+              {chatLoading && (
+                <div className="flex gap-4">
+                  <div className="w-8 h-8 rounded-lg bg-[#1a1f1a] text-[#00ff88] flex items-center justify-center flex-shrink-0">
+                    <Brain size={14} className="animate-pulse" />
+                  </div>
+                  <div className="bg-[#151a15] border border-white/5 rounded-2xl px-4 py-3 flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-[#00ff88] rounded-full animate-bounce" />
+                    <span className="w-1.5 h-1.5 bg-[#00ff88] rounded-full animate-bounce [animation-delay:0.2s]" />
+                    <span className="w-1.5 h-1.5 bg-[#00ff88] rounded-full animate-bounce [animation-delay:0.4s]" />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Selection Chips */}
+            <div className="px-6 py-3 flex gap-2 overflow-x-auto no-scrollbar border-t border-white/5 bg-[#0d0f0d]">
+               {["Worst SIP performing?", "What is CAGR?", "Direct vs Regular SIP?", "Retirement planning?"].map((q) => (
+                 <button 
+                  key={q}
+                  onClick={() => setChatInput(q)}
+                  className="whitespace-nowrap bg-[#1a1f1a] hover:bg-[#222] text-[#666] hover:text-[#00ff88] text-[10px] font-black tracking-widest uppercase px-4 py-2 rounded-xl border border-white/5 transition-all"
+                 >
+                   {q}
+                 </button>
+               ))}
+            </div>
+
+            {/* Input Area */}
+            <form onSubmit={handleSendMessage} className="p-4 bg-[#0a0a0a] border-t border-white/5 flex gap-3">
+              <input 
+                type="text" 
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                placeholder="Ask your investment doubt..."
+                className="flex-1 bg-[#111311] border border-[#1a1f1a] focus:border-[#00ff88]/50 rounded-2xl px-5 text-sm text-white focus:outline-none transition-all"
+              />
+              <button 
+                type="submit"
+                disabled={!chatInput.trim() || chatLoading}
+                className="w-12 h-12 bg-[#00ff88] hover:bg-[#00e87a] disabled:opacity-50 text-black rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(0,255,136,0.2)] transition-all"
+              >
+                <Send size={18} />
+              </button>
+            </form>
+          </div>
+        </section>
       </section>
     </motion.div>
   );
