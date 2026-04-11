@@ -13,15 +13,8 @@ export default function RootLayout({ children }) {
   return (
     <AuthProvider>
       <ThemeProvider>
-        <html lang="en">
+        <html lang="en" className="dark">
           <head>
-            <script dangerouslySetInnerHTML={{ __html: `
-              (function() {
-                var theme = localStorage.getItem('symp-theme');
-                var isDark = theme !== 'light';
-                document.documentElement.classList.add(isDark ? 'dark' : 'light');
-              })();
-            ` }} />
           </head>
           <body className="font-sans antialiased">
             <div className="flex min-h-screen">

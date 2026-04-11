@@ -24,10 +24,9 @@ export function ThemeProvider({ children }) {
   }
 
   useEffect(() => {
-    const saved = localStorage.getItem('symp-theme')
-    const dark = saved !== 'light'
-    setIsDark(dark)
-    applyTheme(dark)
+    // Force dark theme on mount
+    document.documentElement.classList.add('dark')
+    document.documentElement.classList.remove('light')
   }, [])
 
   return (
