@@ -23,9 +23,10 @@ export default function DashboardPage() {
   const [expenseAmount, setExpenseAmount] = useState('')
   const [expenseType, setExpenseType] = useState('avoidable')
   const [expenseCategory, setExpenseCategory] = useState('food')
+  const [expenseMood, setExpenseMood] = useState('neutral')
+  const [draftExpenses, setDraftExpenses] = useState([])
   const [addedExpenses, setAddedExpenses] = useState([])
   const [saving, setSaving] = useState(false)
-  const [expenseMood, setExpenseMood] = useState('neutral')
 
   const categories = [
     { value: 'food', emoji: '🍔', label: 'Food' },
@@ -132,51 +133,70 @@ export default function DashboardPage() {
     }
   }, [user])
 
+  const handleAddDraft = () => {
+    if (!expenseName.trim() || !expenseAmount) return
+    if (draftExpenses.length >= 15) {
+      alert("You can only add up to 15 expenses at a time.");
+      return;
+    }
+    setDraftExpenses([...draftExpenses, {
+      title: expenseName.trim(),
+      amount: parseFloat(expenseAmount),
+      category: expenseCategory,
+      mood: expenseMood
+    }])
+    setExpenseName('')
+    setExpenseAmount('')
+  }
+
   const handleSaveExpense = async () => {
-    if (!expenseName.trim() || !expenseAmount || !user) return
+    const expensesToProcess = [...draftExpenses];
+    
+    if (expenseName.trim() && expenseAmount) {
+      expensesToProcess.push({
+        title: expenseName.trim(),
+        amount: parseFloat(expenseAmount),
+        category: expenseCategory,
+        mood: expenseMood
+      });
+    }
+
+    if (expensesToProcess.length === 0 || !user) return
+    
     setSaving(true)
 
-    let aiType = 'avoidable'
-    let finalCategory = expenseCategory
-
+    let aiResults = [];
     try {
       const catRes = await fetch('/api/categorize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          expenses: [{
-            title: expenseName,
-            amount: parseFloat(expenseAmount)
-          }]
-        })
+        body: JSON.stringify({ expenses: expensesToProcess })
       })
-      const catData = await catRes.json()
-      if (catData && catData[0]) {
-        if (catData[0].category) aiType = catData[0].category
-        if (catData[0].semanticCategory) finalCategory = catData[0].semanticCategory
-      }
+      aiResults = await catRes.json()
     } catch (err) {
       console.error('Categorize API failed:', err)
-      const unavoidableWords = [
-        'rent', 'bill', 'electricity', 'medicine',
-        'transport', 'grocery', 'insurance', 'emi'
-      ]
-      aiType = unavoidableWords
-        .some(w => expenseName.toLowerCase().includes(w))
-        ? 'unavoidable' : 'avoidable'
+      const unavoidableWords = ['rent', 'bill', 'electricity', 'medicine', 'transport', 'grocery', 'insurance', 'emi']
+      aiResults = expensesToProcess.map(e => ({
+        title: e.title,
+        category: unavoidableWords.some(w => e.title.toLowerCase().includes(w)) ? 'unavoidable' : 'avoidable',
+        semanticCategory: e.category
+      }))
     }
 
-    const { error } = await supabase
-      .from('expenses')
-      .insert([{
+    const inserts = expensesToProcess.map((expense, index) => {
+      const aiData = aiResults[index] || {};
+      return {
         user_id: user.id,
-        title: expenseName.trim(),
-        amount: parseFloat(expenseAmount),
-        type: aiType,
-        category: finalCategory,
-        mood: expenseMood,
+        title: expense.title,
+        amount: expense.amount,
+        type: aiData.category || 'avoidable',
+        category: aiData.semanticCategory || expense.category,
+        mood: expense.mood,
         date: new Date().toISOString().split('T')[0]
-      }])
+      }
+    })
+
+    const { error } = await supabase.from('expenses').insert(inserts)
 
     if (!error) {
       setOpen(false)
@@ -184,6 +204,7 @@ export default function DashboardPage() {
       setExpenseAmount('')
       setExpenseCategory('food')
       setExpenseMood('neutral')
+      setDraftExpenses([])
       fetchAllData()
     } else {
       alert('Error saving: ' + error.message)
@@ -663,11 +684,11 @@ export default function DashboardPage() {
                   fontSize: '12px',
                   margin: '4px 0 0 0'
                 }}>
-                  Track your spending instantly
+                  Track your spending instantly (Queued: {draftExpenses.length}/15)
                 </p>
               </div>
               <button
-                onClick={() => setOpen(false)}
+                onClick={() => { setOpen(false); setDraftExpenses([]); setExpenseName(''); setExpenseAmount(''); }}
                 style={{
                   backgroundColor: 'transparent',
                   border: '1px solid #1f2b1f',
@@ -685,6 +706,18 @@ export default function DashboardPage() {
                 ✕
               </button>
             </div>
+
+            {/* Draft Queue List */}
+            {draftExpenses.length > 0 && (
+              <div style={{ marginBottom: '16px', maxHeight: '100px', overflowY: 'auto' }} className="scrollbar-hide">
+                {draftExpenses.map((draft, i) => (
+                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 12px', backgroundColor: '#151c15', border: '1px solid #1f2b1f', borderRadius: '8px', marginBottom: '8px' }}>
+                    <span style={{ color: '#fff', fontSize: '13px', fontWeight: '500' }}>{draft.title}</span>
+                    <span style={{ color: '#00ff88', fontSize: '13px', fontWeight: 'bold' }}>₹{draft.amount}</span>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Expense Name */}
             <div style={{ marginBottom: '16px' }}>
@@ -855,40 +888,43 @@ export default function DashboardPage() {
             {/* Action Buttons */}
             <div style={{ display: 'flex', gap: '10px' }}>
               <button
-                onClick={() => setOpen(false)}
+                onClick={handleAddDraft}
+                disabled={draftExpenses.length >= 15 || (!expenseName.trim() || !expenseAmount)}
                 style={{
                   flex: 1,
                   padding: '13px',
                   backgroundColor: 'transparent',
-                  border: '1px solid #1f2b1f',
+                  border: '1px solid currentColor',
                   borderRadius: '10px',
-                  color: '#6b7280',
-                  cursor: 'pointer',
+                  color: '#00ff88',
+                  cursor: (draftExpenses.length >= 15 || (!expenseName.trim() || !expenseAmount)) ? 'not-allowed' : 'pointer',
                   fontSize: '14px',
-                  fontWeight: 'bold'
+                  fontWeight: 'bold',
+                  opacity: (draftExpenses.length >= 15 || (!expenseName.trim() || !expenseAmount)) ? 0.4 : 1
                 }}
               >
-                Cancel
+                + Queue
               </button>
               <button
                 onClick={handleSaveExpense}
-                disabled={saving}
+                disabled={saving || (draftExpenses.length === 0 && (!expenseName.trim() || !expenseAmount))}
                 style={{
                   flex: 2,
                   padding: '13px',
-                  background: saving
+                  background: saving || (draftExpenses.length === 0 && (!expenseName.trim() || !expenseAmount))
                     ? '#1f2b1f'
                     : 'linear-gradient(135deg, #00ff88, #00cc6a)',
                   border: 'none',
                   borderRadius: '10px',
                   color: '#000',
-                  cursor: saving ? 'not-allowed' : 'pointer',
+                  cursor: saving || (draftExpenses.length === 0 && (!expenseName.trim() || !expenseAmount)) ? 'not-allowed' : 'pointer',
                   fontSize: '14px',
                   fontWeight: 'bold',
-                  transition: 'all 0.2s'
+                  transition: 'all 0.2s',
+                  opacity: (draftExpenses.length === 0 && (!expenseName.trim() || !expenseAmount)) ? 0.4 : 1
                 }}
               >
-                {saving ? 'Saving...' : '+ Save Expense'}
+                {saving ? 'Saving All...' : `Submit (${draftExpenses.length + (expenseName.trim() && expenseAmount ? 1 : 0)})`}
               </button>
             </div>
 
