@@ -15,16 +15,17 @@ export default function Home() {
         return
       }
 
-      const { data: income } = await supabase
-        .from('income')
-        .select('id')
-        .eq('user_id', session.user.id)
-        .limit(1)
+      // Check if user has completed onboarding by checking income in users table
+      const { data: userRecord } = await supabase
+        .from('users')
+        .select('income, goal')
+        .eq('id', session.user.id)
+        .single()
 
-      if (!income || income.length === 0) {
-        router.push('/onboarding')
-      } else {
+      if (userRecord && userRecord.income > 0) {
         router.push('/dashboard')
+      } else {
+        router.push('/onboarding')
       }
     }
 
