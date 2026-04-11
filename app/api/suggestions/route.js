@@ -115,17 +115,17 @@ ${categoryList}
 MONTHLY SPENDING PATTERNS:
 ${monthlySummary}
 
-REPEATED EXPENSES (Habits/Subscriptions):
+REPEATED HABITS:
 ${repeatedExpenses || 'No repeated patterns yet'}
 
-TOP AVOIDABLE EXPENSES:
+AVOIDABLE SPENDING (USE THESE FOR MISTAKES):
 ${avoidableList || 'No avoidable expenses yet'}
 
 MOOD BASED SPENDING:
 ${moodPattern || 'No mood data yet'}
 
 YOUR TASK:
-Analyze ALL of the above transaction intelligence and provide a structured JSON response.
+Analyze the transaction intelligence and provide a structured JSON response.
 
 1. PATTERN ANALYSIS:
    - Identify if the user is repeating spending mistakes month-to-month.
@@ -133,14 +133,16 @@ Analyze ALL of the above transaction intelligence and provide a structured JSON 
    - Identify if there are "habitual" expenses (repeated titles).
 
 2. MOOD WARNING:
-   - Precisely pinpoint if a specific mood triggers higher spending.
+   - Precisely pinpoint if a specific mood triggers higher spending in AVOIDABLE categories.
    - Give 1 actionable rule for that mood.
 
-3. BIGGEST MISTAKE:
-   - The single most expensive habit or pattern found.
+3. BIGGEST MISTAKE (CRITICAL RULE):
+   - Select the single most expensive habit or pattern from the AVOIDABLE list only.
+   - NEVER, UNDER ANY CIRCUMSTANCE, flag Rent, Hostel, EMI, Tuition, Groceries, or Electricity as a "Mistake". These are survival costs.
+   - A mistake is a high-frequency or high-amount spend on things like dining out, shopping, or non-essential subscriptions.
 
 4. SUGGESTIONS (Provide exactly 6 items):
-   - 3 Investment suggestions based on their savings (SIP, Liquid Funds, etc. - use Indian options).
+   - 3 Investment suggestions based on their savings.
    - 3 Saving suggestions based on their ACTUAL top avoidable expenses.
 
 Rules:
