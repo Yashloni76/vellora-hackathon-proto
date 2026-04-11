@@ -80,31 +80,39 @@ export default function AnalyticsPage() {
 
     const userId = session.user.id
 
-    const [{ data: expData }, { data: incData }] = await Promise.all([
+    const [{ data: expData }, { data: incData, error: incError }, { data: userData }] = await Promise.all([
       supabase.from('expenses').select('*').eq('user_id', userId),
-      supabase.from('income').select('*').eq('user_id', userId)
+      supabase.from('income').select('*').eq('user_id', userId),
+      supabase.from('users').select('income').eq('id', userId).single()
     ])
 
     const expenses = expData || []
     const income = incData || []
+    const profileIncome = Number(userData?.income || 0)
 
-    console.log('EXPENSES:', expenses.length, expenses[0])
-    console.log('INCOME:', income.length, income[0])
+    console.log('EXPENSES:', expenses.length, expenses[0] || 'No expenses')
+    console.log('INCOME TABLE RECS:', income.length, incError ? '404 NO TABLE' : '')
+    console.log('PROFILE INCOME:', profileIncome)
 
     setRawExpenses(expenses)
     setRawIncome(income)
 
-    const { data: goalData } = await supabase
-      .from('income')
-      .select('savings_goal')
-      .eq('user_id', userId)
-      .limit(1)
-      .single()
+    let goalTarget = null
+    if (!incError) {
+      const { data: goalData } = await supabase
+        .from('income')
+        .select('savings_goal')
+        .eq('user_id', userId)
+        .limit(1)
+        .single()
+      if (goalData?.savings_goal) goalTarget = goalData.savings_goal
+    }
+    if (goalTarget) setSavedGoal(Number(goalTarget))
 
-    if (goalData?.savings_goal) setSavedGoal(Number(goalData.savings_goal))
-
-    // TOTAL INCOME — sum all income records for this user
-    const totalIncomeCalc = income.reduce((sum, i) => sum + Number(i.amount || 0), 0)
+    // TOTAL INCOME — sum all income records, fallback to users.income if table is missing/empty
+    const totalIncRecords = income.reduce((sum, i) => sum + Number(i.amount || 0), 0)
+    const totalIncomeCalc = totalIncRecords > 0 ? totalIncRecords : profileIncome
+    
     setTotalIncome(totalIncomeCalc)
     console.log('TOTAL INCOME:', totalIncomeCalc)
 
