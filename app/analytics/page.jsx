@@ -150,6 +150,12 @@ export default function AnalyticsPage() {
         const d = new Date(); d.setMonth(d.getMonth() - (5 - i))
         return d.toLocaleString('en-US', { month: 'short' }).toUpperCase()
       })
+      
+      // Fallback: If no income records exist, assume the user earns primaryIncome every month
+      if (Object.keys(monthlyIncomeMap).length === 0 && primaryIncome > 0) {
+        last6.forEach(m => monthlyIncomeMap[m] = primaryIncome)
+      }
+
       let cum = 0
       return last6.map(m => {
         const spent = filteredExp
@@ -178,9 +184,15 @@ export default function AnalyticsPage() {
         weeklyExp[wk].spent += Number(exp.amount)
       })
       const weeksPerMonth = {}
-      Object.values(weeklyExp).forEach(({ m }) => {
-        weeksPerMonth[m] = (weeksPerMonth[m] || 0) + 1
+      Object.keys(weeklyExp).forEach(wk => {
+         const m = weeklyExp[wk].m
+         weeksPerMonth[m] = (weeksPerMonth[m] || 0) + 1
       })
+
+      if (Object.keys(monthlyIncomeMap).length === 0 && primaryIncome > 0) {
+        Object.values(weeklyExp).forEach(w => { monthlyIncomeMap[w.m] = primaryIncome })
+      }
+
       let cum = 0
       return Object.entries(weeklyExp).map(([wk, { spent, m }]) => {
         const weekInc = (monthlyIncomeMap[m] || 0) / (weeksPerMonth[m] || 1)
@@ -206,9 +218,15 @@ export default function AnalyticsPage() {
         dailyExp[day].spent += Number(exp.amount)
       })
       const daysPerMonth = {}
-      Object.values(dailyExp).forEach(({ m }) => {
-        daysPerMonth[m] = (daysPerMonth[m] || 0) + 1
+      Object.keys(dailyExp).forEach(day => {
+         const m = dailyExp[day].m
+         daysPerMonth[m] = (daysPerMonth[m] || 0) + 1
       })
+
+      if (Object.keys(monthlyIncomeMap).length === 0 && primaryIncome > 0) {
+        Object.values(dailyExp).forEach(d => { monthlyIncomeMap[d.m] = primaryIncome })
+      }
+
       let cum = 0
       return Object.entries(dailyExp).map(([day, { spent, m }]) => {
         const dayInc = (monthlyIncomeMap[m] || 0) / (daysPerMonth[m] || 1)
@@ -218,7 +236,7 @@ export default function AnalyticsPage() {
     }
   
     return []
-  }, [velocityView, rawExpenses, rawIncome, filter])
+  }, [velocityView, rawExpenses, rawIncome, filter, primaryIncome])
 
   const computedSavingsRate = useMemo(() => {
     const filteredExp = getFilteredExpenses()
