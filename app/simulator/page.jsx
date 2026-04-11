@@ -18,7 +18,7 @@ export default function SimulatorPage() {
   }, [user, loading])
 
   if (loading) return (
-    <div className="flex items-center justify-center h-screen bg-[#0a0a0a]">
+    <div className="flex items-center justify-center h-screen bg-[var(--bg-primary)]">
       <div className="text-[#00ff88] text-xl">Loading...</div>
     </div>
   )
@@ -36,17 +36,17 @@ export default function SimulatorPage() {
       <header className="flex justify-between items-end">
         <div className="space-y-4 max-w-2xl">
           <div className="flex items-center gap-2">
-            <h1 className="text-4xl font-black tracking-tight text-white uppercase italic">What-If Simulator</h1>
+            <h1 className="text-4xl font-black tracking-tight text-[var(--text-primary)] uppercase italic">What-If Simulator</h1>
             <div className="w-1.5 h-1.5 rounded-full bg-[#00ff88] mt-4 shadow-[0_0_10px_rgba(0,255,136,0.6)]" />
           </div>
-          <p className="text-sm font-bold text-muted leading-relaxed uppercase tracking-widest italic opacity-80">
+          <p className="text-sm font-bold text-[var(--text-muted)] leading-relaxed uppercase tracking-widest italic opacity-80">
             &quot;Every ₹100 saved today is a brick in your future financial fortress. Adjust non-essentials to visualize your trajectory.&quot;
           </p>
         </div>
 
-        <div className="hidden lg:flex items-center gap-3 px-6 py-3 bg-[#111311] border border-border-dark rounded-2xl group cursor-help transition-all hover:border-[#00ff8830]">
+        <div className="hidden lg:flex items-center gap-3 px-6 py-3 bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl group cursor-help transition-all hover:border-[#00ff8830]">
            <Info size={16} className="text-[#00ff88]" />
-           <p className="text-[10px] text-muted font-black tracking-widest uppercase">Simulation logic v1.2</p>
+           <p className="text-[10px] text-[var(--text-muted)] font-black tracking-widest uppercase">Simulation logic v1.2</p>
         </div>
       </header>
 

@@ -11,11 +11,11 @@ export default function HeatMap() {
   }, []);
 
   return (
-    <div className="card bg-[#111311] border border-border-dark p-8 relative overflow-hidden flex flex-col h-full group">
+    <div className="card bg-[var(--bg-card)] border border-[var(--border)] p-8 relative overflow-hidden flex flex-col h-full group">
       <div className="flex justify-between items-start mb-10">
-        <h2 className="text-xl font-bold text-white tracking-tight">Financial Contribution Map</h2>
+        <h2 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">Financial Contribution Map</h2>
         <div className="flex items-center gap-3">
-          <span className="text-[10px] text-muted font-bold tracking-widest uppercase">Less</span>
+          <span className="text-[10px] text-[var(--text-muted)] font-bold tracking-widest uppercase">Less</span>
           <div className="flex gap-1">
             {[0.1, 0.3, 0.6, 1.0].map((op) => (
               <div 
@@ -25,7 +25,7 @@ export default function HeatMap() {
               />
             ))}
           </div>
-          <span className="text-[10px] text-muted font-bold tracking-widest uppercase">More</span>
+          <span className="text-[10px] text-[var(--text-muted)] font-bold tracking-widest uppercase">More</span>
         </div>
       </div>
 

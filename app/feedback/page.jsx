@@ -36,7 +36,7 @@ const FeedbackPage = () => {
   }, [user, loading])
 
   if (loading) return (
-    <div className="flex items-center justify-center h-screen bg-[#0a0a0a]">
+    <div className="flex items-center justify-center h-screen bg-[var(--bg-primary)]">
       <div className="text-[#00ff88] text-xl">Loading...</div>
     </div>
   )
@@ -156,7 +156,7 @@ const FeedbackPage = () => {
                 onChange={(e) => setFeedbackText(e.target.value)}
                 maxLength={500}
                 placeholder="What's your experience so far?"
-                className="w-full bg-[#0a0a0a] border-2 border-border-dark rounded-3xl p-8 min-h-[200px] text-lg font-medium placeholder:text-white/10 focus:outline-none focus:border-[#00ff88]/50 focus:bg-white/5 transition-all outline-none"
+                className="w-full bg-[var(--bg-primary)] border-2 border-[var(--border)] rounded-3xl p-8 min-h-[200px] text-lg font-medium placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[#00ff88]/50 focus:bg-[#00ff88]/5 transition-all outline-none text-[var(--text-primary)]"
               />
               <div className="absolute bottom-6 right-8 text-xs font-black uppercase tracking-widest text-muted">
                 {feedbackText.length} / 500

@@ -9,10 +9,11 @@ module.exports = {
     extend: {
       colors: {
         'green-accent': '#00ff88',
-        'card': '#111311',
-        'primary': '#0a0a0a',
-        'border-dark': '#1f2b1f',
-        'muted': '#6b7280',
+        'card': 'var(--bg-card)',
+        'card-hover': 'var(--bg-card-hover)',
+        'primary': 'var(--bg-primary)',
+        'border-dark': 'var(--border)',
+        'muted': 'var(--text-muted)',
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",

@@ -39,12 +39,12 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-6 text-white font-sans">
+    <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center p-6 text-[var(--text-primary)] font-sans">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="w-full max-w-[440px] bg-[#111311] border border-white/5 rounded-[2.5rem] p-12 shadow-2xl shadow-green-500/5 relative overflow-hidden"
+        className="w-full max-w-[440px] bg-[var(--bg-card)] border border-[var(--border)] rounded-[2.5rem] p-12 shadow-2xl shadow-green-500/5 relative overflow-hidden"
       >
         {/* Decorative background glow */}
         <div className="absolute top-0 right-0 w-32 h-32 bg-[#00ff88]/10 blur-[80px] -mr-16 -mt-16" />
@@ -58,19 +58,19 @@ export default function LoginPage() {
           >
             SYMP
           </motion.h1>
-          <h2 className="text-2xl font-bold text-white tracking-tight">Welcome Back</h2>
-          <p className="text-gray-400 mt-2 text-sm">Sign in to your account</p>
+          <h2 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">Welcome Back</h2>
+          <p className="text-[var(--text-muted)] mt-2 text-sm">Sign in to your account</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-6 relative z-10">
           <div className="space-y-2">
             <div className="relative group">
-              <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-[#00ff88] transition-colors" />
+              <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-muted)] group-focus-within:text-[#00ff88] transition-colors" />
               <input 
                 type="email" 
                 placeholder="Email address"
                 required
-                className="w-full bg-[#1a1c1a] border border-white/5 rounded-2xl py-5 pl-14 pr-4 outline-none focus:border-[#00ff88]/50 focus:ring-1 focus:ring-[#00ff88]/20 transition-all text-sm font-medium"
+                className="w-full bg-[var(--bg-primary)] border border-[var(--border)] rounded-2xl py-5 pl-14 pr-4 outline-none focus:border-[#00ff88]/50 focus:ring-1 focus:ring-[#00ff88]/20 transition-all text-sm font-medium text-[var(--text-primary)]"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -79,19 +79,19 @@ export default function LoginPage() {
 
           <div className="space-y-2">
             <div className="relative group">
-              <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-[#00ff88] transition-colors" />
+              <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-muted)] group-focus-within:text-[#00ff88] transition-colors" />
               <input 
                 type={showPassword ? "text" : "password"}
                 placeholder="Password"
                 required
-                className="w-full bg-[#1a1c1a] border border-white/5 rounded-2xl py-5 pl-14 pr-14 outline-none focus:border-[#00ff88]/50 focus:ring-1 focus:ring-[#00ff88]/20 transition-all text-sm font-medium"
+                className="w-full bg-[var(--bg-primary)] border border-[var(--border)] rounded-2xl py-5 pl-14 pr-14 outline-none focus:border-[#00ff88]/50 focus:ring-1 focus:ring-[#00ff88]/20 transition-all text-sm font-medium text-[var(--text-primary)]"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
               <button 
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors p-1"
+                className="absolute right-5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors p-1"
               >
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
@@ -116,7 +116,7 @@ export default function LoginPage() {
             </motion.div>
           )}
 
-          <p className="text-center text-gray-400 text-sm mt-8">
+          <p className="text-center text-[var(--text-muted)] text-sm mt-8">
             Don't have an account? {' '}
             <Link href="/signup" className="text-[#00ff88] font-bold hover:underline">
               Sign Up

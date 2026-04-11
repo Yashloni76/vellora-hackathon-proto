@@ -6,7 +6,7 @@ export default function SuggestionCard({ text, type, index }) {
 
   return (
     <div
-      className="bg-[#111311] border border-[#1a1f1a] rounded-2xl p-5 flex gap-4 items-start hover:border-[#00ff88]/30 hover:bg-[#1a1f1a] transition-all duration-200"
+      className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-5 flex gap-4 items-start hover:border-[#00ff88]/30 hover:bg-[var(--bg-card-hover)] transition-all duration-200"
       style={{ borderLeft: "3px solid #00ff88" }}
     >
       {/* Icon */}
@@ -30,11 +30,11 @@ export default function SuggestionCard({ text, type, index }) {
           >
             {isInvestment ? "INVESTMENT" : "SAVING TIP"}
           </span>
-          <span className="text-[10px] text-[#444] font-bold">#{String(index + 1).padStart(2, "0")}</span>
+          <span className="text-[10px] text-[var(--text-muted)] font-bold">#{String(index + 1).padStart(2, "0")}</span>
         </div>
-        <p className="text-white text-[14px] font-semibold leading-snug">{text.split(":")[0]?.trim() || text}</p>
+        <p className="text-[var(--text-primary)] text-[14px] font-semibold leading-snug">{text.split(":")[0]?.trim() || text}</p>
         {text.includes(":") && (
-          <p className="text-[#888] text-[13px] leading-relaxed">{text.split(":").slice(1).join(":").trim()}</p>
+          <p className="text-[var(--text-muted)] text-[13px] leading-relaxed opacity-70">{text.split(":").slice(1).join(":").trim()}</p>
         )}
       </div>
     </div>

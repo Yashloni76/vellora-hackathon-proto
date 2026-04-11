@@ -70,7 +70,7 @@ export default function Sidebar() {
 
   return (
     <>
-      <aside className="w-[200px] h-screen bg-[#0f0f0f] border-r border-border-dark flex flex-col fixed left-0 top-0 z-50">
+      <aside className="w-[200px] h-screen bg-[var(--bg-primary)] border-r border-[var(--border)] flex flex-col fixed left-0 top-0 z-50">
       {/* Logo Section */}
       <div className="px-4 pt-4 pb-2 flex items-center justify-center">
         <img src="/logo.png" alt="SYMP's Logo" className="w-[150px] h-[150px] object-contain" />
@@ -91,10 +91,10 @@ export default function Sidebar() {
                 "flex items-center gap-3 px-6 py-3 text-[11px] font-bold tracking-wider transition-all duration-200 border-l-[3px]",
                 isActive 
                   ? "bg-[#00ff8812] text-[#00ff88] border-[#00ff88]" 
-                  : "text-muted border-transparent hover:text-white hover:bg-white/5"
+                  : "text-[var(--text-muted)] border-transparent hover:text-[var(--text-primary)] hover:bg-[var(--text-primary)]/5"
               )}
             >
-              <Icon size={16} className={isActive ? "text-[#00ff88]" : "text-muted"} />
+              <Icon size={16} className={isActive ? "text-[#00ff88]" : "text-[var(--text-muted)]"} />
               {item.name}
             </Link>
           );
@@ -107,7 +107,7 @@ export default function Sidebar() {
         <div className="space-y-1">
           <Link
             href="/settings"
-            className="flex items-center gap-3 px-2 py-2 text-[11px] font-bold text-muted hover:text-white transition-colors"
+            className="flex items-center gap-3 px-2 py-2 text-[11px] font-bold text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
           >
             <Settings size={16} />
             SETTINGS
@@ -133,7 +133,7 @@ export default function Sidebar() {
         justifyContent: 'center'
       }}>
         <div style={{
-          backgroundColor: '#111311',
+          backgroundColor: 'var(--bg-card)',
           border: '1px solid #00ff88',
           borderRadius: '16px',
           padding: '32px',
@@ -149,7 +149,7 @@ export default function Sidebar() {
             Quick Add Expense
           </h2>
           <p style={{
-            color: '#6b7280',
+            color: 'var(--text-muted)',
             fontSize: '13px',
             marginBottom: '24px'
           }}>
@@ -158,7 +158,7 @@ export default function Sidebar() {
 
           <div style={{ marginBottom: '14px' }}>
             <label style={{
-              color: '#6b7280',
+              color: 'var(--text-muted)',
               fontSize: '11px',
               display: 'block',
               marginBottom: '6px',
@@ -174,10 +174,10 @@ export default function Sidebar() {
               style={{
                 width: '100%',
                 padding: '10px 12px',
-                backgroundColor: '#0a0a0a',
-                border: '1px solid #1f2b1f',
+                backgroundColor: 'var(--bg-primary)',
+                border: '1px solid var(--border)',
                 borderRadius: '8px',
-                color: '#fff',
+                color: 'var(--text-primary)',
                 fontSize: '14px',
                 outline: 'none',
                 boxSizing: 'border-box'
@@ -187,7 +187,7 @@ export default function Sidebar() {
 
           <div style={{ marginBottom: '14px' }}>
             <label style={{
-              color: '#6b7280',
+              color: 'var(--text-muted)',
               fontSize: '11px',
               display: 'block',
               marginBottom: '6px',
@@ -203,10 +203,10 @@ export default function Sidebar() {
               style={{
                 width: '100%',
                 padding: '10px 12px',
-                backgroundColor: '#0a0a0a',
-                border: '1px solid #1f2b1f',
+                backgroundColor: 'var(--bg-primary)',
+                border: '1px solid var(--border)',
                 borderRadius: '8px',
-                color: '#fff',
+                color: 'var(--text-primary)',
                 fontSize: '14px',
                 outline: 'none',
                 boxSizing: 'border-box'
@@ -216,7 +216,7 @@ export default function Sidebar() {
 
           <div style={{ marginBottom: '24px' }}>
             <label style={{
-              color: '#6b7280',
+              color: 'var(--text-muted)',
               fontSize: '11px',
               display: 'block',
               marginBottom: '6px',
@@ -230,10 +230,10 @@ export default function Sidebar() {
               style={{
                 width: '100%',
                 padding: '10px 12px',
-                backgroundColor: '#0a0a0a',
-                border: '1px solid #1f2b1f',
+                backgroundColor: 'var(--bg-primary)',
+                border: '1px solid var(--border)',
                 borderRadius: '8px',
-                color: '#fff',
+                color: 'var(--text-primary)',
                 fontSize: '14px',
                 outline: 'none',
                 boxSizing: 'border-box'
@@ -251,9 +251,9 @@ export default function Sidebar() {
                 flex: 1,
                 padding: '11px',
                 backgroundColor: 'transparent',
-                border: '1px solid #1f2b1f',
+                border: '1px solid var(--border)',
                 borderRadius: '8px',
-                color: '#6b7280',
+                color: 'var(--text-muted)',
                 cursor: 'pointer',
                 fontSize: '14px'
               }}

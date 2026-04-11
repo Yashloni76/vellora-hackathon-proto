@@ -17,8 +17,8 @@ export default function MilestoneCards() {
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-end">
-         <h2 className="text-xl font-bold text-white tracking-tight underline decoration-[#00ff88]/30 underline-offset-8">Architect Milestones</h2>
-         <span className="text-[10px] text-muted font-bold tracking-[0.2em] uppercase">Progression Index</span>
+         <h2 className="text-xl font-bold text-[var(--text-primary)] tracking-tight underline decoration-[#00ff88]/30 underline-offset-8">Architect Milestones</h2>
+         <span className="text-[10px] text-[var(--text-muted)] font-bold tracking-[0.2em] uppercase">Progression Index</span>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
@@ -38,13 +38,13 @@ function MilestoneCard({ milestone }) {
     <div className={cn(
       "card p-6 flex flex-col items-center justify-center text-center space-y-4 border transition-all duration-300 relative group overflow-hidden h-48",
       isUnlocked 
-        ? "bg-[#111311] border-[#1a1f1a] hover:border-[#00ff88]/30 hover:bg-[#1a1f1a] transition-all duration-200 hover:shadow-[0_0_20px_rgba(0,255,136,0.1)]" 
-        : "bg-gray-950 border-gray-900 opacity-60 filter grayscale hover:grayscale-0 hover:opacity-80"
+        ? "bg-[var(--bg-card)] border-[var(--border)] hover:border-[#00ff88]/30 hover:bg-[var(--bg-card-hover)] transition-all duration-200 hover:shadow-[0_0_20px_rgba(0,255,136,0.1)]" 
+        : "bg-[var(--bg-primary)] border-[var(--border)] opacity-60 filter grayscale hover:grayscale-0 hover:opacity-80"
     )}>
       {/* Icon Area */}
       <div className={cn(
         "w-12 h-12 rounded-full flex items-center justify-center relative z-10",
-        isUnlocked ? "bg-[#00ff8815] text-[#00ff88]" : "bg-gray-900 text-muted"
+        isUnlocked ? "bg-[#00ff8815] text-[#00ff88]" : "bg-[var(--bg-card)] text-[var(--text-muted)]"
       )}>
         {isUnlocked ? <Icon size={24} /> : <Lock size={20} />}
       </div>
@@ -52,11 +52,11 @@ function MilestoneCard({ milestone }) {
       <div className="space-y-1 relative z-10">
         <h3 className={cn(
           "text-[10px] font-black tracking-widest uppercase",
-          isUnlocked ? "text-white" : "text-muted"
+          isUnlocked ? "text-[var(--text-primary)]" : "text-[var(--text-muted)]"
         )}>
           {milestone.title}
         </h3>
-        <p className="text-[9px] text-muted font-bold leading-tight uppercase tracking-widest">
+        <p className="text-[9px] text-[var(--text-muted)] font-bold leading-tight uppercase tracking-widest">
            {milestone.sub}
         </p>
       </div>

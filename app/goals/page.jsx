@@ -25,7 +25,7 @@ const GoalsPage = () => {
   }, [user, loading])
 
   if (loading) return (
-    <div className="flex items-center justify-center h-screen bg-[#0a0a0a]">
+    <div className="flex items-center justify-center h-screen bg-[var(--bg-primary)]">
       <div className="text-[#00ff88] text-xl">Loading...</div>
     </div>
   )
@@ -60,14 +60,14 @@ const GoalsPage = () => {
   };
 
   return (
-    <div className="p-10 max-w-7xl mx-auto min-h-screen text-white bg-primary">
+    <div className="p-10 max-w-7xl mx-auto min-h-screen text-[var(--text-primary)] bg-primary">
       {/* Title & Subtitle */}
       <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         className="mb-12"
       >
-        <h1 className="text-5xl font-black tracking-tight mb-3 bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent">
+        <h1 className="text-5xl font-black tracking-tight mb-3 bg-gradient-to-r from-[var(--text-primary)] to-[var(--text-primary)]/60 bg-clip-text text-transparent">
           Financial Goals
         </h1>
         <p className="text-muted text-xl font-medium">Track your saving milestones</p>
@@ -139,11 +139,11 @@ const GoalsPage = () => {
                 <div className="flex justify-between items-end">
                   <div className="space-y-1">
                     <p className="text-muted text-[10px] font-black uppercase tracking-widest">Current Balance</p>
-                    <p className="text-2xl font-black text-white">₹{goal.current.toLocaleString()}</p>
+                    <p className="text-2xl font-black text-[var(--text-primary)]">₹{goal.current.toLocaleString()}</p>
                   </div>
                   <div className="text-right space-y-1">
                     <p className="text-muted text-[10px] font-black uppercase tracking-widest">Target Goal</p>
-                    <p className="text-xl font-bold text-white/50">₹{goal.target.toLocaleString()}</p>
+                    <p className="text-xl font-bold text-[var(--text-primary)]/50">₹{goal.target.toLocaleString()}</p>
                   </div>
                 </div>
 
@@ -198,11 +198,11 @@ const GoalsPage = () => {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 30 }}
               transition={{ type: "spring", damping: 20, stiffness: 300 }}
-              className="relative w-full max-w-lg bg-[#111311] border border-white/10 p-10 rounded-[3rem] shadow-[0_50px_100px_rgba(0,0,0,0.8)]"
+              className="relative w-full max-w-lg bg-[var(--bg-card)] border border-[var(--border)] p-10 rounded-[3rem] shadow-[0_50px_100px_rgba(0,0,0,0.8)]"
             >
               <button
                 onClick={() => setIsDialogOpen(false)}
-                className="absolute top-8 right-8 text-muted hover:text-white transition-colors"
+                className="absolute top-8 right-8 text-muted hover:text-[var(--text-primary)] transition-colors"
               >
                 <X size={30} />
               </button>
@@ -220,7 +220,7 @@ const GoalsPage = () => {
                   <input
                     type="text"
                     placeholder="E.g. Digital Nomad Fund"
-                    className="w-full bg-white/5 border-2 border-white/5 rounded-2xl px-6 py-4 font-bold text-white placeholder:text-white/20 focus:outline-none focus:border-[#00ff88]/50 focus:bg-[#00ff88]/5 transition-all"
+                    className="w-full bg-[var(--bg-primary)] border-2 border-[var(--border)] rounded-2xl px-6 py-4 font-bold text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[#00ff88]/50 focus:bg-[#00ff88]/5 transition-all"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-6">
@@ -231,7 +231,7 @@ const GoalsPage = () => {
                     <input
                       type="number"
                       placeholder="0"
-                      className="w-full bg-white/5 border-2 border-white/5 rounded-2xl px-6 py-4 font-bold text-white placeholder:text-white/20 focus:outline-none focus:border-[#00ff88]/50 focus:bg-[#00ff88]/5 transition-all"
+                      className="w-full bg-[var(--bg-primary)] border-2 border-[var(--border)] rounded-2xl px-6 py-4 font-bold text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[#00ff88]/50 focus:bg-[#00ff88]/5 transition-all"
                     />
                   </div>
                   <div className="group">
@@ -241,7 +241,7 @@ const GoalsPage = () => {
                     <input
                       type="text"
                       placeholder="Jan 2026"
-                      className="w-full bg-white/5 border-2 border-white/5 rounded-2xl px-6 py-4 font-bold text-white placeholder:text-white/20 focus:outline-none focus:border-[#00ff88]/50 focus:bg-[#00ff88]/5 transition-all"
+                      className="w-full bg-[var(--bg-primary)] border-2 border-[var(--border)] rounded-2xl px-6 py-4 font-bold text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[#00ff88]/50 focus:bg-[#00ff88]/5 transition-all"
                     />
                   </div>
                 </div>

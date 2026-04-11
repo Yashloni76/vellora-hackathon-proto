@@ -105,10 +105,10 @@ export default function OnboardingPage() {
       initial={{ opacity: 0, y: 20 }} 
       animate={{ opacity: 1, y: 0 }} 
       transition={{ duration: 0.4 }}
-      className="min-h-screen bg-[#0a0a0a] text-white flex flex-col font-sans"
+      className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] flex flex-col font-sans"
     >
       {/* Top Bar */}
-      <header className="flex justify-between items-center px-12 py-8 border-b border-border-dark/30">
+      <header className="flex justify-between items-center px-12 py-8 border-b border-[var(--border)]">
         <div className="flex flex-col">
           <h2 className="text-[#00ff88] font-bold tracking-tighter text-lg leading-tight">SYMP&apos;s ONBOARDING</h2>
           <div className="flex items-center gap-2 mt-2">
@@ -118,15 +118,15 @@ export default function OnboardingPage() {
                   key={s}
                   className={cn(
                     "h-1 rounded-full transition-all duration-300",
-                    s <= step ? "w-8 bg-[#00ff88]" : "w-4 bg-gray-800"
+                    s <= step ? "w-8 bg-[#00ff88]" : "w-4 bg-[var(--bg-card)]"
                   )}
                 />
               ))}
             </div>
-            <span className="text-[10px] text-muted font-bold ml-2 tracking-widest">STEP 0{step}/03</span>
+            <span className="text-[10px] text-[var(--text-muted)] font-bold ml-2 tracking-widest">STEP 0{step}/03</span>
           </div>
         </div>
-        <button className="text-muted font-bold text-[11px] tracking-widest hover:text-white transition-colors">
+        <button className="text-[var(--text-muted)] font-bold text-[11px] tracking-widest hover:text-[var(--text-primary)] transition-colors">
           NEED HELP?
         </button>
       </header>
@@ -173,23 +173,23 @@ export default function OnboardingPage() {
               )}
             </div>
 
-            {/* Sidebar Card (Visible only in Step 1 for now as per req, or generic) */}
+            {/* Sidebar Card */}
             <div className="hidden lg:block">
-              <div className="bg-[#111311] border border-border-dark rounded-xl p-6 relative overflow-hidden group hover:border-[#00ff88]/30 transition-colors">
+              <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-6 relative overflow-hidden group hover:border-[#00ff88]/30 transition-colors">
                 <div className="absolute top-0 left-0 w-full h-[3px] bg-[#00ff88]" />
                 <div className="w-10 h-10 bg-[#00ff8810] rounded-lg flex items-center justify-center mb-4">
                   <TrendingUp className="text-[#00ff88]" size={20} />
                 </div>
                 <h3 className="text-[#00ff88] font-bold text-sm mb-2">Smart Analysis</h3>
-                <p className="text-muted text-[11px] leading-relaxed">
+                <p className="text-[var(--text-muted)] text-[11px] leading-relaxed">
                   SYMP&apos;s uses AI to categorize your income automatically. Connect your bank later for real-time tracking.
                 </p>
-                <div className="mt-6 pt-6 border-t border-border-dark/50">
+                <div className="mt-6 pt-6 border-t border-[var(--border)]">
                    <div className="flex items-center gap-2 mb-3">
                       <div className="w-1.5 h-1.5 rounded-full bg-[#00ff88] animate-pulse" />
-                      <span className="text-[10px] text-muted font-bold tracking-wider">AI RECOMMENDATION</span>
+                      <span className="text-[10px] text-[var(--text-muted)] font-bold tracking-wider">AI RECOMMENDATION</span>
                    </div>
-                   <p className="text-white text-[11px] font-medium leading-snug">
+                   <p className="text-[var(--text-primary)] text-[11px] font-medium leading-snug">
                      &quot;Most professionals save 20% on onboarding. We can set that as your default goal.&quot;
                    </p>
                 </div>
@@ -206,22 +206,22 @@ function Step1({ formData, setFormData, onContinue }) {
   return (
     <div className="space-y-6">
       <div className="mb-10">
-        <h1 className="text-3xl font-bold tracking-tight mb-2">Income Setup</h1>
-        <p className="text-muted text-sm">Let&apos;s map out your financial inflow.</p>
+        <h1 className="text-3xl font-bold tracking-tight mb-2 text-[var(--text-primary)]">Income Setup</h1>
+        <p className="text-[var(--text-muted)] text-sm">Let&apos;s map out your financial inflow.</p>
       </div>
 
-      <div className="card space-y-6 bg-[#111311]">
+      <div className="card space-y-6 bg-[var(--bg-card)] border border-[var(--border)] p-8 rounded-2xl">
         {/* Source */}
         <div className="space-y-3">
-          <label className="text-[10px] text-muted font-bold tracking-widest uppercase">Primary Source</label>
+          <label className="text-[10px] text-[var(--text-muted)] font-bold tracking-widest uppercase">Primary Source</label>
           <div className="relative">
             <input 
               type="text" 
               value={formData.incomeSource}
               onChange={(e) => setFormData({...formData, incomeSource: e.target.value})}
-              className="w-full bg-[#0a0a0a] border border-border-dark rounded-xl px-4 py-4 text-sm focus:border-[#00ff88] outline-none transition-colors"
+              className="w-full bg-[var(--bg-primary)] border border-[var(--border)] rounded-xl px-4 py-4 text-sm focus:border-[#00ff88] outline-none transition-colors text-[var(--text-primary)] placeholder:text-[var(--text-muted)]/50"
             />
-            <Pencil size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted" />
+            <Pencil size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
           </div>
           <div className="flex gap-2">
             <button 
@@ -230,7 +230,7 @@ function Step1({ formData, setFormData, onContinue }) {
                 "px-4 py-1.5 rounded-full text-[10px] font-bold tracking-wider border transition-all",
                 formData.incomeType === "PROFESSIONAL" 
                   ? "bg-[#00ff8815] text-[#00ff88] border-[#00ff88]" 
-                  : "bg-transparent text-muted border-gray-800"
+                  : "bg-transparent text-[var(--text-muted)] border-[var(--border)]"
               )}
             >
               PROFESSIONAL
@@ -241,7 +241,7 @@ function Step1({ formData, setFormData, onContinue }) {
                 "px-4 py-1.5 rounded-full text-[10px] font-bold tracking-wider border transition-all",
                 formData.incomeType === "STUDENT" 
                   ? "bg-[#00ff8815] text-[#00ff88] border-[#00ff88]" 
-                  : "bg-transparent text-muted border-gray-800"
+                  : "bg-transparent text-[var(--text-muted)] border-[var(--border)]"
               )}
             >
               STUDENT FRIENDLY
@@ -252,43 +252,43 @@ function Step1({ formData, setFormData, onContinue }) {
         {/* Amount */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-3">
-            <label className="text-[10px] text-muted font-bold tracking-widest uppercase">Amount</label>
+            <label className="text-[10px] text-[var(--text-muted)] font-bold tracking-widest uppercase">Amount</label>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#00ff88] font-bold">₹</span>
               <input 
                 type="text" 
                 value={formData.amount}
                 onChange={(e) => setFormData({...formData, amount: e.target.value})}
-                className="w-full bg-[#0a0a0a] border border-border-dark rounded-xl pl-8 pr-4 py-4 text-sm focus:border-[#00ff88] outline-none transition-colors"
+                className="w-full bg-[var(--bg-primary)] border border-[var(--border)] rounded-xl pl-8 pr-4 py-4 text-sm focus:border-[#00ff88] outline-none transition-colors text-[var(--text-primary)]"
               />
             </div>
           </div>
           <div className="space-y-3">
-            <label className="text-[10px] text-muted font-bold tracking-widest uppercase">Frequency</label>
+            <label className="text-[10px] text-[var(--text-muted)] font-bold tracking-widest uppercase">Frequency</label>
             <div className="relative">
               <select 
                 value={formData.frequency}
                 onChange={(e) => setFormData({...formData, frequency: e.target.value})}
-                className="w-full bg-[#0a0a0a] border border-border-dark rounded-xl px-4 py-4 text-sm focus:border-[#00ff88] outline-none appearance-none cursor-pointer transition-colors"
+                className="w-full bg-[var(--bg-primary)] border border-[var(--border)] rounded-xl px-4 py-4 text-sm focus:border-[#00ff88] outline-none appearance-none cursor-pointer transition-colors text-[var(--text-primary)]"
               >
                 <option>Monthly</option>
                 <option>Weekly</option>
                 <option>Daily</option>
               </select>
-              <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
+              <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
             </div>
           </div>
         </div>
 
         {/* Common Sources */}
         <div className="space-y-3 pt-2">
-          <label className="text-[10px] text-muted font-bold tracking-widest uppercase">Common Sources</label>
+          <label className="text-[10px] text-[var(--text-muted)] font-bold tracking-widest uppercase">Common Sources</label>
           <div className="flex flex-wrap gap-2">
             {["Pocket Money", "Part-time Job", "Allowance"].map((src) => (
               <button 
                 key={src}
                 onClick={() => setFormData({...formData, incomeSource: src})}
-                className="px-4 py-2 bg-[#0a0a0a] border border-border-dark rounded-lg text-[11px] text-muted hover:text-white hover:border-gray-600 transition-all font-medium"
+                className="px-4 py-2 bg-[var(--bg-primary)] border border-[var(--border)] rounded-lg text-[11px] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[#00ff88]/30 transition-all font-medium"
               >
                 {src}
               </button>
@@ -304,7 +304,7 @@ function Step1({ formData, setFormData, onContinue }) {
         >
           Continue to Expenses
         </button>
-        <button className="w-full text-muted hover:text-white text-[11px] font-bold tracking-widest uppercase transition-colors">
+        <button className="w-full text-[var(--text-muted)] hover:text-[var(--text-primary)] text-[11px] font-bold tracking-widest uppercase transition-colors">
           Skip for now
         </button>
       </div>
@@ -322,15 +322,15 @@ function Step2({ expenseList, setExpenseList, onContinue, onBack }) {
   return (
     <div className="space-y-6">
       <div className="mb-10">
-        <h1 className="text-3xl font-bold tracking-tight mb-2">Add Expenses</h1>
-        <p className="text-muted text-sm">What does a typical month look like?</p>
+        <h1 className="text-3xl font-bold tracking-tight mb-2 text-[var(--text-primary)]">Add Expenses</h1>
+        <p className="text-[var(--text-muted)] text-sm">What does a typical month look like?</p>
       </div>
 
       <div className="space-y-4 max-h-[360px] overflow-y-auto pr-2 custom-scrollbar">
         {expenseList.map((expense, index) => (
-          <div key={index} className="card space-y-6 bg-[#111311] relative border border-border-dark/50 p-6 rounded-xl">
+          <div key={index} className="card space-y-6 bg-[var(--bg-card)] relative border border-[var(--border)] p-6 rounded-xl">
             <div className="space-y-3">
-              <label className="text-[10px] text-muted font-bold tracking-widest uppercase">Expense Name</label>
+              <label className="text-[10px] text-[var(--text-muted)] font-bold tracking-widest uppercase">Expense Name</label>
               <input 
                 type="text" 
                 placeholder="e.g. Rent, Netflix, Dining"
@@ -340,13 +340,13 @@ function Step2({ expenseList, setExpenseList, onContinue, onBack }) {
                   updated[index].name = e.target.value
                   setExpenseList(updated)
                 }}
-                className="w-full bg-[#0a0a0a] border border-border-dark rounded-xl px-4 py-4 text-sm focus:border-[#00ff88] outline-none transition-colors"
+                className="w-full bg-[var(--bg-primary)] border border-[var(--border)] rounded-xl px-4 py-4 text-sm focus:border-[#00ff88] outline-none transition-colors text-[var(--text-primary)] placeholder:text-[var(--text-muted)]/50"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-3">
-                <label className="text-[10px] text-muted font-bold tracking-widest uppercase">Amount</label>
+                <label className="text-[10px] text-[var(--text-muted)] font-bold tracking-widest uppercase">Amount</label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#00ff88] font-bold">₹</span>
                   <input 
@@ -357,12 +357,12 @@ function Step2({ expenseList, setExpenseList, onContinue, onBack }) {
                       updated[index].amount = e.target.value
                       setExpenseList(updated)
                     }}
-                    className="w-full bg-[#0a0a0a] border border-border-dark rounded-xl pl-8 pr-4 py-4 text-sm focus:border-[#00ff88] outline-none transition-colors"
+                    className="w-full bg-[var(--bg-primary)] border border-[var(--border)] rounded-xl pl-8 pr-4 py-4 text-sm focus:border-[#00ff88] outline-none transition-colors text-[var(--text-primary)]"
                   />
                 </div>
               </div>
               <div className="space-y-3">
-                <label className="text-[10px] text-muted font-bold tracking-widest uppercase">Category</label>
+                <label className="text-[10px] text-[var(--text-muted)] font-bold tracking-widest uppercase">Category</label>
                 <div className="relative">
                   <select 
                     value={expense.category}
@@ -371,7 +371,7 @@ function Step2({ expenseList, setExpenseList, onContinue, onBack }) {
                       updated[index].category = e.target.value
                       setExpenseList(updated)
                     }}
-                    className="w-full bg-[#0a0a0a] border border-border-dark rounded-xl px-4 py-4 text-sm focus:border-[#00ff88] outline-none appearance-none cursor-pointer transition-colors"
+                    className="w-full bg-[var(--bg-primary)] border border-[var(--border)] rounded-xl px-4 py-4 text-sm focus:border-[#00ff88] outline-none appearance-none cursor-pointer transition-colors text-[var(--text-primary)]"
                   >
                     <option>Food</option>
                     <option>Transport</option>
@@ -380,7 +380,7 @@ function Step2({ expenseList, setExpenseList, onContinue, onBack }) {
                     <option>Health</option>
                     <option>Other</option>
                   </select>
-                  <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
+                  <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
                 </div>
               </div>
             </div>
@@ -390,7 +390,7 @@ function Step2({ expenseList, setExpenseList, onContinue, onBack }) {
 
       <button 
         onClick={addAnotherExpense}
-        className="flex items-center justify-center gap-2 w-full py-3 border border-dashed border-border-dark rounded-xl text-muted hover:text-white hover:border-gray-500 transition-all text-sm font-medium"
+        className="flex items-center justify-center gap-2 w-full py-3 border border-dashed border-[var(--border)] rounded-xl text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[#00ff88]/30 transition-all text-sm font-medium"
       >
         <Plus size={16} />
         Add another expense
@@ -399,7 +399,7 @@ function Step2({ expenseList, setExpenseList, onContinue, onBack }) {
       <div className="pt-4 flex gap-4">
         <button 
           onClick={onBack}
-          className="flex-1 border border-border-dark text-white font-bold py-4 rounded-xl hover:bg-white/5 transition-all text-[13px] uppercase tracking-wider"
+          className="flex-1 border border-[var(--border)] text-[var(--text-primary)] font-bold py-4 rounded-xl hover:bg-[var(--text-primary)]/5 transition-all text-[13px] uppercase tracking-wider"
         >
           Back
         </button>
@@ -418,13 +418,13 @@ function Step3({ formData, setFormData, onBack, onComplete }) {
   return (
     <div className="space-y-6">
       <div className="mb-10">
-        <h1 className="text-3xl font-bold tracking-tight mb-2">Set Goals</h1>
-        <p className="text-muted text-sm">Build wealth, one milestone at a time.</p>
+        <h1 className="text-3xl font-bold tracking-tight mb-2 text-[var(--text-primary)]">Set Goals</h1>
+        <p className="text-[var(--text-muted)] text-sm">Build wealth, one milestone at a time.</p>
       </div>
 
-      <div className="card space-y-6 bg-[#111311]">
+      <div className="card space-y-6 bg-[var(--bg-card)] border border-[var(--border)] p-8 rounded-2xl">
         <div className="flex items-center justify-between mb-2">
-          <label className="text-[10px] text-muted font-bold tracking-widest uppercase">Monthly Savings Goal</label>
+          <label className="text-[10px] text-[var(--text-muted)] font-bold tracking-widest uppercase">Monthly Savings Goal</label>
           <div className="flex items-center gap-1">
              <Target size={12} className="text-[#00ff88]" />
              <span className="text-[10px] text-[#00ff88] font-bold">SMART TARGET</span>
@@ -437,23 +437,23 @@ function Step3({ formData, setFormData, onBack, onComplete }) {
             type="text" 
             value={formData.savingsGoal}
             onChange={(e) => setFormData({...formData, savingsGoal: e.target.value})}
-            className="w-full bg-[#0a0a0a] border border-border-dark rounded-xl pl-8 pr-4 py-4 text-sm focus:border-[#00ff88] outline-none transition-colors"
+            className="w-full bg-[var(--bg-primary)] border border-[var(--border)] rounded-xl pl-8 pr-4 py-4 text-sm focus:border-[#00ff88] outline-none transition-colors text-[var(--text-primary)]"
           />
         </div>
 
-        <div className="bg-[#0a0a0a] rounded-xl p-4 border border-border-dark/50">
+        <div className="bg-[var(--bg-primary)] rounded-xl p-4 border border-[var(--border)]">
           <div className="flex justify-between text-[11px] font-bold mb-4">
-            <span className="text-muted">PROJECTED YEARLY SAVINGS</span>
+            <span className="text-[var(--text-muted)]">PROJECTED YEARLY SAVINGS</span>
             <span className="text-[#00ff88]">₹{parseInt(formData.savingsGoal || 0) * 12}</span>
           </div>
-          <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
+          <div className="w-full h-2 bg-[var(--bg-card)] rounded-full overflow-hidden">
              <motion.div 
                initial={{ width: 0 }}
                animate={{ width: "60%" }}
                className="h-full bg-[#00ff88] glow" 
              />
           </div>
-          <p className="mt-3 text-[10px] text-muted leading-relaxed">
+          <p className="mt-3 text-[10px] text-[var(--text-muted)] leading-relaxed">
             This puts you in the top 15% of wealth builders in your bracket. Consistency is your superpower.
           </p>
         </div>
@@ -462,7 +462,7 @@ function Step3({ formData, setFormData, onBack, onComplete }) {
       <div className="pt-4 flex gap-4">
         <button 
           onClick={onBack}
-          className="flex-1 border border-border-dark text-white font-bold py-4 rounded-xl hover:bg-white/5 transition-all text-[13px] uppercase tracking-wider"
+          className="flex-1 border border-[var(--border)] text-[var(--text-primary)] font-bold py-4 rounded-xl hover:bg-[var(--text-primary)]/5 transition-all text-[13px] uppercase tracking-wider"
         >
           Back
         </button>

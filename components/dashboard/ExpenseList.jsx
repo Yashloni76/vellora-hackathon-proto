@@ -23,32 +23,32 @@ export default function ExpenseList({ avoidable = [], unavoidable = [] }) {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
       {/* Unavoidable Expenses */}
       <div className="space-y-6">
-        <div className="flex justify-between items-end border-b border-border-dark/30 pb-4">
-          <h2 className="text-lg font-bold text-white tracking-tight underline decoration-[#00ff88]/30 underline-offset-8">Unavoidable Expenses</h2>
-          <span className="text-[10px] text-muted font-bold tracking-[0.2em] uppercase">Fixed Costs</span>
+        <div className="flex justify-between items-end border-b border-[var(--border)]/30 pb-4">
+          <h2 className="text-lg font-bold text-[var(--text-primary)] tracking-tight underline decoration-[#00ff88]/30 underline-offset-8">Unavoidable Expenses</h2>
+          <span className="text-[10px] text-[var(--text-muted)] font-bold tracking-[0.2em] uppercase">Fixed Costs</span>
         </div>
         <div className="grid grid-cols-1 gap-3">
           {unavoidable.map((expense) => (
             <ExpenseItem key={expense.id} expense={expense} type="unavoidable" />
           ))}
           {unavoidable.length === 0 && (
-            <p className="text-muted text-xs italic opacity-50">No unavoidable expenses added yet.</p>
+            <p className="text-[var(--text-muted)] text-xs italic opacity-50">No unavoidable expenses added yet.</p>
           )}
         </div>
       </div>
 
       {/* Avoidable Expenses */}
       <div className="space-y-6">
-        <div className="flex justify-between items-end border-b border-border-dark/30 pb-4">
-          <h2 className="text-lg font-bold text-white tracking-tight underline decoration-red/30 underline-offset-8">Avoidable Expenses</h2>
-          <span className="text-[10px] text-muted font-bold tracking-[0.2em] uppercase">Lifestyle</span>
+        <div className="flex justify-between items-end border-b border-[var(--border)]/30 pb-4">
+          <h2 className="text-lg font-bold text-[var(--text-primary)] tracking-tight underline decoration-red/30 underline-offset-8">Avoidable Expenses</h2>
+          <span className="text-[10px] text-[var(--text-muted)] font-bold tracking-[0.2em] uppercase">Lifestyle</span>
         </div>
         <div className="grid grid-cols-1 gap-3">
           {avoidable.map((expense) => (
             <ExpenseItem key={expense.id} expense={expense} type="avoidable" />
           ))}
           {avoidable.length === 0 && (
-            <p className="text-muted text-xs italic opacity-50">No avoidable expenses added yet.</p>
+            <p className="text-[var(--text-muted)] text-xs italic opacity-50">No avoidable expenses added yet.</p>
           )}
         </div>
       </div>
@@ -68,17 +68,17 @@ function ExpenseItem({ expense, type }) {
   };
 
   return (
-    <div className="group bg-[#111311] border border-border-dark rounded-xl p-4 flex items-center justify-between hover:bg-[#1a1f1a] transition-all hover:scale-[1.01]">
+    <div className="group bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-4 flex items-center justify-between hover:bg-[var(--bg-card-hover)] transition-all hover:scale-[1.01]">
       <div className="flex items-center gap-4">
         {/* Icon Container */}
-        <div className="w-10 h-10 rounded-lg bg-gray-900 border border-border-dark/50 flex items-center justify-center group-hover:bg-[#00ff8810] transition-colors">
-          <Icon size={18} className="text-muted group-hover:text-[#00ff88] transition-colors" />
+        <div className="w-10 h-10 rounded-lg bg-[var(--bg-primary)] border border-[var(--border)]/50 flex items-center justify-center group-hover:bg-[#00ff8810] transition-colors">
+          <Icon size={18} className="text-[var(--text-muted)] group-hover:text-[#00ff88] transition-colors" />
         </div>
 
         {/* Info */}
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <h3 className="text-[13px] font-bold text-white tracking-tight">{expense.title}</h3>
+            <h3 className="text-[13px] font-bold text-[var(--text-primary)] tracking-tight">{expense.title}</h3>
             {/* Tag Pills */}
             {(expense.tag || expense.mood) && (
               <span className={cn(
@@ -97,15 +97,15 @@ function ExpenseItem({ expense, type }) {
               </span>
             )}
           </div>
-          <p className="text-[10px] text-muted font-medium uppercase tracking-widest">{getSubLabel()}</p>
+          <p className="text-[10px] text-[var(--text-muted)] font-medium uppercase tracking-widest">{getSubLabel()}</p>
         </div>
       </div>
 
       {/* Amount & Emotion */}
       <div className="flex items-center gap-4">
         <div className="text-right">
-          <p className="text-sm font-bold text-white">₹{expense.amount.toLocaleString("en-IN")}</p>
-          <p className="text-[9px] text-muted font-medium">SETTLED</p>
+          <p className="text-sm font-bold text-[var(--text-primary)]">₹{expense.amount.toLocaleString("en-IN")}</p>
+          <p className="text-[9px] text-[var(--text-muted)] font-medium">SETTLED</p>
         </div>
         {type === "avoidable" && (
           <div className="flex flex-col items-center gap-1.5">

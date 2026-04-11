@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/AuthContext'
+import { useTheme } from '@/lib/ThemeContext'
 import { supabase } from '@/lib/supabase'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
@@ -18,7 +19,7 @@ const Switch = ({ checked, onCheckedChange, disabled }) => (
   <button
     disabled={disabled}
     onClick={() => onCheckedChange(!checked)}
-    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#00ff88] focus:ring-offset-2 focus:ring-offset-[#0a0a0a] ${
+    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#00ff88] focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)] ${
       checked ? 'bg-[#00ff88]' : 'bg-[#1f2b1f]'
     } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
   >
@@ -37,7 +38,7 @@ const AlertDialog = ({ open, title, description, onConfirm, onCancel, confirmTex
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-[#111311] border border-[#1f2b1f] rounded-xl p-6 max-w-md w-full shadow-2xl"
+        className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-6 max-w-md w-full shadow-2xl"
       >
         <div className="flex items-center gap-3 text-red-500 mb-4">
           <AlertTriangle size={24} />
@@ -72,6 +73,7 @@ const AlertDialog = ({ open, title, description, onConfirm, onCancel, confirmTex
 
 export default function SettingsPage() {
   const { user, loading: authLoading } = useAuth()
+  const { isDark, toggleTheme } = useTheme()
   const router = useRouter()
 
   // State
@@ -81,7 +83,6 @@ export default function SettingsPage() {
   
   // Form State
   const [fullName, setFullName] = useState('')
-  const [theme, setTheme] = useState('dark')
   const [currency, setCurrency] = useState('INR')
   const [monthlyIncome, setMonthlyIncome] = useState('')
   const [savingsGoal, setSavingsGoal] = useState('')
@@ -103,6 +104,8 @@ export default function SettingsPage() {
   const [deleteInput, setDeleteInput] = useState('')
   const [showDeleteModal, setShowDeleteModal] = useState(false)
 
+  // Theme Logic - Removed local applyTheme and handleThemeToggle as they are now in ThemeContext
+
   // Fetch Initial Data
   useEffect(() => {
     if (!authLoading && !user) {
@@ -120,7 +123,6 @@ export default function SettingsPage() {
 
         if (data) {
           setFullName(data.full_name || '')
-          setTheme(data.theme || 'dark')
           setCurrency(data.currency || 'INR')
           setMonthlyIncome(data.monthly_income || '')
           setSavingsGoal(data.savings_goal || '')
@@ -134,23 +136,7 @@ export default function SettingsPage() {
     }
   }, [user, authLoading])
 
-  // Theme Sync
-  useEffect(() => {
-    const root = document.documentElement
-    if (theme === 'light') {
-      root.style.setProperty('--bg-primary', '#f5f5f5')
-      root.style.setProperty('--bg-card', '#ffffff')
-      root.style.setProperty('--text-primary', '#0a0a0a')
-      root.style.setProperty('--text-muted', '#666666')
-      root.style.setProperty('--border-color', '#dddddd')
-    } else {
-      root.style.setProperty('--bg-primary', '#0a0a0a')
-      root.style.setProperty('--bg-card', '#111311')
-      root.style.setProperty('--text-primary', '#ffffff')
-      root.style.setProperty('--text-muted', '#6b7280')
-      root.style.setProperty('--border-color', '#1f2b1f')
-    }
-  }, [theme])
+  // Load saved theme on mount - Handled by ThemeContext
 
   // Password Strength Logic
   useEffect(() => {
@@ -228,17 +214,17 @@ export default function SettingsPage() {
   }
 
   // Styles
-  const inputBase = "w-full bg-[#111311] border border-[#1f2b1f] focus:border-[#00ff88] text-white rounded-lg px-4 py-2 outline-none transition-all placeholder:text-[#6b7280]"
+  const inputBase = "w-full bg-[var(--bg-card)] border border-[var(--border)] focus:border-[#00ff88] text-[var(--text-primary)] rounded-lg px-4 py-2 outline-none transition-all placeholder:text-[var(--text-muted)]"
   const btnPrimary = "bg-[#00ff88] text-black font-semibold rounded-lg px-6 py-2 hover:opacity-90 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-  const labelBase = "block text-[11px] font-bold tracking-wider text-[#6b7280] mb-2 uppercase"
+  const labelBase = "block text-[11px] font-bold tracking-wider text-[var(--text-muted)] mb-2 uppercase"
 
-  if (authLoading) return <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center"><Loader2 className="animate-spin text-[#00ff88]" size={32} /></div>
+  if (authLoading) return <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center"><Loader2 className="animate-spin text-[#00ff88]" size={32} /></div>
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex text-white font-sans selection:bg-[#00ff88] selection:text-black">
+    <div className="min-h-screen bg-[var(--bg-primary)] flex text-[var(--text-primary)] font-sans selection:bg-[#00ff88] selection:text-black">
       
       {/* Sidebar */}
-      <aside className="w-[220px] bg-[#0d0d0d] border-r border-[#1f2b1f] flex flex-col fixed h-full z-40">
+      <aside className="w-[220px] bg-[var(--bg-primary)] border-r border-[var(--border)] flex flex-col fixed h-full z-40">
         <div className="p-8 pb-4">
           <h1 className="text-xl font-bold tracking-tight">SYMP</h1>
           <div className="h-[2px] w-8 bg-[#00ff88] mt-2"></div>
@@ -258,8 +244,8 @@ export default function SettingsPage() {
               onClick={() => { setActiveTab(tab.id); setMessage({ type: '', text: '' }); }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-sm font-medium ${
                 activeTab === tab.id 
-                  ? 'bg-[#1a1f1a] text-[#00ff88] border-l-[3px] border-[#00ff88]' 
-                  : 'text-[#6b7280] hover:bg-[#111311] border-l-[3px] border-transparent'
+                  ? 'bg-[var(--bg-card-hover)] text-[#00ff88] border-l-[3px] border-[#00ff88]' 
+                  : 'text-[var(--text-muted)] hover:bg-[var(--bg-card)] border-l-[3px] border-transparent'
               }`}
             >
               <tab.icon size={18} />
@@ -273,7 +259,7 @@ export default function SettingsPage() {
       <main className="flex-1 ml-[220px] p-10 max-w-4xl relative min-h-screen">
         <header className="mb-10">
           <h2 className="text-3xl font-bold">Settings</h2>
-          <p className="text-[#6b7280] mt-1">Manage your account and preferences</p>
+          <p className="text-[var(--text-muted)] mt-1">Manage your account and preferences</p>
         </header>
 
         <div className="relative">
@@ -286,9 +272,9 @@ export default function SettingsPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="bg-[#111311] border border-[#1f2b1f] rounded-xl p-6"
+                className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-6"
               >
-                <h3 className="text-lg font-bold mb-6">Profile Settings</h3>
+                <h3 className="text-[var(--text-primary)] text-lg font-bold mb-6">Profile Settings</h3>
                 <div className="space-y-6">
                   <div>
                     <label className={labelBase}>Full Name</label>
@@ -330,18 +316,18 @@ export default function SettingsPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="bg-[#111311] border border-[#1f2b1f] rounded-xl p-6"
+                className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-6"
               >
                 <h3 className="text-lg font-bold mb-6">Appearance</h3>
                 <div className="space-y-8">
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="font-semibold">Dark Mode</h4>
-                      <p className="text-sm text-[#6b7280]">Toggle between light and dark theme</p>
+                      <p className="text-sm text-[var(--text-muted)]">Toggle between light and dark theme</p>
                     </div>
                     <Switch 
-                      checked={theme === 'dark'} 
-                      onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')} 
+                      checked={isDark} 
+                      onCheckedChange={toggleTheme} 
                     />
                   </div>
 
@@ -361,7 +347,7 @@ export default function SettingsPage() {
 
                   <div className="pt-4 flex items-center gap-4">
                     <button 
-                      onClick={() => handleSave('Appearance', { theme, currency })}
+                      onClick={() => handleSave('Appearance', { theme: isDark ? 'dark' : 'light', currency })}
                       disabled={saveLoading}
                       className={btnPrimary}
                     >
@@ -380,7 +366,7 @@ export default function SettingsPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="bg-[#111311] border border-[#1f2b1f] rounded-xl p-6"
+                className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-6"
               >
                 <h3 className="text-lg font-bold mb-6">Finance</h3>
                 <div className="space-y-6">
@@ -393,7 +379,7 @@ export default function SettingsPage() {
                       className={inputBase}
                       placeholder="e.g. 50000"
                     />
-                    <p className="text-[11px] text-[#6b7280] mt-2 italic">Total monthly earnings including salary and bonuses.</p>
+                    <p className="text-[11px] text-[var(--text-muted)] mt-2 italic">Total monthly earnings including salary and bonuses.</p>
                   </div>
                   <div>
                     <label className={labelBase}>Savings Goal</label>
@@ -404,7 +390,7 @@ export default function SettingsPage() {
                       className={inputBase}
                       placeholder="e.g. 15000"
                     />
-                    <p className="text-[11px] text-[#6b7280] mt-2 italic">How much you aim to save every month.</p>
+                    <p className="text-[11px] text-[var(--text-muted)] mt-2 italic">How much you aim to save every month.</p>
                   </div>
                   
                   <div className="pt-4">
@@ -418,7 +404,7 @@ export default function SettingsPage() {
                       </button>
                       {message.type && <span className={`text-sm font-medium ${message.type === 'success' ? 'text-[#00ff88]' : 'text-red-500'}`}>{message.text}</span>}
                     </div>
-                    <p className="text-xs text-[#6b7280]">Changes will reflect on your dashboard immediately.</p>
+                    <p className="text-xs text-[var(--text-muted)]">Changes will reflect on your dashboard immediately.</p>
                   </div>
                 </div>
               </motion.section>
@@ -431,7 +417,7 @@ export default function SettingsPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="bg-[#111311] border border-[#1f2b1f] rounded-xl p-6"
+                className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-6"
               >
                 <h3 className="text-lg font-bold mb-6">Notifications</h3>
                 <div className="space-y-6">
@@ -441,10 +427,10 @@ export default function SettingsPage() {
                     { id: 'goals', label: 'Goal Alerts', desc: "Alerts when you're close to hitting a goal", state: goalNotif, setState: setGoalNotif },
                     { id: 'overspend', label: 'Overspending Alerts', desc: 'Warn when avoidable spending exceeds limit', state: overspendNotif, setState: setOverspendNotif },
                   ].map((notif) => (
-                    <div key={notif.id} className="flex items-center justify-between pb-4 border-b border-[#1f2b1f] last:border-0 last:pb-0">
+                    <div key={notif.id} className="flex items-center justify-between pb-4 border-b border-[var(--border)] last:border-0 last:pb-0">
                       <div>
-                        <h4 className="font-semibold">{notif.label}</h4>
-                        <p className="text-xs text-[#6b7280]">{notif.desc}</p>
+                        <h4 className="font-semibold text-[var(--text-primary)]">{notif.label}</h4>
+                        <p className="text-xs text-[var(--text-muted)]">{notif.desc}</p>
                       </div>
                       <Switch 
                         checked={notif.state} 
@@ -479,7 +465,7 @@ export default function SettingsPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="bg-[#111311] border border-[#1f2b1f] rounded-xl p-6"
+                className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-6"
               >
                 <h3 className="text-lg font-bold mb-6">Security</h3>
                 <div className="space-y-6">
@@ -496,14 +482,14 @@ export default function SettingsPage() {
                       <button 
                         type="button"
                         onClick={() => setShowNew(!showNew)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6b7280] hover:text-white"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
                       >
                         {showNew ? <EyeOff size={18} /> : <Eye size={18} />}
                       </button>
                     </div>
                     {/* Strength Bar */}
                     <div className="mt-3">
-                      <div className="h-1 w-full bg-[#1f2b1f] rounded-full overflow-hidden">
+                      <div className="h-1 w-full bg-[var(--border)] rounded-full overflow-hidden">
                         <motion.div 
                           className={`h-full ${passStrength.color}`}
                           initial={{ width: 0 }}
@@ -511,8 +497,8 @@ export default function SettingsPage() {
                         />
                       </div>
                       <div className="flex justify-between mt-2">
-                        <span className="text-[10px] text-[#6b7280]">Strength: {passStrength.label}</span>
-                        {passStrength.score < 100 && <span className="text-[10px] text-[#6b7280]">Use numbers & special chars</span>}
+                        <span className="text-[10px] text-[var(--text-muted)]">Strength: {passStrength.label}</span>
+                        {passStrength.score < 100 && <span className="text-[10px] text-[var(--text-muted)]">Use numbers & special chars</span>}
                       </div>
                     </div>
                   </div>
@@ -530,7 +516,7 @@ export default function SettingsPage() {
                       <button 
                         type="button"
                         onClick={() => setShowConfirm(!showConfirm)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6b7280] hover:text-white"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
                       >
                         {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
                       </button>
@@ -568,7 +554,7 @@ export default function SettingsPage() {
                   <h3 className="text-lg font-bold text-red-500">Delete Account</h3>
                 </div>
                 
-                <p className="text-sm text-[#6b7280] mb-8 leading-relaxed">
+                <p className="text-sm text-[var(--text-muted)] mb-8 leading-relaxed">
                   This will permanently delete all your financial data, expense history, and user profile. 
                   <span className="text-red-400 font-semibold ml-1">This action cannot be undone.</span>
                 </p>

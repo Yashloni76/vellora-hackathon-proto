@@ -248,7 +248,7 @@ export default function DashboardPage() {
   }
 
   if (authLoading || (user && setupStep === 0)) return (
-    <div className="flex items-center justify-center h-screen bg-[#0a0a0a]">
+    <div className="flex items-center justify-center h-screen bg-[var(--bg-primary)]">
       <div className="text-[#00ff88] text-xl">Loading...</div>
     </div>
   )
@@ -258,28 +258,28 @@ export default function DashboardPage() {
   // STEP 1: Income Setup
   if (setupStep === 1) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#0a0a0a] p-6">
+      <div className="flex items-center justify-center min-h-screen bg-[var(--bg-primary)] p-6">
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-md bg-[#111] border border-[#00ff88]/30 rounded-2xl p-8 shadow-2xl shadow-[#00ff88]/5"
+          className="w-full max-w-md bg-[var(--bg-card)] border border-[#00ff88]/30 rounded-2xl p-8 shadow-2xl shadow-[#00ff88]/5"
         >
           <div className="text-center space-y-2 mb-8">
-            <h2 className="text-3xl font-bold text-white">Welcome to SYMP! 👋</h2>
-            <p className="text-gray-400">Let's set up your finances in 3 quick steps</p>
+            <h2 className="text-3xl font-bold text-[var(--text-primary)]">Welcome to SYMP! 👋</h2>
+            <p className="text-[var(--text-muted)]">Let's set up your finances in 3 quick steps</p>
           </div>
 
           <div className="space-y-6">
             <div className="space-y-2">
               <span className="text-[#00ff88] text-xs font-bold uppercase tracking-wider">Step 1 of 3 — Monthly Income</span>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">₹</span>
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)]">₹</span>
                 <input
                   type="number"
                   placeholder="0.00"
                   value={incomeInput}
                   onChange={(e) => setIncomeInput(e.target.value)}
-                  className="w-full bg-[#0a0a0a] border border-[#222] rounded-xl py-4 pl-10 pr-4 text-white focus:outline-none focus:border-[#00ff88]/50 transition-colors"
+                  className="w-full bg-[var(--bg-primary)] border border-[var(--border)] rounded-xl py-4 pl-10 pr-4 text-[var(--text-primary)] focus:outline-none focus:border-[#00ff88]/50 transition-colors"
                 />
               </div>
             </div>
@@ -300,15 +300,15 @@ export default function DashboardPage() {
   // STEP 2: Expenses Setup
   if (setupStep === 2) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#0a0a0a] p-6">
+      <div className="flex items-center justify-center min-h-screen bg-[var(--bg-primary)] p-6">
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-md bg-[#111] border border-[#00ff88]/30 rounded-2xl p-8 shadow-2xl shadow-[#00ff88]/5"
+          className="w-full max-w-md bg-[var(--bg-card)] border border-[#00ff88]/30 rounded-2xl p-8 shadow-2xl shadow-[#00ff88]/5"
         >
           <div className="text-center space-y-2 mb-8">
-            <h2 className="text-2xl font-bold text-white">Step 2 of 3 — Add Your Expenses</h2>
-            <p className="text-gray-400">Add your monthly expenses</p>
+            <h2 className="text-2xl font-bold text-[var(--text-primary)]">Step 2 of 3 — Add Your Expenses</h2>
+            <p className="text-[var(--text-muted)]">Add your monthly expenses</p>
           </div>
 
           <div className="space-y-4 mb-8">
@@ -317,24 +317,24 @@ export default function DashboardPage() {
               placeholder="Expense Name (e.g. Rent)"
               value={expenseName}
               onChange={(e) => setExpenseName(e.target.value)}
-              className="w-full bg-[#0a0a0a] border border-[#222] rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[#00ff88]/50 transition-colors"
+              className="w-full bg-[var(--bg-primary)] border border-[var(--border)] rounded-xl py-3 px-4 text-[var(--text-primary)] focus:outline-none focus:border-[#00ff88]/50 transition-colors"
             />
             
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">₹</span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)]">₹</span>
               <input
                 type="number"
                 placeholder="Amount"
                 value={expenseAmount}
                 onChange={(e) => setExpenseAmount(e.target.value)}
-                className="w-full bg-[#0a0a0a] border border-[#222] rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-[#00ff88]/50 transition-colors"
+                className="w-full bg-[var(--bg-primary)] border border-[var(--border)] rounded-xl py-3 pl-10 pr-4 text-[var(--text-primary)] focus:outline-none focus:border-[#00ff88]/50 transition-colors"
               />
             </div>
 
             <select
               value={expenseType}
               onChange={(e) => setExpenseType(e.target.value)}
-              className="w-full bg-[#0a0a0a] border border-[#222] rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[#00ff88]/50 transition-colors appearance-none"
+              className="w-full bg-[var(--bg-primary)] border border-[var(--border)] rounded-xl py-3 px-4 text-[var(--text-primary)] focus:outline-none focus:border-[#00ff88]/50 transition-colors appearance-none"
             >
               <option value="avoidable">Avoidable</option>
               <option value="unavoidable">Unavoidable</option>
@@ -352,8 +352,8 @@ export default function DashboardPage() {
           {addedExpenses.length > 0 && (
             <div className="max-h-32 overflow-y-auto space-y-2 mb-8 scrollbar-hide">
               {addedExpenses.map((exp, i) => (
-                <div key={i} className="flex justify-between items-center p-3 bg-[#0a0a0a] border border-[#222] rounded-lg">
-                  <span className="text-sm text-white">{exp.title}</span>
+                <div key={i} className="flex justify-between items-center p-3 bg-[var(--bg-primary)] border border-[var(--border)] rounded-lg">
+                  <span className="text-sm text-[var(--text-primary)]">{exp.title}</span>
                   <span className="text-sm text-[#00ff88]">₹{exp.amount}</span>
                 </div>
               ))}
@@ -374,26 +374,26 @@ export default function DashboardPage() {
   // STEP 3: Savings Goal
   if (setupStep === 3) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#0a0a0a] p-6">
+      <div className="flex items-center justify-center min-h-screen bg-[var(--bg-primary)] p-6">
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-md bg-[#111] border border-[#00ff88]/30 rounded-2xl p-8 shadow-2xl shadow-[#00ff88]/5"
+          className="w-full max-w-md bg-[var(--bg-card)] border border-[#00ff88]/30 rounded-2xl p-8 shadow-2xl shadow-[#00ff88]/5"
         >
           <div className="text-center space-y-2 mb-8">
-            <h2 className="text-2xl font-bold text-white">Step 3 of 3 — Set Your Savings Goal</h2>
-            <p className="text-gray-400">How much do you want to save monthly?</p>
+            <h2 className="text-2xl font-bold text-[var(--text-primary)]">Step 3 of 3 — Set Your Savings Goal</h2>
+            <p className="text-[var(--text-muted)]">How much do you want to save monthly?</p>
           </div>
 
           <div className="space-y-6">
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">₹</span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)]">₹</span>
               <input
                 type="number"
                 placeholder="Goal Amount"
                 value={goalInput}
                 onChange={(e) => setGoalInput(e.target.value)}
-                className="w-full bg-[#0a0a0a] border border-[#222] rounded-xl py-4 pl-10 pr-4 text-white focus:outline-none focus:border-[#00ff88]/50 transition-colors"
+                className="w-full bg-[var(--bg-primary)] border border-[var(--border)] rounded-xl py-4 pl-10 pr-4 text-[var(--text-primary)] focus:outline-none focus:border-[#00ff88]/50 transition-colors"
               />
             </div>
 
@@ -424,22 +424,22 @@ export default function DashboardPage() {
       {/* Header */}
       <header className="flex justify-between items-start">
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight text-white">Expense Dashboard</h1>
-          <p className="text-muted text-sm font-medium">Manage your architectural financial flow.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-[var(--text-primary)]">Expense Dashboard</h1>
+          <p className="text-[var(--text-muted)] text-sm font-medium">Manage your architectural financial flow.</p>
         </div>
 
         <div className="flex items-center gap-6">
-          <button className="relative w-10 h-10 rounded-xl bg-gray-900 border border-border-dark flex items-center justify-center hover:bg-gray-800 transition-colors">
-            < Bell size={18} className="text-muted" />
-            <div className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-red border-2 border-gray-900 shadow-[0_0_8px_rgba(255,68,68,0.5)]" />
+          <button className="relative w-10 h-10 rounded-xl bg-[var(--bg-card)] border border-[var(--border)] flex items-center justify-center hover:bg-[var(--bg-card-hover)] transition-colors">
+            < Bell size={18} className="text-[var(--text-muted)]" />
+            <div className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-red border-2 border-[var(--bg-card)] shadow-[0_0_8px_rgba(255,68,68,0.5)]" />
           </button>
           
-          <div className="flex items-center gap-3 pl-4 border-l border-border-dark/30">
+          <div className="flex items-center gap-3 pl-4 border-l border-[var(--border)]/30">
             <div className="text-right">
-              <p className="text-[11px] font-bold text-white tracking-widest uppercase">SYMP USER</p>
+              <p className="text-[11px] font-bold text-[var(--text-primary)] tracking-widest uppercase">SYMP USER</p>
               <p className="text-[9px] font-medium text-[#00ff88]">ARCHITECT TIER</p>
             </div>
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#00ff88]/20 to-transparent border border-border-dark/50 flex items-center justify-center text-[#00ff88] font-bold text-sm">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#00ff88]/20 to-transparent border border-[var(--border)]/50 flex items-center justify-center text-[#00ff88] font-bold text-sm">
               SY
             </div>
           </div>
@@ -496,8 +496,8 @@ export default function DashboardPage() {
           justifyContent: 'center'
         }}>
           <div style={{
-            backgroundColor: '#111311',
-            border: '1px solid #1f2b1f',
+            backgroundColor: 'var(--bg-card)',
+            border: '1px solid var(--border)',
             borderRadius: '16px',
             padding: '28px',
             width: '380px',
@@ -511,7 +511,7 @@ export default function DashboardPage() {
               marginBottom: '24px'
             }}>
               <h2 style={{
-                color: '#fff',
+                color: 'var(--text-primary)',
                 fontSize: '18px',
                 fontWeight: 'bold',
                 margin: 0
@@ -522,9 +522,9 @@ export default function DashboardPage() {
                 onClick={() => setChoiceOpen(false)}
                 style={{
                   backgroundColor: 'transparent',
-                  border: '1px solid #1f2b1f',
+                  border: '1px solid var(--border)',
                   borderRadius: '8px',
-                  color: '#6b7280',
+                  color: 'var(--text-muted)',
                   cursor: 'pointer',
                   width: '32px',
                   height: '32px',
@@ -559,7 +559,7 @@ export default function DashboardPage() {
                 <span style={{ fontSize: '28px' }}>💸</span>
                 <div>
                   <div style={{
-                    color: '#fff',
+                    color: 'var(--text-primary)',
                     fontWeight: 'bold',
                     fontSize: '15px',
                     marginBottom: '4px'
@@ -567,7 +567,7 @@ export default function DashboardPage() {
                     Add Expense
                   </div>
                   <div style={{
-                    color: '#6b7280',
+                    color: 'var(--text-muted)',
                     fontSize: '12px'
                   }}>
                     Track money you spent
@@ -595,7 +595,7 @@ export default function DashboardPage() {
                 <span style={{ fontSize: '28px' }}>💰</span>
                 <div>
                   <div style={{
-                    color: '#fff',
+                    color: 'var(--text-primary)',
                     fontWeight: 'bold',
                     fontSize: '15px',
                     marginBottom: '4px'
@@ -603,7 +603,7 @@ export default function DashboardPage() {
                     Add Income
                   </div>
                   <div style={{
-                    color: '#6b7280',
+                    color: 'var(--text-muted)',
                     fontSize: '12px'
                   }}>
                     Got extra money? Add it here
@@ -627,8 +627,8 @@ export default function DashboardPage() {
           justifyContent: 'center'
         }}>
           <div style={{
-            backgroundColor: '#111311',
-            border: '1px solid #1f2b1f',
+            backgroundColor: 'var(--bg-card)',
+            border: '1px solid var(--border)',
             borderRadius: '16px',
             padding: '28px',
             width: '420px',
@@ -645,7 +645,7 @@ export default function DashboardPage() {
             }}>
               <div>
                 <h2 style={{
-                  color: '#fff',
+                  color: 'var(--text-primary)',
                   fontSize: '18px',
                   fontWeight: 'bold',
                   margin: 0
@@ -653,7 +653,7 @@ export default function DashboardPage() {
                   Add Expense
                 </h2>
                 <p style={{
-                  color: '#6b7280',
+                  color: 'var(--text-muted)',
                   fontSize: '12px',
                   margin: '4px 0 0 0'
                 }}>
@@ -664,9 +664,9 @@ export default function DashboardPage() {
                 onClick={() => setOpen(false)}
                 style={{
                   backgroundColor: 'transparent',
-                  border: '1px solid #1f2b1f',
+                  border: '1px solid var(--border)',
                   borderRadius: '8px',
-                  color: '#6b7280',
+                  color: 'var(--text-muted)',
                   cursor: 'pointer',
                   width: '32px',
                   height: '32px',
@@ -683,7 +683,7 @@ export default function DashboardPage() {
             {/* Expense Name */}
             <div style={{ marginBottom: '16px' }}>
               <label style={{
-                color: '#6b7280',
+                color: 'var(--text-muted)',
                 fontSize: '11px',
                 letterSpacing: '1px',
                 display: 'block',
@@ -699,24 +699,24 @@ export default function DashboardPage() {
                 style={{
                   width: '100%',
                   padding: '12px 14px',
-                  backgroundColor: '#0a0a0a',
-                  border: '1px solid #1f2b1f',
+                  backgroundColor: 'var(--bg-primary)',
+                  border: '1px solid var(--border)',
                   borderRadius: '10px',
-                  color: '#fff',
+                  color: 'var(--text-primary)',
                   fontSize: '14px',
                   outline: 'none',
                   boxSizing: 'border-box',
                   transition: 'border-color 0.2s'
                 }}
                 onFocus={e => e.target.style.borderColor = '#00ff88'}
-                onBlur={e => e.target.style.borderColor = '#1f2b1f'}
+                onBlur={e => e.target.style.borderColor = 'var(--border)'}
               />
             </div>
 
             {/* Amount */}
             <div style={{ marginBottom: '16px' }}>
               <label style={{
-                color: '#6b7280',
+                color: 'var(--text-muted)',
                 fontSize: '11px',
                 letterSpacing: '1px',
                 display: 'block',
@@ -744,17 +744,17 @@ export default function DashboardPage() {
                   style={{
                     width: '100%',
                     padding: '12px 14px 12px 30px',
-                    backgroundColor: '#0a0a0a',
-                    border: '1px solid #1f2b1f',
+                    backgroundColor: 'var(--bg-primary)',
+                    border: '1px solid var(--border)',
                     borderRadius: '10px',
-                    color: '#fff',
+                    color: 'var(--text-primary)',
                     fontSize: '14px',
                     outline: 'none',
                     boxSizing: 'border-box',
                     transition: 'border-color 0.2s'
                   }}
                   onFocus={e => e.target.style.borderColor = '#00ff88'}
-                  onBlur={e => e.target.style.borderColor = '#1f2b1f'}
+                  onBlur={e => e.target.style.borderColor = 'var(--border)'}
                 />
               </div>
             </div>
@@ -762,7 +762,7 @@ export default function DashboardPage() {
             {/* Category Selector */}
             <div style={{ marginBottom: '16px' }}>
               <label style={{
-                color: '#6b7280',
+                color: 'var(--text-muted)',
                 fontSize: '11px',
                 letterSpacing: '1px',
                 display: 'block',
@@ -782,12 +782,12 @@ export default function DashboardPage() {
                     style={{
                       padding: '10px 4px',
                       backgroundColor: expenseCategory === cat.value
-                        ? 'rgba(0,255,136,0.1)' : '#0a0a0a',
+                        ? 'rgba(0,255,136,0.1)' : 'var(--bg-primary)',
                       border: expenseCategory === cat.value
-                        ? '1px solid #00ff88' : '1px solid #1f2b1f',
+                        ? '1px solid #00ff88' : '1px solid var(--border)',
                       borderRadius: '10px',
                       color: expenseCategory === cat.value
-                        ? '#00ff88' : '#6b7280',
+                        ? '#00ff88' : 'var(--text-muted)',
                       cursor: 'pointer',
                       fontSize: '11px',
                       fontWeight: 'bold',
@@ -808,7 +808,7 @@ export default function DashboardPage() {
             {/* Mood Selector */}
             <div style={{ marginBottom: '24px' }}>
               <label style={{
-                color: '#6b7280',
+                color: 'var(--text-muted)',
                 fontSize: '11px',
                 letterSpacing: '1px',
                 display: 'block',
@@ -831,9 +831,9 @@ export default function DashboardPage() {
                       flex: 1,
                       padding: '10px 6px',
                       backgroundColor: expenseMood === m.value
-                        ? 'rgba(0,255,136,0.1)' : '#0a0a0a',
+                        ? 'rgba(0,255,136,0.1)' : 'var(--bg-primary)',
                       border: expenseMood === m.value
-                        ? '1px solid #00ff88' : '1px solid #1f2b1f',
+                        ? '1px solid #00ff88' : '1px solid var(--border)',
                       borderRadius: '10px',
                       cursor: 'pointer',
                       fontSize: '18px',
@@ -854,9 +854,9 @@ export default function DashboardPage() {
                   flex: 1,
                   padding: '13px',
                   backgroundColor: 'transparent',
-                  border: '1px solid #1f2b1f',
+                  border: '1px solid var(--border)',
                   borderRadius: '10px',
-                  color: '#6b7280',
+                  color: 'var(--text-muted)',
                   cursor: 'pointer',
                   fontSize: '14px',
                   fontWeight: 'bold'
@@ -871,7 +871,7 @@ export default function DashboardPage() {
                   flex: 2,
                   padding: '13px',
                   background: saving
-                    ? '#1f2b1f'
+                    ? 'var(--border)'
                     : 'linear-gradient(135deg, #00ff88, #00cc6a)',
                   border: 'none',
                   borderRadius: '10px',
@@ -902,8 +902,8 @@ export default function DashboardPage() {
           justifyContent: 'center'
         }}>
           <div style={{
-            backgroundColor: '#111311',
-            border: '1px solid #1f2b1f',
+            backgroundColor: 'var(--bg-card)',
+            border: '1px solid var(--border)',
             borderRadius: '16px',
             padding: '28px',
             width: '400px',
@@ -917,10 +917,10 @@ export default function DashboardPage() {
               marginBottom: '24px'
             }}>
               <div>
-                <h2 style={{ color: '#fff', fontSize: '18px', fontWeight: 'bold', margin: 0 }}>
+                <h2 style={{ color: 'var(--text-primary)', fontSize: '18px', fontWeight: 'bold', margin: 0 }}>
                   Add Extra Income
                 </h2>
-                <p style={{ color: '#6b7280', fontSize: '12px', margin: '4px 0 0 0' }}>
+                <p style={{ color: 'var(--text-muted)', fontSize: '12px', margin: '4px 0 0 0' }}>
                   Boost your total monthly budget
                 </p>
               </div>
@@ -928,9 +928,9 @@ export default function DashboardPage() {
                 onClick={() => setIncomeModalOpen(false)}
                 style={{
                   backgroundColor: 'transparent',
-                  border: '1px solid #1f2b1f',
+                  border: '1px solid var(--border)',
                   borderRadius: '8px',
-                  color: '#6b7280',
+                  color: 'var(--text-muted)',
                   cursor: 'pointer',
                   width: '32px',
                   height: '32px',
@@ -945,7 +945,7 @@ export default function DashboardPage() {
             </div>
 
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ color: '#6b7280', fontSize: '11px', letterSpacing: '1px', display: 'block', marginBottom: '8px' }}>
+              <label style={{ color: 'var(--text-muted)', fontSize: '11px', letterSpacing: '1px', display: 'block', marginBottom: '8px' }}>
                 INCOME AMOUNT
               </label>
               <div style={{ position: 'relative' }}>
@@ -958,10 +958,10 @@ export default function DashboardPage() {
                   style={{
                     width: '100%',
                     padding: '12px 14px 12px 30px',
-                    backgroundColor: '#0a0a0a',
-                    border: '1px solid #1f2b1f',
+                    backgroundColor: 'var(--bg-primary)',
+                    border: '1px solid var(--border)',
                     borderRadius: '10px',
-                    color: '#fff',
+                    color: 'var(--text-primary)',
                     fontSize: '14px',
                     outline: 'none',
                     boxSizing: 'border-box'
@@ -971,7 +971,7 @@ export default function DashboardPage() {
             </div>
 
             <div style={{ marginBottom: '24px' }}>
-              <label style={{ color: '#6b7280', fontSize: '11px', letterSpacing: '1px', display: 'block', marginBottom: '8px' }}>
+              <label style={{ color: 'var(--text-muted)', fontSize: '11px', letterSpacing: '1px', display: 'block', marginBottom: '8px' }}>
                 SOURCE / NOTE
               </label>
               <input
@@ -982,10 +982,10 @@ export default function DashboardPage() {
                 style={{
                   width: '100%',
                   padding: '12px 14px',
-                  backgroundColor: '#0a0a0a',
-                  border: '1px solid #1f2b1f',
+                  backgroundColor: 'var(--bg-primary)',
+                  border: '1px solid var(--border)',
                   borderRadius: '10px',
-                  color: '#fff',
+                  color: 'var(--text-primary)',
                   fontSize: '14px',
                   outline: 'none',
                   boxSizing: 'border-box'
@@ -996,14 +996,14 @@ export default function DashboardPage() {
             <div style={{ display: 'flex', gap: '10px' }}>
               <button
                 onClick={() => setIncomeModalOpen(false)}
-                style={{ flex: 1, padding: '13px', backgroundColor: 'transparent', border: '1px solid #1f2b1f', borderRadius: '10px', color: '#6b7280', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}
+                style={{ flex: 1, padding: '13px', backgroundColor: 'transparent', border: '1px solid var(--border)', borderRadius: '10px', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveIncome}
                 disabled={addingIncome}
-                style={{ flex: 2, padding: '13px', background: addingIncome ? '#1f2b1f' : 'linear-gradient(135deg, #00ff88, #00cc6a)', border: 'none', borderRadius: '10px', color: '#000', cursor: addingIncome ? 'not-allowed' : 'pointer', fontSize: '14px', fontWeight: 'bold' }}
+                style={{ flex: 2, padding: '13px', background: addingIncome ? 'var(--border)' : 'linear-gradient(135deg, #00ff88, #00cc6a)', border: 'none', borderRadius: '10px', color: '#000', cursor: addingIncome ? 'not-allowed' : 'pointer', fontSize: '14px', fontWeight: 'bold' }}
               >
                 {addingIncome ? 'Adding...' : '+ Add Income'}
               </button>

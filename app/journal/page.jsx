@@ -36,7 +36,7 @@ const JournalPage = () => {
   }, [user, loading])
 
   if (loading) return (
-    <div className="flex items-center justify-center h-screen bg-[#0a0a0a]">
+    <div className="flex items-center justify-center h-screen bg-[var(--bg-primary)]">
       <div className="text-[#00ff88] text-xl">Loading...</div>
     </div>
   )
@@ -54,14 +54,14 @@ const JournalPage = () => {
   };
 
   return (
-    <div className="p-10 max-w-6xl mx-auto min-h-screen text-white bg-primary">
+    <div className="p-10 max-w-6xl mx-auto min-h-screen text-[var(--text-primary)] bg-primary">
       {/* Header Section */}
       <motion.div 
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         className="mb-12"
       >
-        <h1 className="text-5xl font-black tracking-tight mb-3 bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent">
+        <h1 className="text-5xl font-black tracking-tight mb-3 bg-gradient-to-r from-[var(--text-primary)] to-[var(--text-primary)]/60 bg-clip-text text-transparent">
           Financial Journal
         </h1>
         <p className="text-muted text-xl font-medium">Track emotions and experiences around money</p>
@@ -128,7 +128,7 @@ const JournalPage = () => {
                     "px-5 py-2 rounded-xl text-xs font-black tracking-widest border flex items-center gap-2",
                     isWin ? "border-[#00ff88]/40 bg-[#00ff88]/5 text-[#00ff88]" : 
                     isLoss ? "border-red-500/40 bg-red-500/5 text-red-500" : 
-                    "border-white/10 bg-white/5 text-white/60"
+                    "border-[var(--border)] bg-[var(--bg-primary)] text-[var(--text-muted)]"
                   )}>
                     {isWin && <TrendingUp size={14} />}
                     {isLoss && <TrendingDown size={14} />}
@@ -177,21 +177,21 @@ const JournalPage = () => {
               initial={{ opacity: 0, scale: 0.9, y: 30 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 30 }}
-              className="relative w-full max-w-xl bg-card border border-white/10 p-10 rounded-[3rem] shadow-2xl"
+              className="relative w-full max-w-xl bg-card border border-[var(--border)] p-10 rounded-[3rem] shadow-2xl"
             >
               <button
                 onClick={() => setIsDialogOpen(false)}
-                className="absolute top-8 right-8 text-muted hover:text-white transition-colors"
+                className="absolute top-8 right-8 text-muted hover:text-[var(--text-primary)] transition-colors"
               >
                 <X size={32} />
               </button>
 
-              <h2 className="text-4xl font-black tracking-tight mb-2">New Entry</h2>
-              <p className="text-muted font-medium mb-10 text-lg">Document your financial mindset.</p>
+              <h2 className="text-4xl font-black tracking-tight mb-2 text-[var(--text-primary)]">New Entry</h2>
+              <p className="text-[var(--text-muted)] font-medium mb-10 text-lg">Document your financial mindset.</p>
 
               <div className="space-y-8">
                 <div>
-                  <label className="block text-[10px] font-black text-muted uppercase tracking-[0.2em] mb-4">Mood Selector</label>
+                  <label className="block text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-4">Mood Selector</label>
                   <div className="flex gap-4">
                     {Object.entries(moodConfig).map(([key, config]) => (
                       <button
@@ -201,7 +201,7 @@ const JournalPage = () => {
                           "flex-1 p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2",
                           selectedMood === key 
                             ? cn("scale-105", config.border, config.bg, config.color)
-                            : "border-white/5 hover:border-white/10 grayscale opacity-50"
+                            : "border-[var(--border)] hover:border-[#00ff88]/30 grayscale opacity-50"
                         )}
                       >
                         <span className="text-3xl">{config.emoji}</span>

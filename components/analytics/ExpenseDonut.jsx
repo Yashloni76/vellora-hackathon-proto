@@ -14,12 +14,12 @@ export default function ExpenseDonut({ avoidableTotal: propAvoidable, unavoidabl
 
   const data = [
     { name: "AVOIDABLE", value: avoidableTotal, color: "#00ff88" },
-    { name: "ESSENTIAL", value: unavoidableTotal, color: "#6b7280" }
+    { name: "ESSENTIAL", value: unavoidableTotal, color: "var(--text-muted)" }
   ];
 
   return (
-    <div className="card bg-[#111311] border border-border-dark p-8 relative overflow-hidden flex flex-col h-full">
-      <h2 className="text-xl font-bold text-white tracking-tight mb-8">Expense Anatomy</h2>
+    <div className="card bg-[var(--bg-card)] border border-[var(--border)] p-8 relative overflow-hidden flex flex-col h-full">
+      <h2 className="text-xl font-bold text-[var(--text-primary)] tracking-tight mb-8">Expense Anatomy</h2>
       
       <div className="flex-1 flex items-center justify-center gap-12">
         <div className="relative w-48 h-48">
@@ -44,8 +44,8 @@ export default function ExpenseDonut({ avoidableTotal: propAvoidable, unavoidabl
             </PieChart>
           </ResponsiveContainer>
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <span className="text-[10px] text-muted font-bold tracking-[0.2em] uppercase mb-1">Ratio</span>
-            <span className="text-2xl font-bold text-white tracking-tight">{ratio}:1</span>
+            <span className="text-[10px] text-[var(--text-muted)] font-bold tracking-[0.2em] uppercase mb-1">Ratio</span>
+            <span className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">{ratio}:1</span>
           </div>
         </div>
 
@@ -54,17 +54,17 @@ export default function ExpenseDonut({ avoidableTotal: propAvoidable, unavoidabl
             <div key={entry.name} className="space-y-1.5 group cursor-default">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
-                <span className="text-[10px] text-muted font-bold tracking-widest uppercase transition-colors group-hover:text-white">
+                <span className="text-[10px] text-[var(--text-muted)] font-bold tracking-widest uppercase transition-colors group-hover:text-[var(--text-primary)]">
                   {entry.name}
                 </span>
               </div>
-              <p className="text-lg font-bold text-white tracking-tight">
+              <p className="text-lg font-bold text-[var(--text-primary)] tracking-tight">
                 ₹{entry.value.toLocaleString("en-IN")}
               </p>
             </div>
           ))}
-          <div className="pt-6 border-t border-border-dark/50 invisible lg:visible">
-             <p className="text-[9px] text-muted font-medium leading-relaxed uppercase tracking-wider">
+          <div className="pt-6 border-t border-[var(--border)]/50 invisible lg:visible">
+             <p className="text-[9px] text-[var(--text-muted)] font-medium leading-relaxed uppercase tracking-wider">
                &quot;Net utility density is 12% higher than prev cycle.&quot;
              </p>
           </div>

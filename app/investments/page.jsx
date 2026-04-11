@@ -37,7 +37,7 @@ const InvestmentsPage = () => {
   }, [user, loading])
 
   if (loading) return (
-    <div className="flex items-center justify-center h-screen bg-[#0a0a0a]">
+    <div className="flex items-center justify-center h-screen bg-[var(--bg-primary)]">
       <div className="text-[#00ff88] text-xl">Loading...</div>
     </div>
   )
@@ -49,17 +49,17 @@ const InvestmentsPage = () => {
   const bestPerformer = "Nifty 50"; // Static as per request
 
   return (
-    <div className="p-10 max-w-7xl mx-auto min-h-screen text-white bg-primary">
+    <div className="p-10 max-w-7xl mx-auto min-h-screen text-[var(--text-primary)] bg-primary">
       {/* Title & Subtitle */}
       <motion.div 
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         className="mb-12"
       >
-        <h1 className="text-5xl font-black tracking-tight mb-3 bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent">
+        <h1 className="text-5xl font-black tracking-tight mb-3 bg-gradient-to-r from-[var(--text-primary)] to-[var(--text-primary)]/60 bg-clip-text text-transparent">
           Investment Portfolio
         </h1>
-        <p className="text-muted text-xl font-medium uppercase tracking-[0.1em]">AI suggested investment tracker</p>
+        <p className="text-[var(--text-muted)] text-xl font-medium uppercase tracking-[0.1em]">AI suggested investment tracker</p>
       </motion.div>
 
       {/* Top Summary Cards */}
@@ -74,9 +74,9 @@ const InvestmentsPage = () => {
             <div className="p-3 rounded-xl bg-blue-500/10 text-blue-400">
               <Wallet size={24} />
             </div>
-            <p className="text-muted text-xs font-black uppercase tracking-[0.2em]">Total Invested</p>
+            <p className="text-[var(--text-muted)] text-xs font-black uppercase tracking-[0.2em]">Total Invested</p>
           </div>
-          <h3 className="text-4xl font-black">₹{totalInvested.toLocaleString()}</h3>
+          <h3 className="text-4xl font-black text-[var(--text-primary)]">₹{totalInvested.toLocaleString()}</h3>
         </motion.div>
 
         <motion.div
@@ -89,7 +89,7 @@ const InvestmentsPage = () => {
             <div className="p-3 rounded-xl bg-[#00ff88]/10 text-[#00ff88]">
               <Percent size={24} />
             </div>
-            <p className="text-muted text-xs font-black uppercase tracking-[0.2em]">Portfolio Returns</p>
+            <p className="text-[var(--text-muted)] text-xs font-black uppercase tracking-[0.2em]">Portfolio Returns</p>
           </div>
           <div className="flex items-center gap-2">
             <h3 className="text-4xl font-black text-[#00ff88]">{portfolioReturns}</h3>
@@ -107,9 +107,9 @@ const InvestmentsPage = () => {
             <div className="p-3 rounded-xl bg-purple-500/10 text-purple-400">
               <Star size={24} />
             </div>
-            <p className="text-muted text-xs font-black uppercase tracking-[0.2em]">Best Performer</p>
+            <p className="text-[var(--text-muted)] text-xs font-black uppercase tracking-[0.2em]">Best Performer</p>
           </div>
-          <h3 className="text-3xl font-black">{bestPerformer}</h3>
+          <h3 className="text-3xl font-black text-[var(--text-primary)]">{bestPerformer}</h3>
         </motion.div>
       </div>
 
@@ -125,17 +125,17 @@ const InvestmentsPage = () => {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.4 + i * 0.1 }}
-              className="bg-card border border-border-dark p-6 px-10 rounded-[2rem] flex flex-col md:flex-row items-center justify-between group hover:border-white/10 transition-all duration-500"
+              className="bg-card border border-border-dark p-6 px-10 rounded-[2rem] flex flex-col md:flex-row items-center justify-between group hover:border-[var(--border)] transition-all duration-500"
             >
               <div className="flex items-center gap-8 w-full md:w-auto">
-                <div className="p-5 rounded-2xl bg-white/5 text-[#00ff88] group-hover:bg-[#00ff88] group-hover:text-black transition-all duration-500">
+                <div className="p-5 rounded-2xl bg-[var(--bg-primary)] text-[#00ff88] group-hover:bg-[#00ff88] group-hover:text-black transition-all duration-500">
                   <Icon size={28} />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-black tracking-tight">{inv.title}</h3>
+                  <h3 className="text-2xl font-black tracking-tight text-[var(--text-primary)]">{inv.title}</h3>
                   <div className="flex items-center gap-3 mt-1.5 font-bold uppercase tracking-widest text-[10px]">
-                    <span className="text-muted">{inv.type}</span>
-                    <span className="text-white/20">•</span>
+                    <span className="text-[var(--text-muted)]">{inv.type}</span>
+                    <span className="opacity-20">•</span>
                     <span className={cn(
                       "px-2 py-0.5 rounded-md border",
                       inv.status === "ACTIVE" 
@@ -148,13 +148,13 @@ const InvestmentsPage = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-16 w-full md:w-auto mt-6 md:mt-0 pt-6 md:pt-0 border-t md:border-t-0 border-white/5">
+              <div className="flex items-center gap-16 w-full md:w-auto mt-6 md:mt-0 pt-6 md:pt-0 border-t md:border-t-0 border-[var(--border)]">
                 <div className="text-center md:text-right">
-                  <p className="text-muted text-[10px] font-black uppercase tracking-widest mb-1">Monthly Invested</p>
-                  <p className="text-xl font-black tracking-tight">₹{inv.amount.toLocaleString()}</p>
+                  <p className="text-[var(--text-muted)] text-[10px] font-black uppercase tracking-widest mb-1">Monthly Invested</p>
+                  <p className="text-xl font-black tracking-tight text-[var(--text-primary)]">₹{inv.amount.toLocaleString()}</p>
                 </div>
                 <div className="text-center md:text-right min-w-[100px]">
-                  <p className="text-muted text-[10px] font-black uppercase tracking-widest mb-1">Total Returns</p>
+                  <p className="text-[var(--text-muted)] text-[10px] font-black uppercase tracking-widest mb-1">Total Returns</p>
                   <div className={cn(
                     "flex items-center justify-end gap-1 text-2xl font-black",
                     isNegative ? "text-red-500" : "text-[#00ff88]"
@@ -181,11 +181,11 @@ const InvestmentsPage = () => {
             <Brain size={48} strokeWidth={1.5} />
           </div>
           <div className="flex-1 text-center md:text-left">
-            <p className="text-2xl font-black leading-tight text-white/90 group-hover:text-white transition-colors">
+            <p className="text-2xl font-black leading-tight text-[var(--text-primary)]/90 group-hover:text-[var(--text-primary)] transition-colors">
               Based on your <span className="text-[#00ff88]">₹{balance.toLocaleString()}</span> monthly savings, consider 
               increasing your SIP by <span className="text-[#00ff88]">₹500</span> for better compounding.
             </p>
-            <p className="text-muted text-xs font-black uppercase tracking-[0.2em] mt-4 opacity-50">
+            <p className="text-[var(--text-muted)] text-xs font-black uppercase tracking-[0.2em] mt-4 opacity-50">
               Powered by Claude AI
             </p>
           </div>

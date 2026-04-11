@@ -14,11 +14,11 @@ export default function SavingsLineChart({ savingsData, velocityView, setVelocit
   const data = savingsData && savingsData.length > 0 ? savingsData : dummySavingsData;
 
   return (
-    <div className="card bg-[#111311] border border-border-dark p-8 relative overflow-hidden group h-full flex flex-col">
+    <div className="card bg-[var(--bg-card)] border border-[var(--border)] p-8 relative overflow-hidden group h-full flex flex-col">
       <div className="flex justify-between items-start mb-8">
         <div className="space-y-1">
-          <h2 className="text-xl font-bold text-white tracking-tight">Savings Velocity</h2>
-          <p className="text-muted text-[11px] font-medium uppercase tracking-widest">
+          <h2 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">Savings Velocity</h2>
+          <p className="text-[var(--text-muted)] text-[11px] font-medium uppercase tracking-widest">
             Net accumulation over the selected arc
           </p>
         </div>
@@ -37,8 +37,8 @@ export default function SavingsLineChart({ savingsData, velocityView, setVelocit
                   textTransform: 'uppercase',
                   fontWeight: 500,
                   background: velocityView === view ? '#00ff88' : 'transparent',
-                  color: velocityView === view ? '#0a0a0a' : '#6b7280',
-                  borderColor: velocityView === view ? '#00ff88' : '#1f2b1f',
+                  color: velocityView === view ? 'var(--bg-primary)' : 'var(--text-muted)',
+                  borderColor: velocityView === view ? '#00ff88' : 'var(--border)',
                   transition: 'all 0.2s'
                 }}
               >
@@ -65,24 +65,24 @@ export default function SavingsLineChart({ savingsData, velocityView, setVelocit
               dataKey="month" 
               axisLine={false} 
               tickLine={false} 
-              tick={{ fill: "#6b7280", fontSize: 10, fontWeight: 600 }}
+              tick={{ fill: "var(--text-muted)", fontSize: 10, fontWeight: 600 }}
               dy={10}
             />
             <YAxis 
               axisLine={false} 
               tickLine={false} 
-              tick={{ fill: "#6b7280", fontSize: 10, fontWeight: 600 }}
+              tick={{ fill: "var(--text-muted)", fontSize: 10, fontWeight: 600 }}
             />
             <Tooltip 
               contentStyle={{ 
-                backgroundColor: "#111311", 
-                border: "1px solid #1f2b1f", 
+                backgroundColor: "var(--bg-card)", 
+                border: "1px solid var(--border)", 
                 borderRadius: "8px",
                 fontSize: "12px",
-                color: "#fff"
+                color: "var(--text-primary)"
               }}
               itemStyle={{ color: "#00ff88" }}
-              cursor={{ stroke: "#1f2b1f", strokeWidth: 2 }}
+              cursor={{ stroke: "var(--border)", strokeWidth: 2 }}
             />
             <Area 
               type="monotone" 

@@ -27,8 +27,8 @@ export default function WhatIfSlider() {
     <div className="space-y-12">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-         <SummaryCard label="Income" value={income} color="text-white" />
-         <SummaryCard label="Unavoidable" value={unavoidable} color="text-white" />
+         <SummaryCard label="Income" value={income} color="text-[var(--text-primary)]" />
+         <SummaryCard label="Unavoidable" value={unavoidable} color="text-[var(--text-primary)]" />
          <SummaryCard 
            label="Avoidable" 
            value={avoidable} 
@@ -42,24 +42,24 @@ export default function WhatIfSlider() {
       </div>
 
       {/* Main Slider Section */}
-      <div className="card bg-[#111311] border border-border-dark p-12 relative overflow-hidden group">
+      <div className="card bg-[var(--bg-card)] border border-[var(--border)] p-12 relative overflow-hidden group">
          <div className="flex justify-between items-center mb-12">
             <div className="space-y-1">
-               <h2 className="text-2xl font-black text-white tracking-tight uppercase italic flex items-center gap-3">
+               <h2 className="text-2xl font-black text-[var(--text-primary)] tracking-tight uppercase italic flex items-center gap-3">
                  <MinusCircle className="text-[#00ff88]" />
                  Avoidable Spending
                </h2>
-               <p className="text-muted text-[11px] font-bold tracking-widest uppercase italic">Dial back non-essentials to accelerate wealth.</p>
+               <p className="text-[var(--text-muted)] text-[11px] font-bold tracking-widest uppercase italic">Dial back non-essentials to accelerate wealth.</p>
             </div>
-            <div className="w-12 h-12 rounded-2xl bg-gray-900 flex items-center justify-center text-[#00ff88] animate-bounce">
+            <div className="w-12 h-12 rounded-2xl bg-[var(--bg-primary)] flex items-center justify-center text-[#00ff88] animate-bounce">
                <TrendingUp size={24} />
             </div>
          </div>
 
          <div className="space-y-8 relative z-10">
             <div className="flex justify-between items-center px-2">
-               <span className="text-[10px] text-muted font-black tracking-widest uppercase opacity-50">₹0</span>
-               <span className="text-[10px] text-muted font-black tracking-widest uppercase opacity-50">₹15,000</span>
+               <span className="text-[10px] text-[var(--text-muted)] font-black tracking-widest uppercase opacity-50">₹0</span>
+               <span className="text-[10px] text-[var(--text-muted)] font-black tracking-widest uppercase opacity-50">₹15,000</span>
             </div>
             
             <input 
@@ -69,9 +69,9 @@ export default function WhatIfSlider() {
               step="100"
               value={avoidable} 
               onChange={(e) => setAvoidable(parseInt(e.target.value))}
-              className="w-full h-2 bg-gray-900 rounded-full appearance-none cursor-pointer accent-[#00ff88] hover:accent-[#00ff88]/80 transition-all focus:outline-none"
+              className="w-full h-2 bg-[var(--bg-primary)] rounded-full appearance-none cursor-pointer accent-[#00ff88] hover:accent-[#00ff88]/80 transition-all focus:outline-none"
               style={{
-                background: `linear-gradient(to right, #00ff88 ${(avoidable / 15000) * 100}%, #111827 ${(avoidable / 15000) * 100}%)`
+                background: `linear-gradient(to right, #00ff88 ${(avoidable / 15000) * 100}%, var(--border) ${(avoidable / 15000) * 100}%)`
               }}
             />
 
@@ -109,11 +109,11 @@ export default function WhatIfSlider() {
       </div>
 
       {/* Area Chart: Cumulative Savings */}
-      <div className="card bg-[#111311] border border-border-dark p-8 h-[400px]">
+      <div className="card bg-[var(--bg-card)] border border-[var(--border)] p-8 h-[400px]">
          <div className="flex justify-between items-start mb-8">
             <div className="space-y-1">
-               <h3 className="text-lg font-bold text-white tracking-tight">Cumulative Growth Curve</h3>
-               <p className="text-muted text-[10px] font-bold tracking-widest uppercase italic">12-Month Projection based on current logic</p>
+               <h3 className="text-lg font-bold text-[var(--text-primary)] tracking-tight">Cumulative Growth Curve</h3>
+               <p className="text-[var(--text-muted)] text-[10px] font-bold tracking-widest uppercase italic">12-Month Projection based on current logic</p>
             </div>
             <div className="px-3 py-1 bg-gray-900 border border-border-dark rounded-full text-[9px] font-bold text-[#00ff88] uppercase tracking-widest">
               Live Forecast
@@ -164,8 +164,8 @@ export default function WhatIfSlider() {
 
 function SummaryCard({ label, value, color }) {
   return (
-    <div className="card bg-[#111311] border border-border-dark p-6 flex flex-col justify-between group hover:border-[#00ff8830] transition-colors">
-       <span className="text-[10px] text-muted font-black tracking-widest uppercase">{label}</span>
+    <div className="card bg-[var(--bg-card)] border border-[var(--border)] p-6 flex flex-col justify-between group hover:border-[#00ff8830] transition-colors">
+       <span className="text-[10px] text-[var(--text-muted)] font-black tracking-widest uppercase">{label}</span>
        <h4 className={`text-2xl font-black mt-2 tracking-tighter ${color}`}>
          ₹{value.toLocaleString()}
        </h4>
@@ -177,15 +177,15 @@ function ProjectionCard({ label, value, subtitle, highlight }) {
   return (
     <div className={`card p-8 flex flex-col justify-between h-48 relative overflow-hidden group transition-all duration-500 ${highlight ? "bg-black border-[#00ff8830] hover:border-[#00ff8850]" : "bg-[#111311] border-border-dark"}`}>
        <div className="space-y-1 relative z-10">
-          <span className="text-[10px] text-muted font-bold tracking-[0.2em] uppercase">{label}</span>
+          <span className="text-[10px] text-[var(--text-muted)] font-bold tracking-[0.2em] uppercase">{label}</span>
           <div className="flex items-center gap-2">
-             <AnimatedNumber value={value} className="text-3xl font-black text-white tracking-tighter" prefix="₹" />
+             <AnimatedNumber value={value} className="text-3xl font-black text-[var(--text-primary)] tracking-tighter" prefix="₹" />
              <PlusCircle size={16} className="text-[#00ff88]/30 group-hover:text-[#00ff88] transition-colors" />
           </div>
        </div>
        
        {subtitle && (
-         <p className="text-[9px] text-muted font-black uppercase tracking-widest relative z-10 italic mt-2">
+         <p className="text-[9px] text-[var(--text-muted)] font-black uppercase tracking-widest relative z-10 italic mt-2">
            {subtitle}
          </p>
        )}
