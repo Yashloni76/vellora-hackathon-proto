@@ -46,8 +46,27 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     if (!user) return
-    const unsub = fetchAnalyticsData()
-    return () => { if (unsub) unsub() }
+    fetchAnalyticsData()
+  }, [user])
+
+  useEffect(() => {
+    if (!user) return
+
+    const subscription = supabase
+      .channel('expenses-changes')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'expenses',
+        filter: `user_id=eq.${user.id}`
+      }, () => {
+        fetchAnalyticsData()
+      })
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(subscription)
+    }
   }, [user])
 
   const fetchAnalyticsData = async () => {
@@ -197,21 +216,6 @@ export default function AnalyticsPage() {
     setSavingsRate(rate)
 
     setLoading(false)
-
-    // Auto refresh when expenses change
-    const subscription = supabase
-      .channel('expenses-changes')
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'expenses',
-        filter: `user_id=eq.${session.user.id}`
-      }, () => {
-        fetchAnalyticsData()
-      })
-      .subscribe()
-
-    return () => supabase.removeChannel(subscription)
   }
 
   const getFilteredSavingsData = () => {
