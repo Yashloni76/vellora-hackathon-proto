@@ -94,8 +94,10 @@ export default function SettingsPage() {
   const [overspendNotif, setOverspendNotif] = useState(true)
 
   // Security
+  const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [showCurrent, setShowCurrent] = useState(false)
   const [showNew, setShowNew] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [passStrength, setPassStrength] = useState({ score: 0, label: 'Not entered', color: 'bg-gray-800' })
@@ -179,17 +181,45 @@ export default function SettingsPage() {
   }
 
   const handlePasswordUpdate = async () => {
+    setMessage({ type: '', text: '' })
+
+    if (!currentPassword) {
+      setMessage({ type: 'error', text: 'Please enter your current password' })
+      return
+    }
+
+    if (newPassword.length < 8) {
+      setMessage({ type: 'error', text: 'Password must be at least 8 characters' })
+      return
+    }
+
     if (newPassword !== confirmPassword) {
       setMessage({ type: 'error', text: 'Passwords do not match' })
       return
     }
+
     setSaveLoading(true)
-    const { error } = await supabase.auth.updateUser({ password: newPassword })
+
+    // Verify current password by signing in
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: user.email,
+      password: currentPassword
+    })
+
+    if (signInError) {
+      setMessage({ type: 'error', text: 'Current password is incorrect.' })
+      setSaveLoading(false)
+      return
+    }
+
+    // Update with new password
+    const { error: updateError } = await supabase.auth.updateUser({ password: newPassword })
     
-    if (error) {
-      setMessage({ type: 'error', text: error.message })
+    if (updateError) {
+      setMessage({ type: 'error', text: updateError.message })
     } else {
-      setMessage({ type: 'success', text: 'Password updated successfully' })
+      setMessage({ type: 'success', text: 'Password updated successfully.' })
+      setCurrentPassword('')
       setNewPassword('')
       setConfirmPassword('')
     }
@@ -418,6 +448,26 @@ export default function SettingsPage() {
               >
                 <h3 className="text-lg font-bold mb-6">Security</h3>
                 <div className="space-y-6">
+                  <div className="relative">
+                    <label className={labelBase}>Current Password</label>
+                    <div className="relative">
+                      <input 
+                        type={showCurrent ? "text" : "password"} 
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                        className={inputBase + " pr-12"}
+                        placeholder="Enter your current password"
+                      />
+                      <button 
+                        type="button"
+                        onClick={() => setShowCurrent(!showCurrent)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                      >
+                        {showCurrent ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
+                  </div>
+
                   <div className="relative">
                     <label className={labelBase}>New Password</label>
                     <div className="relative">
