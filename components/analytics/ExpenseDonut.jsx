@@ -1,26 +1,16 @@
 "use client";
 
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
-import { avoidableExpenses, unavoidableExpenses } from "@/data/dummy";
-
 export default function ExpenseDonut({ 
-  avoidableTotal: propAvoidable, 
-  unavoidableTotal: propUnavoidable, 
-  savingsAmount,
-  ratio: propRatio 
+  avoidableTotal = 0, 
+  unavoidableTotal = 0, 
+  savingsAmount = 0,
+  ratio = '0.0'
 }) {
-  const dummyAvoidable = avoidableExpenses.reduce((sum, item) => sum + item.amount, 0);
-  const dummyUnavoidable = unavoidableExpenses.reduce((sum, item) => sum + item.amount, 0);
-  const dummyRatio = (dummyUnavoidable / dummyAvoidable).toFixed(1);
-
-  const avoidableTotal = propAvoidable !== undefined ? propAvoidable : dummyAvoidable;
-  const unavoidableTotal = propUnavoidable !== undefined ? propUnavoidable : dummyUnavoidable;
-  const ratio = propRatio !== undefined ? propRatio : dummyRatio;
-
   const data = [
-    { name: 'Avoidable', value: avoidableTotal || 2499, color: '#ff4444' },
-    { name: 'Essential', value: unavoidableTotal || 2256, color: '#6b7280' },
-    { name: 'Savings', value: Math.max(0, savingsAmount || 0), color: '#00ff88' }
+    { name: 'Avoidable', value: avoidableTotal, color: '#ff4444' },
+    { name: 'Essential', value: unavoidableTotal, color: '#6b7280' },
+    { name: 'Savings', value: Math.max(0, savingsAmount), color: '#00ff88' }
   ]
 
   return (

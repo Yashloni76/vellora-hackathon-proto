@@ -8,7 +8,6 @@ import {
   Tooltip, 
   ResponsiveContainer 
 } from "recharts";
-import { savingsData as dummySavingsData } from "@/data/dummy";
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
@@ -25,7 +24,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 }
 
 export default function SavingsLineChart({ savingsData, velocityView, setVelocityView }) {
-  const data = savingsData && savingsData.length > 0 ? savingsData : dummySavingsData;
+  const data = savingsData || [];
 
   return (
     <div className="card bg-[#111311] border border-border-dark p-8 relative overflow-hidden group h-full flex flex-col">
