@@ -69,7 +69,10 @@ export default function AnalyticsPage() {
       .select('*')
       .eq('user_id', session.user.id)
     
-    if (incError) console.error('Income table fetch error:', incError)
+    // Gracefully handle if table doesn't exist yet
+    if (incError && incError.code !== 'PGRST205') {
+       console.error('Income table fetch error:', incError)
+    }
 
     // Fetch primary income from users table (fallback)
     const { data: userData } = await supabase
@@ -81,10 +84,6 @@ export default function AnalyticsPage() {
     const expenses = expensesData || []
     const income = incomeRecords || []
     const primaryIncome = Number(userData?.income) || 0
-
-    console.log('INCOME RAW:', JSON.stringify(incomeRecords))
-    console.log('EXPENSES RAW:', JSON.stringify(expensesData?.slice(0, 2)))
-    console.log('Primary income from users table:', primaryIncome)
 
     setRawExpenses(expenses)
     setRawIncome(income)
@@ -116,8 +115,11 @@ export default function AnalyticsPage() {
 
     const normalizeMonth = (val) => {
       if (!val) return null
-      const lower = val.toString().trim().toLowerCase().slice(0, 3)
-      return MONTH_MAP[lower] || val.toString().trim().toUpperCase().slice(0, 3)
+      const lower = val.toString().trim().toLowerCase()
+      // Map 'april' -> 'APR', etc.
+      if (MONTH_MAP[lower]) return MONTH_MAP[lower]
+      // Fallback: take first 3 chars and uppercase
+      return lower.slice(0, 3).toUpperCase()
     }
 
     // Monthly expenses — from date field like "2025-04-10"
@@ -147,26 +149,34 @@ export default function AnalyticsPage() {
       }
     })
 
-    // BUG FIX: If income table is empty but users table has income, 
-    // attribute it to the current month so the graph works
+    // BUG FIX: If no income records are found (or table missing), 
+    // attribute primary income to the current month
     const currentMonth = new Date().toLocaleString('en-US', { month: 'short' }).toUpperCase()
     if (Object.keys(monthlyIncome).length === 0 && primaryIncome > 0) {
-      console.log('Attributing primary income to current month:', currentMonth)
       monthlyIncome[currentMonth] = primaryIncome
     }
 
-    console.log('monthlyIncome after normalize:', monthlyIncome)
-    console.log('monthlyExpenses after normalize:', monthlyExpenses)
-
-    // Build savings per month
+    // Sort months chronologically for the graph
+    const monthOrder = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
     const allMonths = [...new Set([...Object.keys(monthlyIncome), ...Object.keys(monthlyExpenses)])]
+    
+    // Baseline logic: If we only have data for one month, add the previous month at 0 
+    // so the graph isn't a single "floating" point.
+    if (allMonths.length === 1) {
+      const singleMonth = allMonths[0]
+      const idx = monthOrder.indexOf(singleMonth)
+      if (idx > 0) {
+        allMonths.unshift(monthOrder[idx - 1])
+      }
+    }
+
+    allMonths.sort((a, b) => monthOrder.indexOf(a) - monthOrder.indexOf(b))
+
     const savings = allMonths.map(m => ({
       month: m,
       amount: Math.max(0, (monthlyIncome[m] || 0) - (monthlyExpenses[m] || 0))
     }))
 
-    console.log('final savings array:', savings)
-    
     // Make savings cumulative
     let cumulative = 0
     const cumulativeSavings = savings.map(s => {
@@ -176,7 +186,6 @@ export default function AnalyticsPage() {
     setSavingsData(cumulativeSavings)
 
     // Savings rate
-    // Calculate total income and total expenses, including fallback primaryIncome
     const totalIncomeFromRecords = income.reduce((sum, i) => sum + Number(i.amount), 0)
     const totalInc = totalIncomeFromRecords > 0 ? totalIncomeFromRecords : primaryIncome
     setTotalIncome(totalInc)
