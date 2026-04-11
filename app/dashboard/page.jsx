@@ -222,11 +222,39 @@ export default function DashboardPage() {
   const handleAddSetupExpense = async () => {
     if (!expenseName || !expenseAmount) return
     setSaving(true)
+
+    let aiType = 'avoidable'
+    try {
+      const catRes = await fetch('/api/categorize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          expenses: [{
+            title: expenseName,
+            amount: parseFloat(expenseAmount)
+          }]
+        })
+      })
+      const catData = await catRes.json()
+      if (catData && catData[0] && catData[0].category) {
+        aiType = catData[0].category
+      }
+    } catch (err) {
+      console.error('Categorize API failed in setup:', err)
+      const unavoidableWords = [
+        'rent', 'bill', 'electricity', 'medicine',
+        'transport', 'grocery', 'insurance', 'emi'
+      ]
+      aiType = unavoidableWords
+        .some(w => expenseName.toLowerCase().includes(w))
+        ? 'unavoidable' : 'avoidable'
+    }
+
     const newExp = {
       user_id: user.id,
       title: expenseName,
       amount: parseFloat(expenseAmount),
-      type: expenseType,
+      type: aiType,
       mood: 'neutral',
       date: new Date().toISOString().split('T')[0]
     }
@@ -334,15 +362,6 @@ export default function DashboardPage() {
                 className="w-full bg-[#0a0a0a] border border-[#222] rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-[#00ff88]/50 transition-colors"
               />
             </div>
-
-            <select
-              value={expenseType}
-              onChange={(e) => setExpenseType(e.target.value)}
-              className="w-full bg-[#0a0a0a] border border-[#222] rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[#00ff88]/50 transition-colors appearance-none"
-            >
-              <option value="avoidable">Avoidable</option>
-              <option value="unavoidable">Unavoidable</option>
-            </select>
 
             <button
               onClick={handleAddSetupExpense}
