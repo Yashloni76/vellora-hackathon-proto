@@ -1,3 +1,6 @@
+'use client'
+
+import { useState } from "react";
 import { 
   Home, 
   Zap, 
@@ -18,7 +21,9 @@ const IconMap = {
   briefcase: Briefcase
 };
 
-export default function ExpenseList({ avoidable = [], unavoidable = [] }) {
+export default function ExpenseList({ avoidable = [], unavoidable = [], onDelete }) {
+  const [confirmId, setConfirmId] = useState(null)
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
       {/* Unavoidable Expenses */}
@@ -29,7 +34,14 @@ export default function ExpenseList({ avoidable = [], unavoidable = [] }) {
         </div>
         <div className="grid grid-cols-1 gap-3">
           {unavoidable.map((expense) => (
-            <ExpenseItem key={expense.id} expense={expense} type="unavoidable" />
+            <ExpenseItem 
+              key={expense.id} 
+              expense={expense} 
+              type="unavoidable" 
+              onDelete={onDelete}
+              confirmId={confirmId}
+              setConfirmId={setConfirmId}
+            />
           ))}
           {unavoidable.length === 0 && (
             <p className="text-muted text-xs italic opacity-50">No unavoidable expenses added yet.</p>
@@ -45,7 +57,14 @@ export default function ExpenseList({ avoidable = [], unavoidable = [] }) {
         </div>
         <div className="grid grid-cols-1 gap-3">
           {avoidable.map((expense) => (
-            <ExpenseItem key={expense.id} expense={expense} type="avoidable" />
+            <ExpenseItem 
+              key={expense.id} 
+              expense={expense} 
+              type="avoidable" 
+              onDelete={onDelete}
+              confirmId={confirmId}
+              setConfirmId={setConfirmId}
+            />
           ))}
           {avoidable.length === 0 && (
             <p className="text-muted text-xs italic opacity-50">No avoidable expenses added yet.</p>
@@ -56,7 +75,7 @@ export default function ExpenseList({ avoidable = [], unavoidable = [] }) {
   );
 }
 
-function ExpenseItem({ expense, type }) {
+function ExpenseItem({ expense, type, onDelete, confirmId, setConfirmId }) {
   const Icon = IconMap[expense.icon] || AlertCircle;
 
   // Custom labels as requested
@@ -66,6 +85,8 @@ function ExpenseItem({ expense, type }) {
     if (expense.title === "Transport Pass") return "SUBSCRIPTION";
     return expense.sub || expense.tag;
   };
+
+  const isConfirming = confirmId === expense.id;
 
   return (
     <div className="group bg-[#111311] border border-border-dark rounded-xl p-4 flex items-center justify-between hover:bg-[#1a1f1a] transition-all hover:scale-[1.01]">
@@ -101,7 +122,7 @@ function ExpenseItem({ expense, type }) {
         </div>
       </div>
 
-      {/* Amount & Emotion */}
+      {/* Amount & Emotion & Delete Action */}
       <div className="flex items-center gap-4">
         <div className="text-right">
           <p className="text-sm font-bold text-white">₹{expense.amount.toLocaleString("en-IN")}</p>
@@ -113,6 +134,51 @@ function ExpenseItem({ expense, type }) {
              <span className="text-[7px] text-muted font-bold tracking-tighter uppercase leading-none">Emotion</span>
           </div>
         )}
+        
+        {/* Delete Handle System */}
+        <div className="ml-2 flex flex-col items-end min-w-[70px] justify-center">
+          {isConfirming ? (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={(e) => { e.stopPropagation(); setConfirmId(null); }}
+                className="text-[#6b7280] text-xs border border-[#1f2b1f] rounded px-2 py-0.5 hover:bg-[#1a1f1a]"
+              >
+                ✕ Cancel
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); onDelete(expense.id); }}
+                className="text-[#ff4444] text-xs border border-[#ff4444] rounded px-2 py-0.5 hover:bg-[#ff4444] hover:text-white"
+              >
+                Delete
+              </button>
+            </div>
+          ) : (
+            <button
+               onClick={(e) => { e.stopPropagation(); setConfirmId(expense.id); }}
+               className="ml-auto p-1 rounded hover:bg-[#1a1f1a] transition-colors opacity-0 group-hover:opacity-100"
+               title="Delete expense"
+             >
+               <svg
+                 xmlns="http://www.w3.org/2000/svg"
+                 width="14"
+                 height="14"
+                 viewBox="0 0 24 24"
+                 fill="none"
+                 stroke="currentColor"
+                 strokeWidth="2"
+                 strokeLinecap="round"
+                 strokeLinejoin="round"
+                 className="text-[#6b7280] hover:text-[#ff4444] transition-colors"
+               >
+                 <polyline points="3 6 5 6 21 6" />
+                 <path d="M19 6l-1 14H6L5 6" />
+                 <path d="M10 11v6" />
+                 <path d="M14 11v6" />
+                 <path d="M9 6V4h6v2" />
+               </svg>
+             </button>
+          )}
+        </div>
       </div>
     </div>
   );

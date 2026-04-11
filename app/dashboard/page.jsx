@@ -185,6 +185,23 @@ export default function DashboardPage() {
     setSaving(false)
   }
 
+  const handleDeleteExpense = async (expenseId) => {
+    try {
+      const { error } = await supabase
+        .from('expenses')
+        .delete()
+        .eq('id', expenseId)
+        .eq('user_id', user.id)
+
+      if (error) throw error
+
+      // Remove from local state immediately (optimistic update)
+      setDbExpenses(prev => prev.filter(exp => exp.id !== expenseId))
+    } catch (err) {
+      console.error('Delete failed:', err)
+    }
+  }
+
   const handleSaveIncome = async () => {
     if (!additionalIncome || !user) return
     setAddingIncome(true)
@@ -449,7 +466,7 @@ export default function DashboardPage() {
       {/* Main Content Sections */}
       <section className="space-y-12">
         <BalanceCard balance={isLoading ? 0 : realBalance} />
-        <ExpenseList avoidable={avoid} unavoidable={unavoid} />
+        <ExpenseList avoidable={avoid} unavoidable={unavoid} onDelete={handleDeleteExpense} />
         <StatsRow 
           savingsVelocity={savingsVelocity} 
           savings={realSavings} 
