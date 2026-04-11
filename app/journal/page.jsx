@@ -20,7 +20,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 const moodConfig = {
-  HAPPY: { label: "Happy", emoji: "😊", color: "text-[#00ff88]", bg: "bg-[#00ff88]/10", border: "border-[#00ff88]/20" },
+  HAPPY: { label: "Happy", emoji: "😊", color: "text-green-accent", bg: "bg-green-accent/10", border: "border-green-accent/20" },
   REGRET: { label: "Regret", emoji: "😞", color: "text-red-500", bg: "bg-red-500/10", border: "border-red-500/20" },
   NEUTRAL: { label: "Neutral", emoji: "😐", color: "text-gray-400", bg: "bg-gray-400/10", border: "border-gray-400/20" },
 };
@@ -36,8 +36,8 @@ const JournalPage = () => {
   }, [user, loading])
 
   if (loading) return (
-    <div className="flex items-center justify-center h-screen bg-[#0a0a0a]">
-      <div className="text-[#00ff88] text-xl">Loading...</div>
+    <div className="flex items-center justify-center h-screen bg-primary">
+      <div className="text-green-accent text-xl">Loading...</div>
     </div>
   )
 
@@ -54,7 +54,7 @@ const JournalPage = () => {
   };
 
   return (
-    <div className="p-10 max-w-6xl mx-auto min-h-screen text-white bg-primary">
+    <div className="p-10 max-w-6xl mx-auto min-h-screen text-primary bg-primary">
       {/* Header Section */}
       <motion.div 
         initial={{ opacity: 0, x: -20 }}
@@ -118,7 +118,7 @@ const JournalPage = () => {
                   </div>
                 </div>
 
-                <h3 className="text-3xl font-black mb-4 group-hover:text-[#00ff88] transition-colors">{entry.title}</h3>
+                <h3 className="text-3xl font-black mb-4 group-hover:text-green-accent transition-colors">{entry.title}</h3>
                 <p className="text-lg text-muted leading-relaxed mb-8 max-w-3xl italic">
                   "{entry.body}"
                 </p>
@@ -126,22 +126,22 @@ const JournalPage = () => {
                 <div className="flex flex-wrap items-center gap-4">
                   <div className={cn(
                     "px-5 py-2 rounded-xl text-xs font-black tracking-widest border flex items-center gap-2",
-                    isWin ? "border-[#00ff88]/40 bg-[#00ff88]/5 text-[#00ff88]" : 
+                    isWin ? "border-green-accent/40 bg-green-accent/5 text-green-accent" : 
                     isLoss ? "border-red-500/40 bg-red-500/5 text-red-500" : 
-                    "border-white/10 bg-white/5 text-white/60"
+                    "border-white/10 bg-white/5 text-primary/60"
                   )}>
                     {isWin && <TrendingUp size={14} />}
                     {isLoss && <TrendingDown size={14} />}
                     {entry.tag}
                   </div>
-                  <div className="text-xl font-black text-white/80">
+                  <div className="text-xl font-black text-primary/80">
                     ₹{entry.amount.toLocaleString()}
                   </div>
                 </div>
               </div>
 
               {/* Decorative Quote mark */}
-              <div className="absolute -bottom-6 -right-6 text-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 rotate-12">
+              <div className="absolute -bottom-6 -right-6 text-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 rotate-12">
                 <Quote size={180} />
               </div>
             </motion.div>
@@ -155,7 +155,7 @@ const JournalPage = () => {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setIsDialogOpen(true)}
-          className="flex items-center gap-4 bg-[#00ff88] text-[#0a0a0a] px-10 py-5 rounded-[2rem] font-black text-xl shadow-[0_20px_50px_rgba(0,0,0,0.4)] hover:shadow-[0_20px_60px_rgba(0,255,136,0.3)] transition-all"
+          className="flex items-center gap-4 bg-green-accent text-primary px-10 py-5 rounded-[2rem] font-black text-xl shadow-[0_20px_50px_rgba(0,0,0,0.4)] hover:shadow-[0_20px_60px_rgba(0,255,136,0.3)] transition-all"
         >
           <Plus size={28} strokeWidth={3} />
           Add Journal Entry
@@ -181,7 +181,7 @@ const JournalPage = () => {
             >
               <button
                 onClick={() => setIsDialogOpen(false)}
-                className="absolute top-8 right-8 text-muted hover:text-white transition-colors"
+                className="absolute top-8 right-8 text-muted hover:text-primary transition-colors"
               >
                 <X size={32} />
               </button>
@@ -215,14 +215,14 @@ const JournalPage = () => {
                   <div>
                     <input
                       placeholder="Give it a title..."
-                      className="w-full bg-white/5 border-2 border-white/5 rounded-2xl px-6 py-4 font-bold text-lg text-white focus:outline-none focus:border-[#00ff88]/50 transition-all"
+                      className="w-full bg-white/5 border-2 border-white/5 rounded-2xl px-6 py-4 font-bold text-lg text-primary focus:outline-none focus:border-green-accent/50 transition-all"
                     />
                   </div>
                   <div>
                     <textarea
                       placeholder="How did you feel about this transaction?"
                       rows={3}
-                      className="w-full bg-white/5 border-2 border-white/5 rounded-2xl px-6 py-4 font-bold text-white focus:outline-none focus:border-[#00ff88]/50 transition-all resize-none"
+                      className="w-full bg-white/5 border-2 border-white/5 rounded-2xl px-6 py-4 font-bold text-primary focus:outline-none focus:border-green-accent/50 transition-all resize-none"
                     />
                   </div>
                 </div>
@@ -233,17 +233,17 @@ const JournalPage = () => {
                     <input
                       type="number"
                       placeholder="Amount"
-                      className="w-full bg-white/5 border-2 border-white/5 rounded-2xl pl-12 pr-6 py-4 font-black text-xl text-white focus:outline-none focus:border-[#00ff88]/50 transition-all"
+                      className="w-full bg-white/5 border-2 border-white/5 rounded-2xl pl-12 pr-6 py-4 font-black text-xl text-primary focus:outline-none focus:border-green-accent/50 transition-all"
                     />
                   </div>
                   <div className="flex bg-white/5 border-2 border-white/5 rounded-2xl p-1">
-                    <button className="flex-1 bg-[#00ff88] text-black font-black text-xs uppercase tracking-widest py-3 rounded-xl transition-all">WIN</button>
-                    <button className="flex-1 text-muted font-black text-xs uppercase tracking-widest py-3 rounded-xl hover:text-white transition-all">LOSS</button>
+                    <button className="flex-1 bg-green-accent text-black font-black text-xs uppercase tracking-widest py-3 rounded-xl transition-all">WIN</button>
+                    <button className="flex-1 text-muted font-black text-xs uppercase tracking-widest py-3 rounded-xl hover:text-primary transition-all">LOSS</button>
                   </div>
                 </div>
 
                 <button
-                  className="w-full bg-[#00ff88] text-[#0a0a0a] py-5 rounded-2xl font-black text-xl hover:shadow-[0_10px_30px_rgba(0,255,136,0.2)] transition-all mt-4"
+                  className="w-full bg-green-accent text-primary py-5 rounded-2xl font-black text-xl hover:shadow-[0_10px_30px_rgba(0,255,136,0.2)] transition-all mt-4"
                 >
                   Save Entry
                 </button>

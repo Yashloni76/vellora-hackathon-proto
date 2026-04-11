@@ -14,10 +14,10 @@ export default function SavingsLineChart({ savingsData, velocityView, setVelocit
   const data = savingsData && savingsData.length > 0 ? savingsData : dummySavingsData;
 
   return (
-    <div className="card bg-[#111311] border border-border-dark p-8 relative overflow-hidden group h-full flex flex-col">
+    <div className="card bg-card border border-border-dark p-8 relative overflow-hidden group h-full flex flex-col">
       <div className="flex justify-between items-start mb-8">
         <div className="space-y-1">
-          <h2 className="text-xl font-bold text-white tracking-tight">Savings Velocity</h2>
+          <h2 className="text-xl font-bold text-primary tracking-tight">Savings Velocity</h2>
           <p className="text-muted text-[11px] font-medium uppercase tracking-widest">
             Net accumulation over the selected arc
           </p>
@@ -46,7 +46,7 @@ export default function SavingsLineChart({ savingsData, velocityView, setVelocit
               </button>
             ))}
           </div>
-          <div className="px-2 py-1 bg-[#00ff8815] border border-[#00ff8830] rounded text-[9px] text-[#00ff88] font-bold tracking-widest animate-pulse uppercase">
+          <div className="px-2 py-1 bg-[#00ff8815] border border-[#00ff8830] rounded text-[9px] text-green-accent font-bold tracking-widest animate-pulse uppercase">
             Real-time
           </div>
         </div>
@@ -98,7 +98,7 @@ export default function SavingsLineChart({ savingsData, velocityView, setVelocit
       </div>
 
       {/* Decorative accent */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-[#00ff88]/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-0 w-32 h-32 bg-green-accent/5 rounded-full blur-3xl pointer-events-none" />
     </div>
   );
 }

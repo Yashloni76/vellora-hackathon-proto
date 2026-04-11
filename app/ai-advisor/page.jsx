@@ -9,7 +9,7 @@ import SuggestionCard from "@/components/ai-advisor/SuggestionCard";
 
 function SkeletonCard() {
   return (
-    <div className="bg-[#111311] border border-[#1a1f1a] rounded-2xl p-5 flex gap-4 items-start animate-pulse" style={{ borderLeft: "3px solid #1a1f1a" }}>
+    <div className="bg-card border border-[#1a1f1a] rounded-2xl p-5 flex gap-4 items-start animate-pulse" style={{ borderLeft: "3px solid #1a1f1a" }}>
       <div className="w-10 h-10 rounded-xl bg-[#1a1f1a] flex-shrink-0" />
       <div className="flex-1 space-y-3">
         <div className="h-3 bg-[#1a1f1a] rounded-full w-24" />
@@ -115,8 +115,8 @@ export default function AIAdvisorPage() {
   }
 
   if (loading || dataLoading) return (
-    <div className="flex items-center justify-center h-screen bg-[#0a0a0a]">
-      <div className="text-[#00ff88] text-xl">Loading profile...</div>
+    <div className="flex items-center justify-center h-screen bg-primary">
+      <div className="text-green-accent text-xl">Loading profile...</div>
     </div>
   )
 
@@ -124,10 +124,10 @@ export default function AIAdvisorPage() {
   const savingCards = suggestions.filter((s) => s.type === "saving");
 
   const STATS = [
-    { label: "INCOME", value: `₹${userIncome.toLocaleString()}`, color: "text-white" },
-    { label: "TOTAL SPENT", value: `₹${totalSpent.toLocaleString()}`, color: "text-white" },
+    { label: "INCOME", value: `₹${userIncome.toLocaleString()}`, color: "text-primary" },
+    { label: "TOTAL SPENT", value: `₹${totalSpent.toLocaleString()}`, color: "text-primary" },
     { label: "AVOIDABLE", value: `₹${avoidableTotal.toLocaleString()}`, color: "text-yellow-400" },
-    { label: "SAVINGS", value: `₹${savings.toLocaleString()}`, color: "text-[#00ff88]" },
+    { label: "SAVINGS", value: `₹${savings.toLocaleString()}`, color: "text-green-accent" },
   ];
 
   return (
@@ -140,11 +140,11 @@ export default function AIAdvisorPage() {
       {/* Header */}
       <header className="space-y-2">
         <div className="flex items-center gap-3">
-          <h1 className="text-4xl font-black tracking-tight text-white">AI Advisor</h1>
-          <span className="w-2.5 h-2.5 rounded-full bg-[#00ff88] shadow-[0_0_12px_rgba(0,255,136,0.7)] animate-pulse" />
+          <h1 className="text-4xl font-black tracking-tight text-primary">AI Advisor</h1>
+          <span className="w-2.5 h-2.5 rounded-full bg-green-accent shadow-[0_0_12px_rgba(0,255,136,0.7)] animate-pulse" />
         </div>
         <p className="text-[#666] text-sm font-medium flex items-center gap-2">
-          <Brain size={14} className="text-[#00ff88]" />
+          <Brain size={14} className="text-green-accent" />
           Powered by Google Gemini — personalized intelligence for your financial profile
         </p>
       </header>
@@ -152,7 +152,7 @@ export default function AIAdvisorPage() {
       {/* Stats Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {STATS.map((stat) => (
-          <div key={stat.label} className="bg-[#111311] border border-[#1a1f1a] rounded-2xl p-5 space-y-1">
+          <div key={stat.label} className="bg-card border border-[#1a1f1a] rounded-2xl p-5 space-y-1">
             <p className="text-[10px] text-[#555] font-bold tracking-[0.18em] uppercase">{stat.label}</p>
             <p className={`text-2xl font-black ${stat.color}`}>{stat.value}</p>
           </div>
@@ -163,13 +163,13 @@ export default function AIAdvisorPage() {
       <section className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-bold text-white">Personalized Suggestions</h2>
+            <h2 className="text-lg font-bold text-primary">Personalized Suggestions</h2>
             <p className="text-[#555] text-xs mt-0.5">Smart analysis of your financial profile.</p>
           </div>
           <button
             onClick={getAIAnalysis}
             disabled={analyzing}
-            className="flex items-center gap-2 bg-[#00ff88] hover:bg-[#00e87a] text-black font-black text-sm px-5 py-2.5 rounded-xl transition-all shadow-[0_0_20px_rgba(0,255,136,0.25)] hover:shadow-[0_0_30px_rgba(0,255,136,0.4)] disabled:opacity-60 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 bg-green-accent hover:bg-[#00e87a] text-black font-black text-sm px-5 py-2.5 rounded-xl transition-all shadow-[0_0_20px_rgba(0,255,136,0.25)] hover:shadow-[0_0_30px_rgba(0,255,136,0.4)] disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {analyzing ? (
               <Loader2 size={15} className="animate-spin" />
@@ -193,7 +193,7 @@ export default function AIAdvisorPage() {
             {/* Investment Suggestions */}
             {investmentCards.length > 0 && (
               <div className="space-y-3">
-                <p className="text-[11px] font-black tracking-[0.2em] text-[#00ff88] uppercase">Investment Suggestions</p>
+                <p className="text-[11px] font-black tracking-[0.2em] text-green-accent uppercase">Investment Suggestions</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {investmentCards.map((s, i) => (
                     <SuggestionCard key={i} text={`${s.title}: ${s.desc}`} type="investment" index={i} />

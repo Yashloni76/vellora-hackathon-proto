@@ -3,6 +3,19 @@
 @tailwind utilities;
 
 :root {
+  --bg-primary: #f3f4f6;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f9fafb;
+  --accent-green: #00cc6a;
+  --accent-green-dim: #00ff88;
+  --text-primary: #111827;
+  --text-muted: #6b7280;
+  --border: #e5e7eb;
+  --red: #ef4444;
+  --yellow: #f59e0b;
+}
+
+.dark {
   --bg-primary: #0a0a0a;
   --bg-card: #111311;
   --bg-card-hover: #1a1f1a;
@@ -16,9 +29,10 @@
 }
 
 body {
-  background-color: #0a0a0a;
-  color: white;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   font-family: 'Inter', sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .glow {

@@ -48,10 +48,10 @@ export default function Topbar() {
       
       <div className="flex items-center gap-3 pl-4 border-l border-border-dark/30">
         <div className="text-right">
-          <p className="text-[11px] font-bold text-white tracking-widest uppercase">{userName}</p>
-          <p className="text-[9px] font-medium text-[#00ff88]">ARCHITECT TIER</p>
+          <p className="text-[11px] font-bold text-primary tracking-widest uppercase">{userName}</p>
+          <p className="text-[9px] font-medium text-green-accent">ARCHITECT TIER</p>
         </div>
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#00ff88]/20 to-transparent border border-border-dark/50 flex items-center justify-center text-[#00ff88] font-bold text-sm">
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#00ff88]/20 to-transparent border border-border-dark/50 flex items-center justify-center text-green-accent font-bold text-sm">
           {userInitials}
         </div>
       </div>

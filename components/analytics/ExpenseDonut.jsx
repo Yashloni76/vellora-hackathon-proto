@@ -18,8 +18,8 @@ export default function ExpenseDonut({ avoidableTotal: propAvoidable, unavoidabl
   ];
 
   return (
-    <div className="card bg-[#111311] border border-border-dark p-8 relative overflow-hidden flex flex-col h-full">
-      <h2 className="text-xl font-bold text-white tracking-tight mb-8">Expense Anatomy</h2>
+    <div className="card bg-card border border-border-dark p-8 relative overflow-hidden flex flex-col h-full">
+      <h2 className="text-xl font-bold text-primary tracking-tight mb-8">Expense Anatomy</h2>
       
       <div className="flex-1 flex items-center justify-center gap-12">
         <div className="relative w-48 h-48">
@@ -45,7 +45,7 @@ export default function ExpenseDonut({ avoidableTotal: propAvoidable, unavoidabl
           </ResponsiveContainer>
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
             <span className="text-[10px] text-muted font-bold tracking-[0.2em] uppercase mb-1">Ratio</span>
-            <span className="text-2xl font-bold text-white tracking-tight">{ratio}:1</span>
+            <span className="text-2xl font-bold text-primary tracking-tight">{ratio}:1</span>
           </div>
         </div>
 
@@ -54,11 +54,11 @@ export default function ExpenseDonut({ avoidableTotal: propAvoidable, unavoidabl
             <div key={entry.name} className="space-y-1.5 group cursor-default">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
-                <span className="text-[10px] text-muted font-bold tracking-widest uppercase transition-colors group-hover:text-white">
+                <span className="text-[10px] text-muted font-bold tracking-widest uppercase transition-colors group-hover:text-primary">
                   {entry.name}
                 </span>
               </div>
-              <p className="text-lg font-bold text-white tracking-tight">
+              <p className="text-lg font-bold text-primary tracking-tight">
                 ₹{entry.value.toLocaleString("en-IN")}
               </p>
             </div>

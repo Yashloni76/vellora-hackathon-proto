@@ -36,8 +36,8 @@ const FeedbackPage = () => {
   }, [user, loading])
 
   if (loading) return (
-    <div className="flex items-center justify-center h-screen bg-[#0a0a0a]">
-      <div className="text-[#00ff88] text-xl">Loading...</div>
+    <div className="flex items-center justify-center h-screen bg-primary">
+      <div className="text-green-accent text-xl">Loading...</div>
     </div>
   )
 
@@ -70,7 +70,7 @@ const FeedbackPage = () => {
   };
 
   return (
-    <div className="p-10 max-w-4xl mx-auto min-h-screen text-white bg-primary pb-32">
+    <div className="p-10 max-w-4xl mx-auto min-h-screen text-primary bg-primary pb-32">
       {/* Title & Subtitle */}
       <motion.div 
         initial={{ opacity: 0, x: -20 }}
@@ -93,7 +93,7 @@ const FeedbackPage = () => {
           
           {/* Rating Section */}
           <div className="space-y-6">
-            <label className="block text-sm font-black text-white/50 uppercase tracking-[0.2em]">
+            <label className="block text-sm font-black text-primary/50 uppercase tracking-[0.2em]">
               How would you rate SYMP?
             </label>
             <div className="flex gap-4">
@@ -112,8 +112,8 @@ const FeedbackPage = () => {
                     className={cn(
                       "transition-all duration-300 drop-shadow-lg",
                       (hoverRating || rating) >= star 
-                        ? "fill-[#00ff88] text-[#00ff88] scale-110" 
-                        : "text-white/10"
+                        ? "fill-[#00ff88] text-green-accent scale-110" 
+                        : "text-primary/10"
                     )}
                   />
                 </button>
@@ -123,7 +123,7 @@ const FeedbackPage = () => {
 
           {/* Categories Section */}
           <div className="space-y-6">
-            <label className="block text-sm font-black text-white/50 uppercase tracking-[0.2em]">
+            <label className="block text-sm font-black text-primary/50 uppercase tracking-[0.2em]">
               Which areas can we improve?
             </label>
             <div className="flex flex-wrap gap-4">
@@ -135,8 +135,8 @@ const FeedbackPage = () => {
                   className={cn(
                     "px-6 py-3 rounded-2xl border-2 font-bold text-xs uppercase tracking-widest transition-all",
                     selectedCategories.includes(cat)
-                      ? "bg-[#00ff88] text-black border-[#00ff88] shadow-[0_0_20px_rgba(0,255,136,0.2)]"
-                      : "bg-white/5 text-white/40 border-white/5 hover:border-white/10 hover:bg-white/10"
+                      ? "bg-green-accent text-black border-green-accent shadow-[0_0_20px_rgba(0,255,136,0.2)]"
+                      : "bg-white/5 text-primary/40 border-white/5 hover:border-white/10 hover:bg-white/10"
                   )}
                 >
                   {cat}
@@ -147,7 +147,7 @@ const FeedbackPage = () => {
 
           {/* Feedback Textarea Section */}
           <div className="space-y-6">
-            <label className="block text-sm font-black text-white/50 uppercase tracking-[0.2em]">
+            <label className="block text-sm font-black text-primary/50 uppercase tracking-[0.2em]">
               Tell us more...
             </label>
             <div className="relative group">
@@ -156,7 +156,7 @@ const FeedbackPage = () => {
                 onChange={(e) => setFeedbackText(e.target.value)}
                 maxLength={500}
                 placeholder="What's your experience so far?"
-                className="w-full bg-[#0a0a0a] border-2 border-border-dark rounded-3xl p-8 min-h-[200px] text-lg font-medium placeholder:text-white/10 focus:outline-none focus:border-[#00ff88]/50 focus:bg-white/5 transition-all outline-none"
+                className="w-full bg-primary border-2 border-border-dark rounded-3xl p-8 min-h-[200px] text-lg font-medium placeholder:text-primary/10 focus:outline-none focus:border-green-accent/50 focus:bg-white/5 transition-all outline-none"
               />
               <div className="absolute bottom-6 right-8 text-xs font-black uppercase tracking-widest text-muted">
                 {feedbackText.length} / 500
@@ -173,7 +173,7 @@ const FeedbackPage = () => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   type="submit"
-                  className="w-full bg-[#00ff88] text-[#0a0a0a] h-full rounded-[2rem] font-black text-xl flex items-center justify-center gap-4 hover:shadow-[0_20px_60px_rgba(0,255,136,0.25)] transition-all"
+                  className="w-full bg-green-accent text-primary h-full rounded-[2rem] font-black text-xl flex items-center justify-center gap-4 hover:shadow-[0_20px_60px_rgba(0,255,136,0.25)] transition-all"
                 >
                   <Zap size={24} strokeWidth={3} />
                   SUBMIT FEEDBACK
@@ -184,7 +184,7 @@ const FeedbackPage = () => {
                   initial={{ opacity: 0, scale: 0.9, y: 10 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.9, y: -10 }}
-                  className="w-full h-full bg-[#00ff88]/10 border-2 border-[#00ff88]/40 rounded-[2rem] flex items-center justify-center gap-4 text-[#00ff88] font-black italic"
+                  className="w-full h-full bg-green-accent/10 border-2 border-green-accent/40 rounded-[2rem] flex items-center justify-center gap-4 text-green-accent font-black italic"
                 >
                   <CheckCircle2 size={32} />
                   THANK YOU! WE'RE LISTENING.
@@ -195,7 +195,7 @@ const FeedbackPage = () => {
         </form>
 
         {/* Decorative elements */}
-        <div className="absolute -top-24 -right-24 w-64 h-64 bg-[#00ff88]/5 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute -top-24 -right-24 w-64 h-64 bg-green-accent/5 rounded-full blur-[100px] pointer-events-none" />
       </motion.div>
 
       {/* Bug Report Bottom Section */}
@@ -203,10 +203,10 @@ const FeedbackPage = () => {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="mt-12 bg-[#00ff88]/5 border-2 border-[#00ff88]/20 p-10 rounded-[3rem] group hover:border-[#00ff88]/40 transition-all flex flex-col md:flex-row items-center justify-between gap-8"
+        className="mt-12 bg-green-accent/5 border-2 border-green-accent/20 p-10 rounded-[3rem] group hover:border-green-accent/40 transition-all flex flex-col md:flex-row items-center justify-between gap-8"
       >
         <div className="flex items-center gap-6">
-          <div className="p-5 rounded-2xl bg-[#00ff88]/10 text-red-400 group-hover:scale-110 transition-transform">
+          <div className="p-5 rounded-2xl bg-green-accent/10 text-red-400 group-hover:scale-110 transition-transform">
             <Bug size={32} strokeWidth={2.5} />
           </div>
           <div>
@@ -214,7 +214,7 @@ const FeedbackPage = () => {
             <p className="text-muted font-bold tracking-tight">Report it directly to our team</p>
           </div>
         </div>
-        <button className="px-10 py-4 rounded-2xl border-2 border-[#00ff88] text-[#00ff88] font-black uppercase tracking-widest hover:bg-[#00ff88] hover:text-[#0a0a0a] transition-all flex items-center gap-3 active:scale-95 group-hover:shadow-[0_0_20px_rgba(0,255,136,0.2)]">
+        <button className="px-10 py-4 rounded-2xl border-2 border-green-accent text-green-accent font-black uppercase tracking-widest hover:bg-green-accent hover:text-primary transition-all flex items-center gap-3 active:scale-95 group-hover:shadow-[0_0_20px_rgba(0,255,136,0.2)]">
           REPORT BUG
           <ArrowRight size={20} />
         </button>

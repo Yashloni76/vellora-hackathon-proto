@@ -275,8 +275,8 @@ export default function DashboardPage() {
   }
 
   if (authLoading || (user && setupStep === 0)) return (
-    <div className="flex items-center justify-center h-screen bg-[#0a0a0a]">
-      <div className="text-[#00ff88] text-xl">Loading...</div>
+    <div className="flex items-center justify-center h-screen bg-primary">
+      <div className="text-green-accent text-xl">Loading...</div>
     </div>
   )
 
@@ -285,20 +285,20 @@ export default function DashboardPage() {
   // STEP 1: Income Setup
   if (setupStep === 1) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#0a0a0a] p-6">
+      <div className="flex items-center justify-center min-h-screen bg-primary p-6">
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-md bg-[#111] border border-[#00ff88]/30 rounded-2xl p-8 shadow-2xl shadow-[#00ff88]/5"
+          className="w-full max-w-md bg-[#111] border border-green-accent/30 rounded-2xl p-8 shadow-2xl shadow-[#00ff88]/5"
         >
           <div className="text-center space-y-2 mb-8">
-            <h2 className="text-3xl font-bold text-white">Welcome to SYMP! 👋</h2>
+            <h2 className="text-3xl font-bold text-primary">Welcome to SYMP! 👋</h2>
             <p className="text-gray-400">Let's set up your finances in 3 quick steps</p>
           </div>
 
           <div className="space-y-6">
             <div className="space-y-2">
-              <span className="text-[#00ff88] text-xs font-bold uppercase tracking-wider">Step 1 of 3 — Monthly Income</span>
+              <span className="text-green-accent text-xs font-bold uppercase tracking-wider">Step 1 of 3 — Monthly Income</span>
               <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">₹</span>
                 <input
@@ -306,7 +306,7 @@ export default function DashboardPage() {
                   placeholder="0.00"
                   value={incomeInput}
                   onChange={(e) => setIncomeInput(e.target.value)}
-                  className="w-full bg-[#0a0a0a] border border-[#222] rounded-xl py-4 pl-10 pr-4 text-white focus:outline-none focus:border-[#00ff88]/50 transition-colors"
+                  className="w-full bg-primary border border-[#222] rounded-xl py-4 pl-10 pr-4 text-primary focus:outline-none focus:border-green-accent/50 transition-colors"
                 />
               </div>
             </div>
@@ -314,7 +314,7 @@ export default function DashboardPage() {
             <button
               onClick={handleSetupIncome}
               disabled={!incomeInput || saving}
-              className="w-full bg-[#00ff88] text-black font-bold py-4 rounded-xl hover:bg-[#00cc6e] transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-green-accent text-black font-bold py-4 rounded-xl hover:bg-[#00cc6e] transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {saving ? 'Saving...' : 'Next →'}
             </button>
@@ -327,14 +327,14 @@ export default function DashboardPage() {
   // STEP 2: Expenses Setup
   if (setupStep === 2) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#0a0a0a] p-6">
+      <div className="flex items-center justify-center min-h-screen bg-primary p-6">
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-md bg-[#111] border border-[#00ff88]/30 rounded-2xl p-8 shadow-2xl shadow-[#00ff88]/5"
+          className="w-full max-w-md bg-[#111] border border-green-accent/30 rounded-2xl p-8 shadow-2xl shadow-[#00ff88]/5"
         >
           <div className="text-center space-y-2 mb-8">
-            <h2 className="text-2xl font-bold text-white">Step 2 of 3 — Add Your Expenses</h2>
+            <h2 className="text-2xl font-bold text-primary">Step 2 of 3 — Add Your Expenses</h2>
             <p className="text-gray-400">Add your monthly expenses</p>
           </div>
 
@@ -344,7 +344,7 @@ export default function DashboardPage() {
               placeholder="Expense Name (e.g. Rent)"
               value={expenseName}
               onChange={(e) => setExpenseName(e.target.value)}
-              className="w-full bg-[#0a0a0a] border border-[#222] rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[#00ff88]/50 transition-colors"
+              className="w-full bg-primary border border-[#222] rounded-xl py-3 px-4 text-primary focus:outline-none focus:border-green-accent/50 transition-colors"
             />
             
             <div className="relative">
@@ -354,14 +354,14 @@ export default function DashboardPage() {
                 placeholder="Amount"
                 value={expenseAmount}
                 onChange={(e) => setExpenseAmount(e.target.value)}
-                className="w-full bg-[#0a0a0a] border border-[#222] rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-[#00ff88]/50 transition-colors"
+                className="w-full bg-primary border border-[#222] rounded-xl py-3 pl-10 pr-4 text-primary focus:outline-none focus:border-green-accent/50 transition-colors"
               />
             </div>
 
             <select
               value={expenseType}
               onChange={(e) => setExpenseType(e.target.value)}
-              className="w-full bg-[#0a0a0a] border border-[#222] rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[#00ff88]/50 transition-colors appearance-none"
+              className="w-full bg-primary border border-[#222] rounded-xl py-3 px-4 text-primary focus:outline-none focus:border-green-accent/50 transition-colors appearance-none"
             >
               <option value="avoidable">Avoidable</option>
               <option value="unavoidable">Unavoidable</option>
@@ -370,7 +370,7 @@ export default function DashboardPage() {
             <button
               onClick={handleAddSetupExpense}
               disabled={!expenseName || !expenseAmount || saving}
-              className="w-full border border-[#00ff88]/50 text-[#00ff88] font-bold py-3 rounded-xl hover:bg-[#00ff88]/10 transition-all"
+              className="w-full border border-green-accent/50 text-green-accent font-bold py-3 rounded-xl hover:bg-green-accent/10 transition-all"
             >
               {saving ? 'Adding...' : 'Add Expense'}
             </button>
@@ -379,9 +379,9 @@ export default function DashboardPage() {
           {addedExpenses.length > 0 && (
             <div className="max-h-32 overflow-y-auto space-y-2 mb-8 scrollbar-hide">
               {addedExpenses.map((exp, i) => (
-                <div key={i} className="flex justify-between items-center p-3 bg-[#0a0a0a] border border-[#222] rounded-lg">
-                  <span className="text-sm text-white">{exp.title}</span>
-                  <span className="text-sm text-[#00ff88]">₹{exp.amount}</span>
+                <div key={i} className="flex justify-between items-center p-3 bg-primary border border-[#222] rounded-lg">
+                  <span className="text-sm text-primary">{exp.title}</span>
+                  <span className="text-sm text-green-accent">₹{exp.amount}</span>
                 </div>
               ))}
             </div>
@@ -389,7 +389,7 @@ export default function DashboardPage() {
 
           <button
             onClick={() => setSetupStep(3)}
-            className="w-full bg-[#00ff88] text-black font-bold py-4 rounded-xl hover:bg-[#00cc6e] transition-all"
+            className="w-full bg-green-accent text-black font-bold py-4 rounded-xl hover:bg-[#00cc6e] transition-all"
           >
             Next →
           </button>
@@ -401,14 +401,14 @@ export default function DashboardPage() {
   // STEP 3: Savings Goal
   if (setupStep === 3) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#0a0a0a] p-6">
+      <div className="flex items-center justify-center min-h-screen bg-primary p-6">
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-md bg-[#111] border border-[#00ff88]/30 rounded-2xl p-8 shadow-2xl shadow-[#00ff88]/5"
+          className="w-full max-w-md bg-[#111] border border-green-accent/30 rounded-2xl p-8 shadow-2xl shadow-[#00ff88]/5"
         >
           <div className="text-center space-y-2 mb-8">
-            <h2 className="text-2xl font-bold text-white">Step 3 of 3 — Set Your Savings Goal</h2>
+            <h2 className="text-2xl font-bold text-primary">Step 3 of 3 — Set Your Savings Goal</h2>
             <p className="text-gray-400">How much do you want to save monthly?</p>
           </div>
 
@@ -420,14 +420,14 @@ export default function DashboardPage() {
                 placeholder="Goal Amount"
                 value={goalInput}
                 onChange={(e) => setGoalInput(e.target.value)}
-                className="w-full bg-[#0a0a0a] border border-[#222] rounded-xl py-4 pl-10 pr-4 text-white focus:outline-none focus:border-[#00ff88]/50 transition-colors"
+                className="w-full bg-primary border border-[#222] rounded-xl py-4 pl-10 pr-4 text-primary focus:outline-none focus:border-green-accent/50 transition-colors"
               />
             </div>
 
             <button
               onClick={handleSetupGoal}
               disabled={!goalInput || saving}
-              className="w-full bg-[#00ff88] text-black font-bold py-4 rounded-xl hover:bg-[#00cc6e] transition-all"
+              className="w-full bg-green-accent text-black font-bold py-4 rounded-xl hover:bg-[#00cc6e] transition-all"
             >
               {saving ? 'Finalizing...' : 'Get Started →'}
             </button>
@@ -451,7 +451,7 @@ export default function DashboardPage() {
       {/* Header */}
       <header className="flex justify-between items-start">
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight text-white">Expense Dashboard</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-primary">Expense Dashboard</h1>
           <p className="text-muted text-sm font-medium">Manage your architectural financial flow.</p>
         </div>
 
@@ -463,10 +463,10 @@ export default function DashboardPage() {
           
           <div className="flex items-center gap-3 pl-4 border-l border-border-dark/30">
             <div className="text-right">
-              <p className="text-[11px] font-bold text-white tracking-widest uppercase">SYMP USER</p>
-              <p className="text-[9px] font-medium text-[#00ff88]">ARCHITECT TIER</p>
+              <p className="text-[11px] font-bold text-primary tracking-widest uppercase">SYMP USER</p>
+              <p className="text-[9px] font-medium text-green-accent">ARCHITECT TIER</p>
             </div>
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#00ff88]/20 to-transparent border border-border-dark/50 flex items-center justify-center text-[#00ff88] font-bold text-sm">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#00ff88]/20 to-transparent border border-border-dark/50 flex items-center justify-center text-green-accent font-bold text-sm">
               SY
             </div>
           </div>

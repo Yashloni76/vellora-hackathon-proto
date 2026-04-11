@@ -84,15 +84,15 @@ export default function SimulatorPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#0a0a0a]">
-         <div className="w-10 h-10 border-4 border-[#1f2b1f] border-t-[#00ff88] rounded-full animate-spin"></div>
+      <div className="flex items-center justify-center min-h-screen bg-primary">
+         <div className="w-10 h-10 border-4 border-border-dark border-t-[#00ff88] rounded-full animate-spin"></div>
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#0a0a0a]">
+      <div className="flex items-center justify-center min-h-screen bg-primary">
         <div className="text-[#ff4444] font-bold text-lg">{error}</div>
       </div>
     )
@@ -108,7 +108,7 @@ export default function SimulatorPage() {
       className="p-12 space-y-12 pb-24 relative min-h-screen"
     >
       <header className="space-y-2">
-        <h1 className="text-3xl font-black tracking-tight text-white uppercase italic">
+        <h1 className="text-3xl font-black tracking-tight text-primary uppercase italic">
           What-If Simulator
         </h1>
         <p className="text-[#6b7280] text-sm font-bold uppercase tracking-widest italic opacity-80">
@@ -140,8 +140,8 @@ export default function SimulatorPage() {
       </div>
 
       {/* Analytics Visualization Section */}
-      <div className="bg-[#111311] border border-[#1f2b1f] rounded-xl p-8 space-y-8 relative overflow-hidden group">
-        <h3 className="text-lg font-bold text-white tracking-tight">Cumulative Growth Curve</h3>
+      <div className="bg-card border border-border-dark rounded-xl p-8 space-y-8 relative overflow-hidden group">
+        <h3 className="text-lg font-bold text-primary tracking-tight">Cumulative Growth Curve</h3>
         
         <div className="w-full h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
@@ -179,15 +179,15 @@ export default function SimulatorPage() {
         </div>
 
         {/* Highlight 5-year Box */}
-        <div className="border border-[#00ff88] rounded-xl p-6 text-center bg-[#0a0a0a] shadow-[0_0_20px_rgba(0,255,136,0.1)]">
-           <h3 className="text-white text-lg font-bold mb-2">In 5 years, you could save</h3>
+        <div className="border border-green-accent rounded-xl p-6 text-center bg-primary shadow-[0_0_20px_rgba(0,255,136,0.1)]">
+           <h3 className="text-primary text-lg font-bold mb-2">In 5 years, you could save</h3>
            <motion.div 
              key={fiveYear}
              initial={{ opacity: 0, y: -10 }}
              animate={{ opacity: 1, y: 0 }}
              transition={{ duration: 0.3 }}
            >
-             <p className="text-5xl font-black text-[#00ff88] tracking-tighter shadow-sm mb-2">
+             <p className="text-5xl font-black text-green-accent tracking-tighter shadow-sm mb-2">
                 ₹{Math.max(fiveYear, 0).toLocaleString('en-IN')}
              </p>
            </motion.div>
@@ -203,11 +203,11 @@ function SummaryCard({ label, value, isSavings = false }) {
   const isNegative = value < 0;
   // Apply the specific negative clamping/coloring requested
   const valueColor = isSavings 
-    ? (isNegative ? 'text-[#ff4444]' : 'text-[#00ff88]') 
+    ? (isNegative ? 'text-[#ff4444]' : 'text-green-accent') 
     : 'text-[#ffffff]';
 
   return (
-    <div className="bg-[#111311] border border-[#1f2b1f] p-6 rounded-xl space-y-2">
+    <div className="bg-card border border-border-dark p-6 rounded-xl space-y-2">
       <h3 className="text-[#6b7280] text-[10px] font-black tracking-widest uppercase">{label}</h3>
       <motion.div 
         key={value}

@@ -90,11 +90,11 @@ export default function Sidebar() {
               className={cn(
                 "flex items-center gap-3 px-6 py-3 text-[11px] font-bold tracking-wider transition-all duration-200 border-l-[3px]",
                 isActive 
-                  ? "bg-[#00ff8812] text-[#00ff88] border-[#00ff88]" 
-                  : "text-muted border-transparent hover:text-white hover:bg-white/5"
+                  ? "bg-[#00ff8812] text-green-accent border-green-accent" 
+                  : "text-muted border-transparent hover:text-primary hover:bg-white/5"
               )}
             >
-              <Icon size={16} className={isActive ? "text-[#00ff88]" : "text-muted"} />
+              <Icon size={16} className={isActive ? "text-green-accent" : "text-muted"} />
               {item.name}
             </Link>
           );
@@ -107,7 +107,7 @@ export default function Sidebar() {
         <div className="space-y-1">
           <Link
             href="/settings"
-            className="flex items-center gap-3 px-2 py-2 text-[11px] font-bold text-muted hover:text-white transition-colors"
+            className="flex items-center gap-3 px-2 py-2 text-[11px] font-bold text-muted hover:text-primary transition-colors"
           >
             <Settings size={16} />
             SETTINGS

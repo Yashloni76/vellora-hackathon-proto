@@ -25,8 +25,8 @@ const GoalsPage = () => {
   }, [user, loading])
 
   if (loading) return (
-    <div className="flex items-center justify-center h-screen bg-[#0a0a0a]">
-      <div className="text-[#00ff88] text-xl">Loading...</div>
+    <div className="flex items-center justify-center h-screen bg-primary">
+      <div className="text-green-accent text-xl">Loading...</div>
     </div>
   )
 
@@ -41,7 +41,7 @@ const GoalsPage = () => {
   const completedGoals = goals.filter((g) => g.current >= g.target).length;
 
   const getProgressColor = (percent) => {
-    if (percent >= 70) return "bg-[#00ff88]";
+    if (percent >= 70) return "bg-green-accent";
     if (percent >= 40) return "bg-yellow-400";
     return "bg-red-500";
   };
@@ -54,13 +54,13 @@ const GoalsPage = () => {
   };
 
   const getBadgeStyles = (percent) => {
-    if (percent >= 70) return "bg-[#00ff88]/10 text-[#00ff88] border-[#00ff88]/20";
+    if (percent >= 70) return "bg-green-accent/10 text-green-accent border-green-accent/20";
     if (percent >= 40) return "bg-yellow-400/10 text-yellow-400 border-yellow-400/20";
     return "bg-red-500/10 text-red-500 border-red-500/20";
   };
 
   return (
-    <div className="p-10 max-w-7xl mx-auto min-h-screen text-white bg-primary">
+    <div className="p-10 max-w-7xl mx-auto min-h-screen text-primary bg-primary">
       {/* Title & Subtitle */}
       <motion.div
         initial={{ opacity: 0, x: -20 }}
@@ -77,7 +77,7 @@ const GoalsPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
         {[
           { label: "Total Goals", value: totalGoals, icon: Target, color: "text-blue-400", bg: "bg-blue-400/10" },
-          { label: "On Track", value: onTrackGoals, icon: TrendingUp, color: "text-[#00ff88]", bg: "bg-[#00ff88]/10" },
+          { label: "On Track", value: onTrackGoals, icon: TrendingUp, color: "text-green-accent", bg: "bg-green-accent/10" },
           { label: "Completed", value: completedGoals, icon: CheckCircle2, color: "text-purple-400", bg: "bg-purple-400/10" },
         ].map((stat, i) => (
           <motion.div
@@ -118,12 +118,12 @@ const GoalsPage = () => {
               {/* Card Header */}
               <div className="flex justify-between items-start mb-10">
                 <div className="flex items-center gap-5">
-                  <div className="p-5 rounded-2xl bg-white/5 text-[#00ff88] group-hover:bg-[#00ff88] group-hover:text-black transition-all duration-500 ease-out">
+                  <div className="p-5 rounded-2xl bg-white/5 text-green-accent group-hover:bg-green-accent group-hover:text-black transition-all duration-500 ease-out">
                     <Icon size={28} />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-black tracking-tight group-hover:text-[#00ff88] transition-colors">{goal.title}</h3>
-                    <div className="flex items-center gap-2 mt-1.5 text-muted transition-colors group-hover:text-white/60">
+                    <h3 className="text-2xl font-black tracking-tight group-hover:text-green-accent transition-colors">{goal.title}</h3>
+                    <div className="flex items-center gap-2 mt-1.5 text-muted transition-colors group-hover:text-primary/60">
                       <Calendar size={14} />
                       <span className="text-sm font-bold uppercase tracking-wider">{goal.deadline}</span>
                     </div>
@@ -139,11 +139,11 @@ const GoalsPage = () => {
                 <div className="flex justify-between items-end">
                   <div className="space-y-1">
                     <p className="text-muted text-[10px] font-black uppercase tracking-widest">Current Balance</p>
-                    <p className="text-2xl font-black text-white">₹{goal.current.toLocaleString()}</p>
+                    <p className="text-2xl font-black text-primary">₹{goal.current.toLocaleString()}</p>
                   </div>
                   <div className="text-right space-y-1">
                     <p className="text-muted text-[10px] font-black uppercase tracking-widest">Target Goal</p>
-                    <p className="text-xl font-bold text-white/50">₹{goal.target.toLocaleString()}</p>
+                    <p className="text-xl font-bold text-primary/50">₹{goal.target.toLocaleString()}</p>
                   </div>
                 </div>
 
@@ -173,7 +173,7 @@ const GoalsPage = () => {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setIsDialogOpen(true)}
-          className="group flex items-center gap-4 bg-[#00ff88] text-[#0a0a0a] px-10 py-5 rounded-[2rem] font-black text-xl hover:shadow-[0_0_30px_rgba(0,255,136,0.4)] transition-all"
+          className="group flex items-center gap-4 bg-green-accent text-primary px-10 py-5 rounded-[2rem] font-black text-xl hover:shadow-[0_0_30px_rgba(0,255,136,0.4)] transition-all"
         >
           <div className="p-1 rounded-lg bg-black/10 group-hover:rotate-90 transition-transform duration-300">
             <Plus size={24} strokeWidth={3} />
@@ -198,11 +198,11 @@ const GoalsPage = () => {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 30 }}
               transition={{ type: "spring", damping: 20, stiffness: 300 }}
-              className="relative w-full max-w-lg bg-[#111311] border border-white/10 p-10 rounded-[3rem] shadow-[0_50px_100px_rgba(0,0,0,0.8)]"
+              className="relative w-full max-w-lg bg-card border border-white/10 p-10 rounded-[3rem] shadow-[0_50px_100px_rgba(0,0,0,0.8)]"
             >
               <button
                 onClick={() => setIsDialogOpen(false)}
-                className="absolute top-8 right-8 text-muted hover:text-white transition-colors"
+                className="absolute top-8 right-8 text-muted hover:text-primary transition-colors"
               >
                 <X size={30} />
               </button>
@@ -214,40 +214,40 @@ const GoalsPage = () => {
 
               <div className="space-y-8">
                 <div className="group">
-                  <label className="block text-[10px] font-black text-muted uppercase tracking-[0.2em] mb-3 group-focus-within:text-[#00ff88] transition-colors">
+                  <label className="block text-[10px] font-black text-muted uppercase tracking-[0.2em] mb-3 group-focus-within:text-green-accent transition-colors">
                     Goal Title
                   </label>
                   <input
                     type="text"
                     placeholder="E.g. Digital Nomad Fund"
-                    className="w-full bg-white/5 border-2 border-white/5 rounded-2xl px-6 py-4 font-bold text-white placeholder:text-white/20 focus:outline-none focus:border-[#00ff88]/50 focus:bg-[#00ff88]/5 transition-all"
+                    className="w-full bg-white/5 border-2 border-white/5 rounded-2xl px-6 py-4 font-bold text-primary placeholder:text-primary/20 focus:outline-none focus:border-green-accent/50 focus:bg-green-accent/5 transition-all"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-6">
                   <div className="group">
-                    <label className="block text-[10px] font-black text-muted uppercase tracking-[0.2em] mb-3 group-focus-within:text-[#00ff88] transition-colors">
+                    <label className="block text-[10px] font-black text-muted uppercase tracking-[0.2em] mb-3 group-focus-within:text-green-accent transition-colors">
                       Target Amount (₹)
                     </label>
                     <input
                       type="number"
                       placeholder="0"
-                      className="w-full bg-white/5 border-2 border-white/5 rounded-2xl px-6 py-4 font-bold text-white placeholder:text-white/20 focus:outline-none focus:border-[#00ff88]/50 focus:bg-[#00ff88]/5 transition-all"
+                      className="w-full bg-white/5 border-2 border-white/5 rounded-2xl px-6 py-4 font-bold text-primary placeholder:text-primary/20 focus:outline-none focus:border-green-accent/50 focus:bg-green-accent/5 transition-all"
                     />
                   </div>
                   <div className="group">
-                    <label className="block text-[10px] font-black text-muted uppercase tracking-[0.2em] mb-3 group-focus-within:text-[#00ff88] transition-colors">
+                    <label className="block text-[10px] font-black text-muted uppercase tracking-[0.2em] mb-3 group-focus-within:text-green-accent transition-colors">
                       Deadline
                     </label>
                     <input
                       type="text"
                       placeholder="Jan 2026"
-                      className="w-full bg-white/5 border-2 border-white/5 rounded-2xl px-6 py-4 font-bold text-white placeholder:text-white/20 focus:outline-none focus:border-[#00ff88]/50 focus:bg-[#00ff88]/5 transition-all"
+                      className="w-full bg-white/5 border-2 border-white/5 rounded-2xl px-6 py-4 font-bold text-primary placeholder:text-primary/20 focus:outline-none focus:border-green-accent/50 focus:bg-green-accent/5 transition-all"
                     />
                   </div>
                 </div>
 
                 <button
-                  className="w-full bg-[#00ff88] text-[#0a0a0a] py-5 rounded-2xl font-black text-lg hover:shadow-[0_10px_30px_rgba(0,255,136,0.2)] hover:bg-[#00ff88]/90 transition-all mt-4"
+                  className="w-full bg-green-accent text-primary py-5 rounded-2xl font-black text-lg hover:shadow-[0_10px_30px_rgba(0,255,136,0.2)] hover:bg-green-accent/90 transition-all mt-4"
                 >
                   Create Milestone
                 </button>

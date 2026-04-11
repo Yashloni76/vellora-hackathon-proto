@@ -12,7 +12,7 @@ export default function WhatIfSlider({
   accentColor
 }) {
   return (
-    <div className="bg-[#111311] border border-[#1f2b1f] rounded-xl p-6 flex flex-col gap-6">
+    <div className="bg-card border border-border-dark rounded-xl p-6 flex flex-col gap-6">
        {/* Inject dynamic styles for this slider instance based on accentColor */}
        <style>{`
           .slider-${label.replace(/\s+/g, '-')} {
@@ -39,7 +39,7 @@ export default function WhatIfSlider({
        `}</style>
        
        <div>
-         <h3 className="text-white font-bold leading-tight text-lg">{label}</h3>
+         <h3 className="text-primary font-bold leading-tight text-lg">{label}</h3>
          {subtext && <p className="text-[#6b7280] text-sm mt-1">{subtext}</p>}
        </div>
 

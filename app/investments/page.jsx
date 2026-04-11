@@ -37,8 +37,8 @@ const InvestmentsPage = () => {
   }, [user, loading])
 
   if (loading) return (
-    <div className="flex items-center justify-center h-screen bg-[#0a0a0a]">
-      <div className="text-[#00ff88] text-xl">Loading...</div>
+    <div className="flex items-center justify-center h-screen bg-primary">
+      <div className="text-green-accent text-xl">Loading...</div>
     </div>
   )
 
@@ -49,7 +49,7 @@ const InvestmentsPage = () => {
   const bestPerformer = "Nifty 50"; // Static as per request
 
   return (
-    <div className="p-10 max-w-7xl mx-auto min-h-screen text-white bg-primary">
+    <div className="p-10 max-w-7xl mx-auto min-h-screen text-primary bg-primary">
       {/* Title & Subtitle */}
       <motion.div 
         initial={{ opacity: 0, x: -20 }}
@@ -68,7 +68,7 @@ const InvestmentsPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-card border border-border-dark p-8 rounded-3xl group hover:border-[#00ff88]/30 transition-all"
+          className="bg-card border border-border-dark p-8 rounded-3xl group hover:border-green-accent/30 transition-all"
         >
           <div className="flex items-center gap-4 mb-4">
             <div className="p-3 rounded-xl bg-blue-500/10 text-blue-400">
@@ -83,17 +83,17 @@ const InvestmentsPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-card border border-border-dark p-8 rounded-3xl group hover:border-[#00ff88]/30 transition-all"
+          className="bg-card border border-border-dark p-8 rounded-3xl group hover:border-green-accent/30 transition-all"
         >
           <div className="flex items-center gap-4 mb-4">
-            <div className="p-3 rounded-xl bg-[#00ff88]/10 text-[#00ff88]">
+            <div className="p-3 rounded-xl bg-green-accent/10 text-green-accent">
               <Percent size={24} />
             </div>
             <p className="text-muted text-xs font-black uppercase tracking-[0.2em]">Portfolio Returns</p>
           </div>
           <div className="flex items-center gap-2">
-            <h3 className="text-4xl font-black text-[#00ff88]">{portfolioReturns}</h3>
-            <ArrowUpRight className="text-[#00ff88]" size={28} />
+            <h3 className="text-4xl font-black text-green-accent">{portfolioReturns}</h3>
+            <ArrowUpRight className="text-green-accent" size={28} />
           </div>
         </motion.div>
 
@@ -101,7 +101,7 @@ const InvestmentsPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-card border border-border-dark p-8 rounded-3xl group hover:border-[#00ff88]/30 transition-all"
+          className="bg-card border border-border-dark p-8 rounded-3xl group hover:border-green-accent/30 transition-all"
         >
           <div className="flex items-center gap-4 mb-4">
             <div className="p-3 rounded-xl bg-purple-500/10 text-purple-400">
@@ -128,18 +128,18 @@ const InvestmentsPage = () => {
               className="bg-card border border-border-dark p-6 px-10 rounded-[2rem] flex flex-col md:flex-row items-center justify-between group hover:border-white/10 transition-all duration-500"
             >
               <div className="flex items-center gap-8 w-full md:w-auto">
-                <div className="p-5 rounded-2xl bg-white/5 text-[#00ff88] group-hover:bg-[#00ff88] group-hover:text-black transition-all duration-500">
+                <div className="p-5 rounded-2xl bg-white/5 text-green-accent group-hover:bg-green-accent group-hover:text-black transition-all duration-500">
                   <Icon size={28} />
                 </div>
                 <div>
                   <h3 className="text-2xl font-black tracking-tight">{inv.title}</h3>
                   <div className="flex items-center gap-3 mt-1.5 font-bold uppercase tracking-widest text-[10px]">
                     <span className="text-muted">{inv.type}</span>
-                    <span className="text-white/20">•</span>
+                    <span className="text-primary/20">•</span>
                     <span className={cn(
                       "px-2 py-0.5 rounded-md border",
                       inv.status === "ACTIVE" 
-                        ? "bg-[#00ff88]/10 text-[#00ff88] border-[#00ff88]/20" 
+                        ? "bg-green-accent/10 text-green-accent border-green-accent/20" 
                         : "bg-yellow-400/10 text-yellow-400 border-yellow-400/20"
                     )}>
                       {inv.status}
@@ -157,7 +157,7 @@ const InvestmentsPage = () => {
                   <p className="text-muted text-[10px] font-black uppercase tracking-widest mb-1">Total Returns</p>
                   <div className={cn(
                     "flex items-center justify-end gap-1 text-2xl font-black",
-                    isNegative ? "text-red-500" : "text-[#00ff88]"
+                    isNegative ? "text-red-500" : "text-green-accent"
                   )}>
                     {inv.returns}
                     {isNegative ? <ArrowDownRight size={24} /> : <ArrowUpRight size={24} />}
@@ -174,28 +174,28 @@ const InvestmentsPage = () => {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8 }}
-        className="bg-card border-2 border-[#00ff88]/20 p-10 rounded-[3rem] relative overflow-hidden group hover:border-[#00ff88]/40 transition-all"
+        className="bg-card border-2 border-green-accent/20 p-10 rounded-[3rem] relative overflow-hidden group hover:border-green-accent/40 transition-all"
       >
         <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
-          <div className="p-6 rounded-[2rem] bg-[#00ff88]/10 text-[#00ff88] animate-pulse">
+          <div className="p-6 rounded-[2rem] bg-green-accent/10 text-green-accent animate-pulse">
             <Brain size={48} strokeWidth={1.5} />
           </div>
           <div className="flex-1 text-center md:text-left">
-            <p className="text-2xl font-black leading-tight text-white/90 group-hover:text-white transition-colors">
-              Based on your <span className="text-[#00ff88]">₹{balance.toLocaleString()}</span> monthly savings, consider 
-              increasing your SIP by <span className="text-[#00ff88]">₹500</span> for better compounding.
+            <p className="text-2xl font-black leading-tight text-primary/90 group-hover:text-primary transition-colors">
+              Based on your <span className="text-green-accent">₹{balance.toLocaleString()}</span> monthly savings, consider 
+              increasing your SIP by <span className="text-green-accent">₹500</span> for better compounding.
             </p>
             <p className="text-muted text-xs font-black uppercase tracking-[0.2em] mt-4 opacity-50">
               Powered by Claude AI
             </p>
           </div>
-          <button className="bg-[#00ff88] text-[#0a0a0a] px-8 py-4 rounded-2xl font-black hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(0,255,136,0.2)]">
+          <button className="bg-green-accent text-primary px-8 py-4 rounded-2xl font-black hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(0,255,136,0.2)]">
             Review Plan
           </button>
         </div>
 
         {/* Abstract background glow */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-[#00ff88]/5 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-green-accent/5 rounded-full blur-[100px] pointer-events-none" />
       </motion.div>
     </div>
   );

@@ -145,10 +145,10 @@ export default function AnalyticsPage() {
     <div className="px-10 pt-8">
       <div className="h-8 w-64 bg-[#1a1f1a] rounded animate-pulse mb-8" />
       <div className="grid grid-cols-2 gap-6">
-        <div className="h-64 bg-[#111311] rounded-xl animate-pulse" />
-        <div className="h-64 bg-[#111311] rounded-xl animate-pulse" />
-        <div className="h-64 bg-[#111311] rounded-xl animate-pulse" />
-        <div className="h-64 bg-[#111311] rounded-xl animate-pulse" />
+        <div className="h-64 bg-card rounded-xl animate-pulse" />
+        <div className="h-64 bg-card rounded-xl animate-pulse" />
+        <div className="h-64 bg-card rounded-xl animate-pulse" />
+        <div className="h-64 bg-card rounded-xl animate-pulse" />
       </div>
     </div>
   )
@@ -156,7 +156,7 @@ export default function AnalyticsPage() {
   if (!loading && categoryData.length === 0) return (
     <div className="px-10 pt-8 flex flex-col items-center justify-center h-64 text-center">
       <p className="text-[#6b7280] text-sm">No expense data yet.</p>
-      <p className="text-[#00ff88] text-xs mt-2">Add expenses from the dashboard to see analytics.</p>
+      <p className="text-green-accent text-xs mt-2">Add expenses from the dashboard to see analytics.</p>
     </div>
   )
 
@@ -175,21 +175,21 @@ export default function AnalyticsPage() {
       <header className="flex justify-between items-start">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <h1 className="text-3xl font-bold tracking-tight text-white">Visual Analytics</h1>
-            <div className="w-1.5 h-1.5 rounded-full bg-[#00ff88] mt-2 shadow-[0_0_8px_rgba(0,255,136,0.6)]" />
+            <h1 className="text-3xl font-bold tracking-tight text-primary">Visual Analytics</h1>
+            <div className="w-1.5 h-1.5 rounded-full bg-green-accent mt-2 shadow-[0_0_8px_rgba(0,255,136,0.6)]" />
           </div>
           <p className="text-muted text-sm font-medium uppercase tracking-widest">
             Detailed performance breakdown of your student financial arc.
           </p>
         </div>
 
-        <div className="bg-[#111311] border border-border-dark px-4 py-3 rounded-xl flex items-center gap-4 group hover:border-[#00ff8830] transition-colors">
-          <div className="w-8 h-8 rounded-lg bg-gray-900 border border-border-dark flex items-center justify-center text-muted group-hover:text-[#00ff88] transition-colors">
+        <div className="bg-card border border-border-dark px-4 py-3 rounded-xl flex items-center gap-4 group hover:border-[#00ff8830] transition-colors">
+          <div className="w-8 h-8 rounded-lg bg-gray-900 border border-border-dark flex items-center justify-center text-muted group-hover:text-green-accent transition-colors">
             <Calendar size={16} />
           </div>
           <div className="text-right">
             <p className="text-[10px] text-muted font-bold tracking-widest uppercase">Current Cycle</p>
-            <p className="text-[12px] font-bold text-white tracking-tight uppercase">Q3 Performance</p>
+            <p className="text-[12px] font-bold text-primary tracking-tight uppercase">Q3 Performance</p>
           </div>
         </div>
       </header>
@@ -223,9 +223,9 @@ function SavingsRateGauge({ rate }) {
   ];
 
   return (
-    <div className="card bg-[#111311] border border-border-dark p-8 relative overflow-hidden flex flex-col h-full group">
+    <div className="card bg-card border border-border-dark p-8 relative overflow-hidden flex flex-col h-full group">
        <div className="space-y-1 mb-8">
-          <h2 className="text-xl font-bold text-white tracking-tight">Savings Rate</h2>
+          <h2 className="text-xl font-bold text-primary tracking-tight">Savings Rate</h2>
           <p className="text-muted text-[11px] font-medium uppercase tracking-widest">Efficiency index</p>
        </div>
 
@@ -253,16 +253,16 @@ function SavingsRateGauge({ rate }) {
             </ResponsiveContainer>
           </div>
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center mt-4">
-            <span className="text-5xl font-bold text-white tracking-tighter shadow-sm">{rate}%</span>
+            <span className="text-5xl font-bold text-primary tracking-tighter shadow-sm">{rate}%</span>
             <span className="text-[10px] text-muted font-bold tracking-widest uppercase mt-2">Active Ratio</span>
           </div>
        </div>
 
        <div className="mt-8 space-y-4 pt-8 border-t border-border-dark/50">
           <p className="text-[11px] text-muted leading-relaxed font-medium">
-            Your savings efficiency is currently at <span className="text-[#00ff88] font-bold">{rate}%</span>.
+            Your savings efficiency is currently at <span className="text-green-accent font-bold">{rate}%</span>.
           </p>
-          <button className="w-full bg-[#1a1f1a] border border-border-dark text-white text-[10px] font-bold tracking-widest uppercase py-3 rounded-lg hover:border-[#00ff88] transition-colors cursor-pointer">
+          <button className="w-full bg-[#1a1f1a] border border-border-dark text-primary text-[10px] font-bold tracking-widest uppercase py-3 rounded-lg hover:border-green-accent transition-colors cursor-pointer">
             Recalibrate Goal
           </button>
        </div>
@@ -272,14 +272,14 @@ function SavingsRateGauge({ rate }) {
 
 function CategoryDistribution({ data }) {
   return (
-    <div className="card bg-[#111311] border border-border-dark p-8 relative overflow-hidden flex flex-col h-full group">
+    <div className="card bg-card border border-border-dark p-8 relative overflow-hidden flex flex-col h-full group">
        <div className="flex justify-between items-start mb-8">
           <div className="space-y-1">
-             <h2 className="text-xl font-bold text-white tracking-tight">Category Distribution</h2>
+             <h2 className="text-xl font-bold text-primary tracking-tight">Category Distribution</h2>
              <p className="text-muted text-[11px] font-medium uppercase tracking-widest">Sector-wise audit</p>
           </div>
           <div className="bg-gray-900 border border-border-dark rounded-lg p-1 flex">
-             <button className="px-3 py-1 bg-[#1a1f1a] text-[#00ff88] text-[9px] font-bold rounded shadow-sm tracking-widest uppercase">Monthly View</button>
+             <button className="px-3 py-1 bg-[#1a1f1a] text-green-accent text-[9px] font-bold rounded shadow-sm tracking-widest uppercase">Monthly View</button>
           </div>
        </div>
 

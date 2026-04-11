@@ -5,7 +5,7 @@ import { streakData } from "@/data/dummy";
 
 export default function ActiveStreakCard() {
   return (
-    <div className="card !bg-[#00ff88] p-10 h-full flex flex-col justify-between relative overflow-hidden group hover:shadow-[0_0_60px_rgba(0,255,136,0.3)] transition-all duration-300">
+    <div className="card !bg-green-accent p-10 h-full flex flex-col justify-between relative overflow-hidden group hover:shadow-[0_0_60px_rgba(0,255,136,0.3)] transition-all duration-300">
       <div className="flex justify-between items-start">
         <div className="space-y-1">
           <p className="text-[11px] text-black/60 font-black tracking-[0.2em] uppercase">Active Streak</p>
@@ -13,7 +13,7 @@ export default function ActiveStreakCard() {
             {streakData.currentStreak} <span className="text-3xl font-bold tracking-tight">Days</span>
           </h2>
         </div>
-        <div className="w-14 h-14 bg-black rounded-2xl flex items-center justify-center text-[#00ff88] shadow-2xl relative z-10">
+        <div className="w-14 h-14 bg-black rounded-2xl flex items-center justify-center text-green-accent shadow-2xl relative z-10">
           <Zap size={32} fill="currentColor" />
         </div>
       </div>

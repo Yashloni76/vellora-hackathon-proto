@@ -6,15 +6,15 @@ export default function SuggestionCard({ text, type, index }) {
 
   return (
     <div
-      className="bg-[#111311] border border-[#1a1f1a] rounded-2xl p-5 flex gap-4 items-start hover:border-[#00ff88]/30 hover:bg-[#1a1f1a] transition-all duration-200"
+      className="bg-card border border-[#1a1f1a] rounded-2xl p-5 flex gap-4 items-start hover:border-green-accent/30 hover:bg-[#1a1f1a] transition-all duration-200"
       style={{ borderLeft: "3px solid #00ff88" }}
     >
       {/* Icon */}
       <div className="w-10 h-10 rounded-xl bg-[#00ff8812] flex items-center justify-center flex-shrink-0 mt-0.5">
         {isInvestment ? (
-          <TrendingUp size={18} className="text-[#00ff88]" />
+          <TrendingUp size={18} className="text-green-accent" />
         ) : (
-          <Scissors size={18} className="text-[#00ff88]" />
+          <Scissors size={18} className="text-green-accent" />
         )}
       </div>
 
@@ -24,7 +24,7 @@ export default function SuggestionCard({ text, type, index }) {
           <span
             className={`text-[10px] font-black tracking-[0.15em] px-2 py-0.5 rounded-full ${
               isInvestment
-                ? "bg-[#00ff8820] text-[#00ff88]"
+                ? "bg-[#00ff8820] text-green-accent"
                 : "bg-emerald-500/10 text-emerald-400"
             }`}
           >
@@ -32,7 +32,7 @@ export default function SuggestionCard({ text, type, index }) {
           </span>
           <span className="text-[10px] text-[#444] font-bold">#{String(index + 1).padStart(2, "0")}</span>
         </div>
-        <p className="text-white text-[14px] font-semibold leading-snug">{text.split(":")[0]?.trim() || text}</p>
+        <p className="text-primary text-[14px] font-semibold leading-snug">{text.split(":")[0]?.trim() || text}</p>
         {text.includes(":") && (
           <p className="text-[#888] text-[13px] leading-relaxed">{text.split(":").slice(1).join(":").trim()}</p>
         )}

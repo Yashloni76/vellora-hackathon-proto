@@ -11,9 +11,9 @@ export default function HeatMap() {
   }, []);
 
   return (
-    <div className="card bg-[#111311] border border-border-dark p-8 relative overflow-hidden flex flex-col h-full group">
+    <div className="card bg-card border border-border-dark p-8 relative overflow-hidden flex flex-col h-full group">
       <div className="flex justify-between items-start mb-10">
-        <h2 className="text-xl font-bold text-white tracking-tight">Financial Contribution Map</h2>
+        <h2 className="text-xl font-bold text-primary tracking-tight">Financial Contribution Map</h2>
         <div className="flex items-center gap-3">
           <span className="text-[10px] text-muted font-bold tracking-widest uppercase">Less</span>
           <div className="flex gap-1">
@@ -51,7 +51,7 @@ export default function HeatMap() {
       </div>
 
       {/* Decorative background element */}
-      <div className="absolute -left-20 -bottom-20 w-64 h-64 bg-[#00ff88]/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute -left-20 -bottom-20 w-64 h-64 bg-green-accent/5 rounded-full blur-[100px] pointer-events-none" />
     </div>
   );
 }

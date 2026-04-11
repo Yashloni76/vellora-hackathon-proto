@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/AuthContext'
+import { useTheme } from '@/lib/ThemeContext'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -16,7 +17,7 @@ export default function SettingsPage() {
   
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
-  const [theme, setTheme] = useState('dark')
+  const { theme, setTheme } = useTheme()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [currency, setCurrency] = useState('INR')
@@ -59,22 +60,7 @@ export default function SettingsPage() {
     if (user) fetchSettings()
   }, [user])
 
-  // Theme Logic
-  useEffect(() => {
-    if (theme === 'light') {
-      document.documentElement.style.setProperty('--bg-primary', '#f5f5f5')
-      document.documentElement.style.setProperty('--bg-card', '#ffffff')
-      document.documentElement.style.setProperty('--text-primary', '#111111')
-      document.body.style.backgroundColor = '#f5f5f5'
-      document.body.style.color = '#111111'
-    } else {
-      document.documentElement.style.setProperty('--bg-primary', '#0a0a0a')
-      document.documentElement.style.setProperty('--bg-card', '#111311')
-      document.documentElement.style.setProperty('--text-primary', '#ffffff')
-      document.body.style.backgroundColor = '#0a0a0a'
-      document.body.style.color = '#ffffff'
-    }
-  }, [theme])
+  // Theme Logic is now gracefully handled globally via ThemeProvider context.
 
   // Save Functions
   const handleSaveProfile = async () => {
