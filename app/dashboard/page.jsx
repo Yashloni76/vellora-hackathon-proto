@@ -495,6 +495,9 @@ export default function DashboardPage() {
   const avoid = dbExpenses.filter(e => e.type === 'avoidable')
   const unavoid = dbExpenses.filter(e => e.type === 'unavoidable')
 
+  // Connection Check
+  const isDisconnected = !supabase;
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }} 
@@ -502,6 +505,16 @@ export default function DashboardPage() {
       transition={{ duration: 0.4 }}
       className="p-12 space-y-12 pb-24 relative min-h-screen"
     >
+      {isDisconnected && (
+        <div className="bg-red-500/10 border border-red-500/30 p-4 rounded-xl mb-6 flex items-center gap-3">
+          <span className="text-xl">⚠️</span>
+          <div>
+            <h3 className="text-red-500 font-bold text-sm">Supabase Disconnected</h3>
+            <p className="text-red-400/70 text-xs">Please add your credentials to <code className="bg-red-500/10 px-1 rounded">.env.local</code> to see your data.</p>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <header className="flex justify-between items-start">
         <div className="space-y-1">
