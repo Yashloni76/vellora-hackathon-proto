@@ -82,8 +82,8 @@ export default function AnalyticsPage() {
     const income = incomeRecords || []
     const primaryIncome = Number(userData?.income) || 0
 
-    console.log('RAW income records:', JSON.stringify(income))
-    console.log('RAW expenses records:', JSON.stringify(expenses))
+    console.log('INCOME RAW:', JSON.stringify(incomeRecords))
+    console.log('EXPENSES RAW:', JSON.stringify(expensesData?.slice(0, 2)))
     console.log('Primary income from users table:', primaryIncome)
 
     setRawExpenses(expenses)
