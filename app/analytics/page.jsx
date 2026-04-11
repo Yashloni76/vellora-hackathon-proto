@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useAuth } from '@/lib/AuthContext'
 import { useRouter } from 'next/navigation'
 import { motion } from "framer-motion";
@@ -24,11 +24,9 @@ export default function AnalyticsPage() {
   const { user, loading: authLoading } = useAuth()
   const router = useRouter()
 
-  const [savingsData, setSavingsData] = useState([])
   const [categoryData, setCategoryData] = useState([])
   const [avoidableTotal, setAvoidableTotal] = useState(0)
   const [unavoidableTotal, setUnavoidableTotal] = useState(0)
-  const [savingsRate, setSavingsRate] = useState(0)
   const [loading, setLoading] = useState(true)
 
   const [velocityView, setVelocityView] = useState('monthly')
@@ -36,8 +34,10 @@ export default function AnalyticsPage() {
   const [rawIncome, setRawIncome] = useState([])
   const [totalIncome, setTotalIncome] = useState(0)
   const [primaryIncome, setPrimaryIncome] = useState(0)
+  
   const [showGoalModal, setShowGoalModal] = useState(false)
   const [goalTarget, setGoalTarget] = useState('')
+  const [savedGoal, setSavedGoal] = useState(null)
 
   const [filter, setFilter] = useState('this_month')
   const [peakMonth, setPeakMonth] = useState('-')
@@ -101,6 +101,15 @@ export default function AnalyticsPage() {
       .eq('id', session.user.id)
       .single()
 
+    const { data: goalData } = await supabase
+      .from('income')
+      .select('savings_goal')
+      .eq('user_id', session.user.id)
+      .limit(1)
+      .single()
+
+    if (goalData?.savings_goal) setSavedGoal(Number(goalData.savings_goal))
+
     setRawExpenses(expensesData || [])
     setRawIncome(incomeRecords || [])
     setPrimaryIncome(Number(userData?.income) || 0)
@@ -125,6 +134,99 @@ export default function AnalyticsPage() {
       return true // all_time
     })
   }
+
+  const chartData = useMemo(() => {
+    const filteredExp = getFilteredExpenses()
+  
+    if (velocityView === 'monthly') {
+      const monthlyIncomeMap = {}
+      rawIncome.forEach(inc => {
+        const m = inc.month
+          ? inc.month.trim().toUpperCase().slice(0, 3)
+          : new Date(inc.created_at).toLocaleString('en-US', { month: 'short' }).toUpperCase()
+        monthlyIncomeMap[m] = (monthlyIncomeMap[m] || 0) + Number(inc.amount)
+      })
+      const last6 = Array.from({ length: 6 }, (_, i) => {
+        const d = new Date(); d.setMonth(d.getMonth() - (5 - i))
+        return d.toLocaleString('en-US', { month: 'short' }).toUpperCase()
+      })
+      let cum = 0
+      return last6.map(m => {
+        const spent = filteredExp
+          .filter(e => new Date(e.date + 'T00:00:00').toLocaleString('en-US', { month: 'short' }).toUpperCase() === m)
+          .reduce((s, e) => s + Number(e.amount), 0)
+        const inc = monthlyIncomeMap[m] || 0
+        cum += Math.max(0, inc - spent)
+        return { month: m, amount: cum }
+      })
+    }
+  
+    if (velocityView === 'weekly') {
+      const monthlyIncomeMap = {}
+      rawIncome.forEach(inc => {
+        const m = inc.month
+          ? inc.month.trim().toUpperCase().slice(0, 3)
+          : new Date(inc.created_at).toLocaleString('en-US', { month: 'short' }).toUpperCase()
+        monthlyIncomeMap[m] = (monthlyIncomeMap[m] || 0) + Number(inc.amount)
+      })
+      const weeklyExp = {}
+      filteredExp.forEach(exp => {
+        const date = new Date(exp.date + 'T00:00:00')
+        const m = date.toLocaleString('en-US', { month: 'short' }).toUpperCase()
+        const wk = `W${Math.ceil(date.getDate() / 7)} ${date.toLocaleString('en-US', { month: 'short' })}`
+        if (!weeklyExp[wk]) weeklyExp[wk] = { spent: 0, m }
+        weeklyExp[wk].spent += Number(exp.amount)
+      })
+      const weeksPerMonth = {}
+      Object.values(weeklyExp).forEach(({ m }) => {
+        weeksPerMonth[m] = (weeksPerMonth[m] || 0) + 1
+      })
+      let cum = 0
+      return Object.entries(weeklyExp).map(([wk, { spent, m }]) => {
+        const weekInc = (monthlyIncomeMap[m] || 0) / (weeksPerMonth[m] || 1)
+        cum += Math.max(0, weekInc - spent)
+        return { month: wk, amount: cum }
+      })
+    }
+  
+    if (velocityView === 'daily') {
+      const monthlyIncomeMap = {}
+      rawIncome.forEach(inc => {
+        const m = inc.month
+          ? inc.month.trim().toUpperCase().slice(0, 3)
+          : new Date(inc.created_at).toLocaleString('en-US', { month: 'short' }).toUpperCase()
+        monthlyIncomeMap[m] = (monthlyIncomeMap[m] || 0) + Number(inc.amount)
+      })
+      const dailyExp = {}
+      filteredExp.forEach(exp => {
+        const date = new Date(exp.date + 'T00:00:00')
+        const m = date.toLocaleString('en-US', { month: 'short' }).toUpperCase()
+        const day = date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })
+        if (!dailyExp[day]) dailyExp[day] = { spent: 0, m }
+        dailyExp[day].spent += Number(exp.amount)
+      })
+      const daysPerMonth = {}
+      Object.values(dailyExp).forEach(({ m }) => {
+        daysPerMonth[m] = (daysPerMonth[m] || 0) + 1
+      })
+      let cum = 0
+      return Object.entries(dailyExp).map(([day, { spent, m }]) => {
+        const dayInc = (monthlyIncomeMap[m] || 0) / (daysPerMonth[m] || 1)
+        cum += Math.max(0, dayInc - spent)
+        return { month: day, amount: cum }
+      })
+    }
+  
+    return []
+  }, [velocityView, rawExpenses, rawIncome, filter])
+
+  const computedSavingsRate = useMemo(() => {
+    const filteredExp = getFilteredExpenses()
+    const totalSpent = filteredExp.reduce((s, e) => s + Number(e.amount), 0)
+    const totalIncRec = rawIncome.reduce((s, i) => s + Number(i.amount), 0)
+    const totalInc = totalIncRec > 0 ? totalIncRec : primaryIncome
+    return totalInc > 0 ? Math.round(((totalInc - totalSpent) / totalInc) * 100) : 0
+  }, [rawExpenses, rawIncome, filter, primaryIncome])
 
   useEffect(() => {
     if (loading) return;
@@ -161,47 +263,8 @@ export default function AnalyticsPage() {
     setAvoidableTotal(avoidable)
     setUnavoidableTotal(unavoidable)
 
-    // 3. Last 6 Months Savings Logic
-    const monthlyData = {}
-    filteredExpenses.forEach(exp => {
-      const month = new Date(exp.date + 'T00:00:00')
-        .toLocaleString('en-US', { month: 'short' })
-        .toUpperCase()
-      if (!monthlyData[month]) monthlyData[month] = { spent: 0 }
-      monthlyData[month].spent += Number(exp.amount)
-    })
-
-    const monthlyIncomeMap = {}
-    rawIncome.forEach(inc => {
-      const m = inc.month
-        ? inc.month.trim().toUpperCase().slice(0, 3)
-        : new Date(inc.created_at).toLocaleString('en-US', { month: 'short' }).toUpperCase()
-      monthlyIncomeMap[m] = (monthlyIncomeMap[m] || 0) + Number(inc.amount)
-    })
-
-    if (Object.keys(monthlyIncomeMap).length === 0 && primaryIncome > 0) {
-      const currentMonth = new Date().toLocaleString('en-US', { month: 'short' }).toUpperCase()
-      monthlyIncomeMap[currentMonth] = primaryIncome
-    }
-
-    const last6 = Array.from({ length: 6 }, (_, i) => {
-      const d = new Date()
-      d.setMonth(d.getMonth() - (5 - i))
-      return d.toLocaleString('en-US', { month: 'short' }).toUpperCase()
-    })
-
-    let cumulative = 0
-    const savings = last6.map(m => {
-      const income = monthlyIncomeMap[m] || 0
-      const spent = monthlyData[m]?.spent || 0
-      cumulative += Math.max(0, income - spent)
-      return { month: m, amount: cumulative }
-    })
-    setSavingsData(savings)
-
-    // Peak liquidity
-    const peak = savings.reduce((best, s) => s.amount > (best?.amount || 0) ? s : best, null)
-    setPeakMonth(peak ? peak.month : '-')
+    const peak = chartData.reduce((best, s) => s.amount > (best?.amount || 0) ? s : best, null)
+    setPeakMonth(peak && peak.amount > 0 ? peak.month : '-')
 
     // Cash drag
     const totalIncFromRecords = rawIncome.reduce((sum, i) => sum + Number(i.amount), 0)
@@ -211,14 +274,17 @@ export default function AnalyticsPage() {
     const drag = totalInc > 0 ? Math.round((avoidable / totalInc) * 100) : 0
     setCashDrag(drag)
 
-    // Save rate
-    const totalExpenses = filteredExpenses.reduce((sum, e) => sum + Number(e.amount), 0)
-    const rate = totalInc > 0
-      ? Math.round(((totalInc - totalExpenses) / totalInc) * 100)
-      : 0
-    setSavingsRate(rate)
+  }, [rawExpenses, rawIncome, filter, primaryIncome, loading, chartData])
 
-  }, [rawExpenses, rawIncome, filter, primaryIncome, loading])
+  const handleSaveGoal = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    await supabase
+      .from('income')
+      .update({ savings_goal: Number(goalTarget) })
+      .eq('user_id', session.user.id)
+    setSavedGoal(Number(goalTarget))
+    setShowGoalModal(false)
+  }
 
   if (loading || authLoading) return (
     <div className="px-10 pt-8">
@@ -312,16 +378,14 @@ export default function AnalyticsPage() {
       {/* Top Row: Line + Gauge */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', width: '100%', boxSizing: 'border-box' }}>
         <SavingsLineChart 
-          savingsData={savingsData} 
+          savingsData={chartData} 
           velocityView={velocityView} 
           setVelocityView={setVelocityView} 
         />
         <SavingsRateGauge 
-          rate={savingsRate} 
+          computedSavingsRate={computedSavingsRate} 
+          savedGoal={savedGoal}
           setShowGoalModal={setShowGoalModal}
-          showGoalModal={showGoalModal}
-          goalTarget={goalTarget}
-          setGoalTarget={setGoalTarget}
         />
       </div>
 
@@ -333,7 +397,7 @@ export default function AnalyticsPage() {
         </div>
         <div className="card bg-[#111311] border border-border-dark p-6 rounded-xl relative overflow-hidden">
            <p className="text-muted text-[10px] uppercase tracking-widest mb-1">Savings Rate</p>
-           <p style={{ color: '#00ff88', fontSize: '22px', fontWeight: 600 }}>{savingsRate}%</p>
+           <p style={{ color: '#00ff88', fontSize: '22px', fontWeight: 600 }}>{computedSavingsRate}%</p>
         </div>
         <div className="card bg-[#111311] border border-border-dark p-6 rounded-xl relative overflow-hidden">
            <p className="text-muted text-[10px] uppercase tracking-widest mb-1">Cash Drag</p>
@@ -365,7 +429,7 @@ export default function AnalyticsPage() {
           }}>
             <h3 style={{ color: '#ffffff', marginBottom: '8px' }}>Set Savings Goal</h3>
             <p style={{ color: '#6b7280', fontSize: '13px', marginBottom: '24px' }}>
-              Your current savings rate is {savingsRate}%. Set a new monthly target.
+              Your current savings rate is {computedSavingsRate}%. Set a new monthly target.
             </p>
             <input
               type="number"
@@ -390,10 +454,7 @@ export default function AnalyticsPage() {
                 Cancel
               </button>
               <button
-                onClick={() => {
-                  alert(`Goal set to ₹${goalTarget} per month!`)
-                  setShowGoalModal(false)
-                }}
+                onClick={handleSaveGoal}
                 style={{
                   flex: 1, padding: '10px', background: '#00ff88',
                   border: 'none', color: '#0a0a0a', fontWeight: 600,
@@ -410,9 +471,9 @@ export default function AnalyticsPage() {
   );
 }
 
-function SavingsRateGauge({ rate, setShowGoalModal }) {
+function SavingsRateGauge({ computedSavingsRate, savedGoal, setShowGoalModal }) {
   const data = [
-    { name: "Rate", value: rate, fill: "#00ff88" }
+    { name: "Rate", value: computedSavingsRate, fill: "#00ff88" }
   ];
 
   return (
@@ -446,14 +507,17 @@ function SavingsRateGauge({ rate, setShowGoalModal }) {
             </ResponsiveContainer>
           </div>
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-            <span className="text-5xl font-bold text-white tracking-tighter shadow-sm">{rate}%</span>
+            <span className="text-5xl font-bold text-white tracking-tighter shadow-sm">{computedSavingsRate}%</span>
             <span className="text-[10px] text-muted font-bold tracking-widest uppercase mt-2">Active Ratio</span>
           </div>
        </div>
 
        <div className="mt-6 pt-6 border-t border-border-dark/50">
-          <p className="text-[11px] text-muted leading-relaxed font-medium mb-4">
-            Your savings efficiency is currently at <span className="text-[#00ff88] font-bold">{rate}%</span>.
+          <p style={{ color: '#6b7280', fontSize: '13px', textAlign: 'center', marginBottom: '16px' }}>
+            {savedGoal
+              ? `Goal: ₹${savedGoal.toLocaleString()} — you are saving ${computedSavingsRate}% of income`
+              : `Your savings efficiency is currently at ${computedSavingsRate}%`
+            }
           </p>
           <button
             onClick={() => setShowGoalModal(true)}
