@@ -10,6 +10,20 @@ import {
 } from "recharts";
 import { savingsData as dummySavingsData } from "@/data/dummy";
 
+const CustomTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div style={{ background: '#111311', border: '1px solid #1f2b1f', padding: '8px 12px', borderRadius: '8px' }}>
+        <p style={{ color: '#6b7280', fontSize: '12px', margin: 0 }}>{label}</p>
+        <p style={{ color: '#00ff88', fontSize: '14px', fontWeight: 600, margin: 0 }}>
+          ₹{payload[0].value.toLocaleString()} saved
+        </p>
+      </div>
+    )
+  }
+  return null
+}
+
 export default function SavingsLineChart({ savingsData, velocityView, setVelocityView }) {
   const data = savingsData && savingsData.length > 0 ? savingsData : dummySavingsData;
 
@@ -73,17 +87,7 @@ export default function SavingsLineChart({ savingsData, velocityView, setVelocit
               tickLine={false} 
               tick={{ fill: "#6b7280", fontSize: 10, fontWeight: 600 }}
             />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: "#111311", 
-                border: "1px solid #1f2b1f", 
-                borderRadius: "8px",
-                fontSize: "12px",
-                color: "#fff"
-              }}
-              itemStyle={{ color: "#00ff88" }}
-              cursor={{ stroke: "#1f2b1f", strokeWidth: 2 }}
-            />
+            <Tooltip content={<CustomTooltip />} />
             <Area 
               type="monotone" 
               dataKey="amount" 

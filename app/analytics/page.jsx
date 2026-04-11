@@ -49,62 +49,81 @@ export default function AnalyticsPage() {
   const fetchAnalyticsData = async () => {
     setLoading(true)
 
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return
+
     // Fetch all expenses for user
-    const { data: expenses } = await supabase
+    const { data: expensesData, error: expError } = await supabase
       .from('expenses')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('user_id', session.user.id)
       .order('date', { ascending: true })
 
     // Fetch all income for user
-    const { data: incomeData } = await supabase
+    const { data: incomeData, error: incError } = await supabase
       .from('income')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('user_id', session.user.id)
 
-    setRawExpenses(expenses || [])
-    setRawIncome(incomeData || [])
+    console.log('expenses:', expensesData)
+    console.log('income:', incomeData)
 
-    // Process category totals
+    const expenses = expensesData || []
+    const income = incomeData || []
+
+    setRawExpenses(expenses)
+    setRawIncome(income)
+
+    // Category totals
     const categoryMap = {}
-    expenses?.forEach(exp => {
-      const cat = exp.category || 'Other'
-      categoryMap[cat] = (categoryMap[cat] || 0) + exp.amount
+    expenses.forEach(exp => {
+      categoryMap[exp.category] = (categoryMap[exp.category] || 0) + exp.amount
     })
-    const processedCategoryData = Object.entries(categoryMap).map(([name, value]) => ({ name, value }))
-    setCategoryData(processedCategoryData)
+    setCategoryData(Object.entries(categoryMap).map(([name, value]) => ({ name, value })))
 
-    // Process avoidable vs unavoidable
-    const avoidable = expenses?.filter(e => e.type === 'avoidable').reduce((sum, e) => sum + e.amount, 0) || 0
-    const unavoidable = expenses?.filter(e => e.type === 'unavoidable').reduce((sum, e) => sum + e.amount, 0) || 0
+    // Avoidable vs unavoidable
+    const avoidable = expenses.filter(e => e.type === 'avoidable').reduce((sum, e) => sum + e.amount, 0)
+    const unavoidable = expenses.filter(e => e.type === 'unavoidable').reduce((sum, e) => sum + e.amount, 0)
     setAvoidableTotal(avoidable)
     setUnavoidableTotal(unavoidable)
 
-    // Process monthly savings
+    // Monthly expenses grouped by month from date field
     const monthlyExpenses = {}
-    expenses?.forEach(exp => {
-      const dateStr = exp.date || new Date().toISOString().split('T')[0]
-      const month = new Date(dateStr).toLocaleString('default', { month: 'short' }).toUpperCase()
+    expenses.forEach(exp => {
+      const month = new Date(exp.date).toLocaleString('default', { month: 'short' }).toUpperCase()
       monthlyExpenses[month] = (monthlyExpenses[month] || 0) + exp.amount
     })
 
+    // Monthly income — try both `month` field and `created_at`
     const monthlyIncome = {}
-    incomeData?.forEach(inc => {
-      monthlyIncome[inc.month] = (monthlyIncome[inc.month] || 0) + inc.amount
+    income.forEach(inc => {
+      let month = null
+      if (inc.month) {
+        month = inc.month.toUpperCase().slice(0, 3)
+      } else if (inc.created_at) {
+        month = new Date(inc.created_at).toLocaleString('default', { month: 'short' }).toUpperCase()
+      }
+      if (month) {
+        monthlyIncome[month] = (monthlyIncome[month] || 0) + inc.amount
+      }
     })
 
-    const months = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"]
-    const savings = months
-      .filter(m => monthlyIncome[m] || monthlyExpenses[m])
-      .map(m => ({
-        month: m,
-        amount: Math.max(0, (monthlyIncome[m] || 0) - (monthlyExpenses[m] || 0))
-      }))
+    console.log('monthlyExpenses:', monthlyExpenses)
+    console.log('monthlyIncome:', monthlyIncome)
+
+    // Build savings = income - expenses per month
+    const allMonths = [...new Set([...Object.keys(monthlyIncome), ...Object.keys(monthlyExpenses)])]
+    const savings = allMonths.map(m => ({
+      month: m,
+      amount: Math.max(0, (monthlyIncome[m] || 0) - (monthlyExpenses[m] || 0))
+    }))
+
+    console.log('savings:', savings)
     setSavingsData(savings)
 
     // Savings rate
-    const totalIncome = incomeData?.reduce((sum, i) => sum + i.amount, 0) || 0
-    const totalExpenses = expenses?.reduce((sum, e) => sum + e.amount, 0) || 0
+    const totalIncome = income.reduce((sum, i) => sum + i.amount, 0)
+    const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0)
     const rate = totalIncome > 0 ? Math.round(((totalIncome - totalExpenses) / totalIncome) * 100) : 0
     setSavingsRate(rate)
 
@@ -113,31 +132,51 @@ export default function AnalyticsPage() {
 
   const getFilteredSavingsData = () => {
     if (velocityView === 'monthly') return savingsData
- 
+
+    if (velocityView === 'daily') {
+      const dailyExpenses = {}
+      const dailyIncome = {}
+
+      rawExpenses.forEach(exp => {
+        const date = new Date(exp.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })
+        dailyExpenses[date] = (dailyExpenses[date] || 0) + exp.amount
+      })
+
+      rawIncome.forEach(inc => {
+        const date = new Date(inc.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })
+        dailyIncome[date] = (dailyIncome[date] || 0) + inc.amount
+      })
+
+      const allDates = [...new Set([...Object.keys(dailyExpenses), ...Object.keys(dailyIncome)])]
+      return allDates.map(date => ({
+        month: date,
+        amount: Math.max(0, (dailyIncome[date] || 0) - (dailyExpenses[date] || 0))
+      }))
+    }
+
     if (velocityView === 'weekly') {
-      const weeklyMap = {}
+      const weeklyExpenses = {}
+      const weeklyIncome = {}
+
       rawExpenses.forEach(exp => {
         const date = new Date(exp.date)
         const week = `W${Math.ceil(date.getDate() / 7)} ${date.toLocaleString('default', { month: 'short' })}`
-        weeklyMap[week] = (weeklyMap[week] || 0) + exp.amount
+        weeklyExpenses[week] = (weeklyExpenses[week] || 0) + exp.amount
       })
-      return Object.entries(weeklyMap).map(([month, spent]) => ({
-        month,
-        amount: Math.max(0, spent)
+
+      rawIncome.forEach(inc => {
+        const date = new Date(inc.created_at)
+        const week = `W${Math.ceil(date.getDate() / 7)} ${date.toLocaleString('default', { month: 'short' })}`
+        weeklyIncome[week] = (weeklyIncome[week] || 0) + inc.amount
+      })
+
+      const allWeeks = [...new Set([...Object.keys(weeklyExpenses), ...Object.keys(weeklyIncome)])]
+      return allWeeks.map(week => ({
+        month: week,
+        amount: Math.max(0, (weeklyIncome[week] || 0) - (weeklyExpenses[week] || 0))
       }))
     }
- 
-    if (velocityView === 'daily') {
-      const dailyMap = {}
-      rawExpenses.forEach(exp => {
-        const date = new Date(exp.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })
-        dailyMap[date] = (dailyMap[date] || 0) + exp.amount
-      })
-      return Object.entries(dailyMap).map(([month, spent]) => ({
-        month,
-        amount: Math.max(0, spent)
-      }))
-    }
+
     return savingsData
   }
 
