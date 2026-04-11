@@ -1,38 +1,76 @@
-const UNAVOIDABLE_KEYWORDS = ["rent", "bill", "transport", "electricity", "water", "insurance", "emi"];
+import { callAI } from '@/lib/claude'
 
-const KEYWORD_REASONS = {
-  rent: "Housing is a fixed essential expense.",
-  bill: "Utility bills are recurring necessities.",
-  transport: "Commuting is essential for daily livelihood.",
-  electricity: "Electricity is a basic utility and unavoidable.",
-  water: "Water is a basic necessity and unavoidable.",
-  insurance: "Insurance premiums are essential for financial protection.",
-  emi: "EMI payments are fixed financial obligations."
-};
+export async function POST(req) {
+  const { expenses } = await req.json()
 
-export async function POST(request) {
-  const { expenses } = await request.json();
+  if (!expenses || expenses.length === 0) {
+    return Response.json([])
+  }
 
-  const result = expenses.map(({ title, amount }) => {
-    const lower = title.toLowerCase();
-    const matchedKeyword = UNAVOIDABLE_KEYWORDS.find((kw) => lower.includes(kw));
+  const prompt = `You are a personal finance
+categorizer for Indian users.
 
-    if (matchedKeyword) {
+Categorize each expense as avoidable or unavoidable.
+
+Rules:
+unavoidable = rent, electricity, water, gas,
+medicine, school fees, EMI, insurance,
+transport to work, groceries, internet,
+mobile recharge, utility bills
+
+avoidable = dining out, zomato, swiggy,
+movies, shopping, games, OTT subscriptions,
+salon, junk food, accessories, gadgets,
+entertainment, cafe, coffee, alcohol
+
+Expenses:
+${expenses.map((e, i) =>
+  `${i + 1}. ${e.title}: Rs ${e.amount}`
+).join('\n')}
+
+Return ONLY a JSON array, no extra text, no markdown:
+[{"title":"name","amount":0,"category":"avoidable or unavoidable","reason":"one line"}]`
+
+  try {
+    const response = await callAI(prompt)
+    const clean = response
+      .replace(/```json/g, '')
+      .replace(/```/g, '')
+      .trim()
+
+    const start = clean.indexOf('[')
+    const end = clean.lastIndexOf(']') + 1
+    const jsonStr = clean.slice(start, end)
+    const parsed = JSON.parse(jsonStr)
+
+    return Response.json(parsed)
+
+  } catch (error) {
+    console.error('Groq categorize failed:', error.message)
+
+    const unavoidableKeywords = [
+      'rent', 'electricity', 'bill', 'water', 'gas',
+      'medicine', 'medical', 'school', 'fees', 'emi',
+      'insurance', 'transport', 'grocery', 'groceries',
+      'internet', 'mobile', 'recharge', 'travel',
+      'petrol', 'diesel', 'bus', 'train', 'metro'
+    ]
+
+    const fallback = expenses.map(e => {
+      const titleLower = e.title.toLowerCase()
+      const isUnavoidable = unavoidableKeywords
+        .some(k => titleLower.includes(k))
       return {
-        title,
-        amount,
-        category: "unavoidable",
-        reason: KEYWORD_REASONS[matchedKeyword]
-      };
-    }
+        title: e.title,
+        amount: e.amount,
+        category: isUnavoidable
+          ? 'unavoidable' : 'avoidable',
+        reason: isUnavoidable
+          ? 'Essential expense that cannot be avoided'
+          : 'Lifestyle expense that can be reduced'
+      }
+    })
 
-    return {
-      title,
-      amount,
-      category: "avoidable",
-      reason: "This expense is discretionary and can be reduced or eliminated."
-    };
-  });
-
-  return Response.json(result);
+    return Response.json(fallback)
+  }
 }

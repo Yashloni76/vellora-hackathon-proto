@@ -137,28 +137,30 @@ export default function DashboardPage() {
     setSaving(true)
 
     let aiType = 'avoidable'
+
     try {
-      const res = await fetch('/api/categorize', {
+      const catRes = await fetch('/api/categorize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           expenses: [{
             title: expenseName,
-            amount: parseFloat(expenseAmount),
-            category: expenseCategory
+            amount: parseFloat(expenseAmount)
           }]
         })
       })
-      const data = await res.json()
-      if (data && data[0] && data[0].category) {
-        aiType = data[0].category
+      const catData = await catRes.json()
+      if (catData && catData[0] && catData[0].category) {
+        aiType = catData[0].category
       }
     } catch (err) {
-      console.error('AI categorize failed, using default')
-      const unavoidableCategories = [
-        'rent', 'utilities', 'health', 'education'
+      console.error('Categorize API failed:', err)
+      const unavoidableWords = [
+        'rent', 'bill', 'electricity', 'medicine',
+        'transport', 'grocery', 'insurance', 'emi'
       ]
-      aiType = unavoidableCategories.includes(expenseCategory)
+      aiType = unavoidableWords
+        .some(w => expenseName.toLowerCase().includes(w))
         ? 'unavoidable' : 'avoidable'
     }
 
@@ -181,6 +183,8 @@ export default function DashboardPage() {
       setExpenseCategory('food')
       setExpenseMood('neutral')
       fetchAllData()
+    } else {
+      alert('Error saving: ' + error.message)
     }
     setSaving(false)
   }
