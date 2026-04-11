@@ -46,7 +46,8 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     if (!user) return
-    fetchAnalyticsData()
+    const unsub = fetchAnalyticsData()
+    return () => { if (unsub) unsub() }
   }, [user])
 
   const fetchAnalyticsData = async () => {
@@ -165,7 +166,14 @@ export default function AnalyticsPage() {
     }))
 
     console.log('final savings array:', savings)
-    setSavingsData(savings)
+    
+    // Make savings cumulative
+    let cumulative = 0
+    const cumulativeSavings = savings.map(s => {
+      cumulative += s.amount
+      return { month: s.month, amount: cumulative }
+    })
+    setSavingsData(cumulativeSavings)
 
     // Savings rate
     // Calculate total income and total expenses, including fallback primaryIncome
@@ -180,53 +188,103 @@ export default function AnalyticsPage() {
     setSavingsRate(rate)
 
     setLoading(false)
+
+    // Auto refresh when expenses change
+    const subscription = supabase
+      .channel('expenses-changes')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'expenses',
+        filter: `user_id=eq.${session.user.id}`
+      }, () => {
+        fetchAnalyticsData()
+      })
+      .subscribe()
+
+    return () => supabase.removeChannel(subscription)
   }
 
   const getFilteredSavingsData = () => {
     if (velocityView === 'monthly') return savingsData
 
-    if (velocityView === 'daily') {
-      const dailyExpenses = {}
-      const dailyIncome = {}
-
-      rawExpenses.forEach(exp => {
-        const date = new Date(exp.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })
-        dailyExpenses[date] = (dailyExpenses[date] || 0) + exp.amount
-      })
-
-      rawIncome.forEach(inc => {
-        const date = new Date(inc.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })
-        dailyIncome[date] = (dailyIncome[date] || 0) + inc.amount
-      })
-
-      const allDates = [...new Set([...Object.keys(dailyExpenses), ...Object.keys(dailyIncome)])]
-      return allDates.map(date => ({
-        month: date,
-        amount: Math.max(0, (dailyIncome[date] || 0) - (dailyExpenses[date] || 0))
-      }))
-    }
+    // Calculate total monthly income per month key
+    const monthlyIncomeMap = {}
+    rawIncome.forEach(inc => {
+      let month = null
+      if (inc.month) {
+        month = inc.month.trim().toUpperCase().slice(0, 3)
+      } else if (inc.created_at) {
+        month = new Date(inc.created_at)
+          .toLocaleString('en-US', { month: 'short' })
+          .toUpperCase()
+      }
+      if (month) {
+        monthlyIncomeMap[month] = (monthlyIncomeMap[month] || 0) + Number(inc.amount)
+      }
+    })
 
     if (velocityView === 'weekly') {
       const weeklyExpenses = {}
-      const weeklyIncome = {}
-
       rawExpenses.forEach(exp => {
-        const date = new Date(exp.date)
-        const week = `W${Math.ceil(date.getDate() / 7)} ${date.toLocaleString('default', { month: 'short' })}`
-        weeklyExpenses[week] = (weeklyExpenses[week] || 0) + exp.amount
+        const date = new Date(exp.date + 'T00:00:00')
+        const monthKey = date.toLocaleString('en-US', { month: 'short' }).toUpperCase()
+        const weekNum = Math.ceil(date.getDate() / 7)
+        const weekKey = `W${weekNum} ${date.toLocaleString('en-US', { month: 'short' })}`
+        if (!weeklyExpenses[weekKey]) {
+          weeklyExpenses[weekKey] = { spent: 0, monthKey }
+        }
+        weeklyExpenses[weekKey].spent += Number(exp.amount)
       })
 
-      rawIncome.forEach(inc => {
-        const date = new Date(inc.created_at)
-        const week = `W${Math.ceil(date.getDate() / 7)} ${date.toLocaleString('default', { month: 'short' })}`
-        weeklyIncome[week] = (weeklyIncome[week] || 0) + inc.amount
+      // Count weeks per month to distribute income
+      const weeksPerMonth = {}
+      Object.values(weeklyExpenses).forEach(({ monthKey }) => {
+        weeksPerMonth[monthKey] = (weeksPerMonth[monthKey] || 0) + 1
       })
 
-      const allWeeks = [...new Set([...Object.keys(weeklyExpenses), ...Object.keys(weeklyIncome)])]
-      return allWeeks.map(week => ({
-        month: week,
-        amount: Math.max(0, (weeklyIncome[week] || 0) - (weeklyExpenses[week] || 0))
-      }))
+      let cum = 0
+      return Object.entries(weeklyExpenses).map(([weekKey, { spent, monthKey }]) => {
+        const monthIncome = monthlyIncomeMap[monthKey] || 0
+        const weekCount = weeksPerMonth[monthKey] || 1
+        const weeklyIncome = monthIncome / weekCount
+        cum += Math.max(0, weeklyIncome - spent)
+        return {
+          month: weekKey,
+          amount: cum
+        }
+      })
+    }
+
+    if (velocityView === 'daily') {
+      const dailyExpenses = {}
+      rawExpenses.forEach(exp => {
+        const date = new Date(exp.date + 'T00:00:00')
+        const monthKey = date.toLocaleString('en-US', { month: 'short' }).toUpperCase()
+        const dayKey = date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })
+        if (!dailyExpenses[dayKey]) {
+          dailyExpenses[dayKey] = { spent: 0, monthKey }
+        }
+        dailyExpenses[dayKey].spent += Number(exp.amount)
+      })
+
+      // Count days per month to distribute income
+      const daysPerMonth = {}
+      Object.values(dailyExpenses).forEach(({ monthKey }) => {
+        daysPerMonth[monthKey] = (daysPerMonth[monthKey] || 0) + 1
+      })
+
+      let cum = 0
+      return Object.entries(dailyExpenses).map(([dayKey, { spent, monthKey }]) => {
+        const monthIncome = monthlyIncomeMap[monthKey] || 0
+        const dayCount = daysPerMonth[monthKey] || 1
+        const dailyIncome = monthIncome / dayCount
+        cum += Math.max(0, dailyIncome - spent)
+        return {
+          month: dayKey,
+          amount: cum
+        }
+      })
     }
 
     return savingsData
