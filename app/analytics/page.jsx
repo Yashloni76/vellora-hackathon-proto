@@ -74,6 +74,10 @@ export default function AnalyticsPage() {
     setRawExpenses(expenses)
     setRawIncome(income)
 
+    // After fetching, log the raw data to see exact format
+    console.log('RAW income records:', JSON.stringify(income))
+    console.log('RAW expenses records:', JSON.stringify(expenses))
+
     // Category totals
     const categoryMap = {}
     expenses.forEach(exp => {
@@ -87,44 +91,57 @@ export default function AnalyticsPage() {
     setAvoidableTotal(avoidable)
     setUnavoidableTotal(unavoidable)
 
-    // Normalize month key helper
-    const getMonthKey = (dateStr) => {
-      return new Date(dateStr).toLocaleString('en-US', { month: 'short' }).toUpperCase()
+    const MONTH_MAP = {
+      january: 'JAN', february: 'FEB', march: 'MAR', april: 'APR',
+      may: 'MAY', june: 'JUN', july: 'JUL', august: 'AUG',
+      september: 'SEP', october: 'OCT', november: 'NOV', december: 'DEC',
+      jan: 'JAN', feb: 'FEB', mar: 'MAR', apr: 'APR',
+      jun: 'JUN', jul: 'JUL', aug: 'AUG', sep: 'SEP',
+      oct: 'OCT', nov: 'NOV', dec: 'DEC'
     }
 
-    // Monthly expenses from date field
+    const normalizeMonth = (val) => {
+      if (!val) return null
+      const lower = val.toString().trim().toLowerCase().slice(0, 3)
+      return MONTH_MAP[lower] || val.toString().trim().toUpperCase().slice(0, 3)
+    }
+
+    // Monthly expenses — from date field like "2025-04-10"
     const monthlyExpenses = {}
     expenses.forEach(exp => {
-      const month = getMonthKey(exp.date)
+      const month = new Date(exp.date + 'T00:00:00')
+        .toLocaleString('en-US', { month: 'short' })
+        .toUpperCase()
       monthlyExpenses[month] = (monthlyExpenses[month] || 0) + Number(exp.amount)
     })
 
-    // Monthly income — normalize however it is stored
+    // Monthly income — normalize from whatever format it's stored in
     const monthlyIncome = {}
     income.forEach(inc => {
       let month = null
       if (inc.month) {
-        // stored as "APR", "JAN" etc — normalize to 3 char uppercase
-        month = inc.month.trim().toUpperCase().slice(0, 3)
+        month = normalizeMonth(inc.month)
       } else if (inc.created_at) {
-        month = getMonthKey(inc.created_at)
+        month = new Date(inc.created_at)
+          .toLocaleString('en-US', { month: 'short' })
+          .toUpperCase()
       }
       if (month) {
         monthlyIncome[month] = (monthlyIncome[month] || 0) + Number(inc.amount)
       }
     })
 
-    console.log('monthlyExpenses:', monthlyExpenses)
-    console.log('monthlyIncome:', monthlyIncome)
+    console.log('monthlyIncome after normalize:', monthlyIncome)
+    console.log('monthlyExpenses after normalize:', monthlyExpenses)
 
-    // Build savings = income - expenses, never below 0
+    // Build savings per month
     const allMonths = [...new Set([...Object.keys(monthlyIncome), ...Object.keys(monthlyExpenses)])]
     const savings = allMonths.map(m => ({
       month: m,
       amount: Math.max(0, (monthlyIncome[m] || 0) - (monthlyExpenses[m] || 0))
     }))
 
-    console.log('savings:', savings)
+    console.log('final savings array:', savings)
     setSavingsData(savings)
 
     // Savings rate
