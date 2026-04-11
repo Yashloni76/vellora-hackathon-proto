@@ -18,7 +18,6 @@ export default function SimulatorPage() {
   const [avoidableTotal, setAvoidableTotal] = useState(0)
   
   const [avoidable, setAvoidable] = useState(0)
-  const [raiseAmount, setRaiseAmount] = useState(0)
   
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -71,8 +70,7 @@ export default function SimulatorPage() {
     fetchData()
   }, [user])
 
-  const effectiveIncome = income + raiseAmount
-  const savings = effectiveIncome - unavoidable - avoidable
+  const savings = income - unavoidable - avoidable
   const yearlySavings = savings * 12
   const fiveYear = Math.round(yearlySavings * 5 * 1.08)
 
@@ -120,7 +118,7 @@ export default function SimulatorPage() {
 
       {/* Top 4 Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <SummaryCard label="MONTHLY INCOME" value={effectiveIncome} />
+        <SummaryCard label="MONTHLY INCOME" value={income} />
         <SummaryCard label="UNAVOIDABLE COSTS" value={unavoidable} />
         <SummaryCard label="AVOIDABLE SPEND" value={avoidable} />
         <SummaryCard label="MONTHLY SAVINGS" value={savings} isSavings />
@@ -138,18 +136,6 @@ export default function SimulatorPage() {
           onChange={setAvoidable}
           displayValue={`₹${avoidable.toLocaleString('en-IN')}`}
           accentColor="#00ff88"
-        />
-
-        <WhatIfSlider 
-          label="What if I get a raise?"
-          subtext="Drag to add extra monthly income"
-          min={0}
-          max={50000}
-          step={500}
-          value={raiseAmount}
-          onChange={setRaiseAmount}
-          displayValue={`+ ₹${raiseAmount.toLocaleString('en-IN')} / month`}
-          accentColor="#f59e0b"
         />
       </div>
 
