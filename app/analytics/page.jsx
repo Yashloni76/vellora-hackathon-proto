@@ -35,8 +35,13 @@ export default function AnalyticsPage() {
   const [rawExpenses, setRawExpenses] = useState([])
   const [rawIncome, setRawIncome] = useState([])
   const [totalIncome, setTotalIncome] = useState(0)
+  const [primaryIncome, setPrimaryIncome] = useState(0)
   const [showGoalModal, setShowGoalModal] = useState(false)
   const [goalTarget, setGoalTarget] = useState('')
+
+  const [filter, setFilter] = useState('this_month')
+  const [peakMonth, setPeakMonth] = useState('-')
+  const [cashDrag, setCashDrag] = useState(0)
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -75,39 +80,58 @@ export default function AnalyticsPage() {
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) return
 
-    // Fetch all expenses for user
     const { data: expensesData, error: expError } = await supabase
       .from('expenses')
       .select('*')
       .eq('user_id', session.user.id)
       .order('date', { ascending: true })
 
-    // Fetch all income records
     const { data: incomeRecords, error: incError } = await supabase
       .from('income')
       .select('*')
       .eq('user_id', session.user.id)
     
-    // Gracefully handle if table doesn't exist yet
     if (incError && incError.code !== 'PGRST205') {
        console.error('Income table fetch error:', incError)
     }
 
-    // Fetch primary income from users table (fallback)
     const { data: userData } = await supabase
       .from('users')
       .select('income')
       .eq('id', session.user.id)
       .single()
 
-    const expenses = expensesData || []
-    const income = incomeRecords || []
-    const primaryIncome = Number(userData?.income) || 0
+    setRawExpenses(expensesData || [])
+    setRawIncome(incomeRecords || [])
+    setPrimaryIncome(Number(userData?.income) || 0)
+    setLoading(false)
+  }
 
-    setRawExpenses(expenses)
-    setRawIncome(income)
+  const getFilteredExpenses = () => {
+    const now = new Date()
+    return rawExpenses.filter(exp => {
+      const d = new Date(exp.date + 'T00:00:00')
+      if (filter === 'this_month') {
+        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
+      }
+      if (filter === 'last_3') {
+        const cutoff = new Date(now); cutoff.setMonth(now.getMonth() - 3)
+        return d >= cutoff
+      }
+      if (filter === 'last_6') {
+        const cutoff = new Date(now); cutoff.setMonth(now.getMonth() - 6)
+        return d >= cutoff
+      }
+      return true // all_time
+    })
+  }
 
-    // Category totals
+  useEffect(() => {
+    if (loading) return;
+
+    const filteredExpenses = getFilteredExpenses();
+
+    // 1. Category Data
     const guessCategory = (exp) => {
       if (exp.category && exp.category.trim() !== '' && exp.category.toLowerCase() !== 'null') {
         return exp.category.trim()
@@ -125,197 +149,76 @@ export default function AnalyticsPage() {
     }
 
     const categoryMap = {}
-    expenses.forEach(exp => {
+    filteredExpenses.forEach(exp => {
       const cat = guessCategory(exp)
       categoryMap[cat] = (categoryMap[cat] || 0) + Number(exp.amount)
     })
     setCategoryData(Object.entries(categoryMap).map(([name, value]) => ({ name, value })))
 
-    // Avoidable vs unavoidable
-    const avoidable = expenses.filter(e => e.type === 'avoidable').reduce((sum, e) => sum + e.amount, 0)
-    const unavoidable = expenses.filter(e => e.type === 'unavoidable').reduce((sum, e) => sum + e.amount, 0)
+    // 2. Avoidable vs Unavoidable
+    const avoidable = filteredExpenses.filter(e => e.type === 'avoidable').reduce((sum, e) => sum + e.amount, 0)
+    const unavoidable = filteredExpenses.filter(e => e.type === 'unavoidable').reduce((sum, e) => sum + e.amount, 0)
     setAvoidableTotal(avoidable)
     setUnavoidableTotal(unavoidable)
 
-    const MONTH_MAP = {
-      january: 'JAN', february: 'FEB', march: 'MAR', april: 'APR',
-      may: 'MAY', june: 'JUN', july: 'JUL', august: 'AUG',
-      september: 'SEP', october: 'OCT', november: 'NOV', december: 'DEC',
-      jan: 'JAN', feb: 'FEB', mar: 'MAR', apr: 'APR',
-      jun: 'JUN', jul: 'JUL', aug: 'AUG', sep: 'SEP',
-      oct: 'OCT', nov: 'NOV', dec: 'DEC'
-    }
-
-    const normalizeMonth = (val) => {
-      if (!val) return null
-      const lower = val.toString().trim().toLowerCase()
-      // Map 'april' -> 'APR', etc.
-      if (MONTH_MAP[lower]) return MONTH_MAP[lower]
-      // Fallback: take first 3 chars and uppercase
-      return lower.slice(0, 3).toUpperCase()
-    }
-
-    // Monthly expenses — from date field like "2025-04-10"
-    const monthlyExpenses = {}
-    expenses.forEach(exp => {
+    // 3. Last 6 Months Savings Logic
+    const monthlyData = {}
+    filteredExpenses.forEach(exp => {
       const month = new Date(exp.date + 'T00:00:00')
         .toLocaleString('en-US', { month: 'short' })
         .toUpperCase()
-      monthlyExpenses[month] = (monthlyExpenses[month] || 0) + Number(exp.amount)
+      if (!monthlyData[month]) monthlyData[month] = { spent: 0 }
+      monthlyData[month].spent += Number(exp.amount)
     })
 
-    // Monthly income — normalize from whatever format it's stored in
-    const monthlyIncome = {}
-    
-    // If we have records in income table, use them
-    income.forEach(inc => {
-      let month = null
-      if (inc.month) {
-        month = normalizeMonth(inc.month)
-      } else if (inc.created_at) {
-        month = new Date(inc.created_at)
-          .toLocaleString('en-US', { month: 'short' })
-          .toUpperCase()
-      }
-      if (month) {
-        monthlyIncome[month] = (monthlyIncome[month] || 0) + Number(inc.amount)
-      }
+    const monthlyIncomeMap = {}
+    rawIncome.forEach(inc => {
+      const m = inc.month
+        ? inc.month.trim().toUpperCase().slice(0, 3)
+        : new Date(inc.created_at).toLocaleString('en-US', { month: 'short' }).toUpperCase()
+      monthlyIncomeMap[m] = (monthlyIncomeMap[m] || 0) + Number(inc.amount)
     })
 
-    // BUG FIX: If no income records are found (or table missing), 
-    // attribute primary income to the current month
-    const currentMonth = new Date().toLocaleString('en-US', { month: 'short' }).toUpperCase()
-    if (Object.keys(monthlyIncome).length === 0 && primaryIncome > 0) {
-      monthlyIncome[currentMonth] = primaryIncome
+    if (Object.keys(monthlyIncomeMap).length === 0 && primaryIncome > 0) {
+      const currentMonth = new Date().toLocaleString('en-US', { month: 'short' }).toUpperCase()
+      monthlyIncomeMap[currentMonth] = primaryIncome
     }
 
-    // Sort months chronologically for the graph
-    const monthOrder = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
-    const allMonths = [...new Set([...Object.keys(monthlyIncome), ...Object.keys(monthlyExpenses)])]
-    
-    // Baseline logic: If we only have data for one month, add the previous month at 0 
-    // so the graph isn't a single "floating" point.
-    if (allMonths.length === 1) {
-      const singleMonth = allMonths[0]
-      const idx = monthOrder.indexOf(singleMonth)
-      if (idx > 0) {
-        allMonths.unshift(monthOrder[idx - 1])
-      }
-    }
+    const last6 = Array.from({ length: 6 }, (_, i) => {
+      const d = new Date()
+      d.setMonth(d.getMonth() - (5 - i))
+      return d.toLocaleString('en-US', { month: 'short' }).toUpperCase()
+    })
 
-    allMonths.sort((a, b) => monthOrder.indexOf(a) - monthOrder.indexOf(b))
-
-    const savings = allMonths.map(m => ({
-      month: m,
-      amount: Math.max(0, (monthlyIncome[m] || 0) - (monthlyExpenses[m] || 0))
-    }))
-
-    // Make savings cumulative
     let cumulative = 0
-    const cumulativeSavings = savings.map(s => {
-      cumulative += s.amount
-      return { month: s.month, amount: cumulative }
+    const savings = last6.map(m => {
+      const income = monthlyIncomeMap[m] || 0
+      const spent = monthlyData[m]?.spent || 0
+      cumulative += Math.max(0, income - spent)
+      return { month: m, amount: cumulative }
     })
-    setSavingsData(cumulativeSavings)
+    setSavingsData(savings)
 
-    // Savings rate
-    const totalIncomeFromRecords = income.reduce((sum, i) => sum + Number(i.amount), 0)
-    const totalInc = totalIncomeFromRecords > 0 ? totalIncomeFromRecords : primaryIncome
+    // Peak liquidity
+    const peak = savings.reduce((best, s) => s.amount > (best?.amount || 0) ? s : best, null)
+    setPeakMonth(peak ? peak.month : '-')
+
+    // Cash drag
+    const totalIncFromRecords = rawIncome.reduce((sum, i) => sum + Number(i.amount), 0)
+    const totalInc = totalIncFromRecords > 0 ? totalIncFromRecords : primaryIncome
     setTotalIncome(totalInc)
-    const totalExpenses = expenses.reduce((sum, e) => sum + Number(e.amount), 0)
-    
+
+    const drag = totalInc > 0 ? Math.round((avoidable / totalInc) * 100) : 0
+    setCashDrag(drag)
+
+    // Save rate
+    const totalExpenses = filteredExpenses.reduce((sum, e) => sum + Number(e.amount), 0)
     const rate = totalInc > 0
       ? Math.round(((totalInc - totalExpenses) / totalInc) * 100)
       : 0
     setSavingsRate(rate)
 
-    setLoading(false)
-  }
-
-  const getFilteredSavingsData = () => {
-    if (velocityView === 'monthly') return savingsData
-
-    // Calculate total monthly income per month key
-    const monthlyIncomeMap = {}
-    rawIncome.forEach(inc => {
-      let month = null
-      if (inc.month) {
-        month = inc.month.trim().toUpperCase().slice(0, 3)
-      } else if (inc.created_at) {
-        month = new Date(inc.created_at)
-          .toLocaleString('en-US', { month: 'short' })
-          .toUpperCase()
-      }
-      if (month) {
-        monthlyIncomeMap[month] = (monthlyIncomeMap[month] || 0) + Number(inc.amount)
-      }
-    })
-
-    if (velocityView === 'weekly') {
-      const weeklyExpenses = {}
-      rawExpenses.forEach(exp => {
-        const date = new Date(exp.date + 'T00:00:00')
-        const monthKey = date.toLocaleString('en-US', { month: 'short' }).toUpperCase()
-        const weekNum = Math.ceil(date.getDate() / 7)
-        const weekKey = `W${weekNum} ${date.toLocaleString('en-US', { month: 'short' })}`
-        if (!weeklyExpenses[weekKey]) {
-          weeklyExpenses[weekKey] = { spent: 0, monthKey }
-        }
-        weeklyExpenses[weekKey].spent += Number(exp.amount)
-      })
-
-      // Count weeks per month to distribute income
-      const weeksPerMonth = {}
-      Object.values(weeklyExpenses).forEach(({ monthKey }) => {
-        weeksPerMonth[monthKey] = (weeksPerMonth[monthKey] || 0) + 1
-      })
-
-      let cum = 0
-      return Object.entries(weeklyExpenses).map(([weekKey, { spent, monthKey }]) => {
-        const monthIncome = monthlyIncomeMap[monthKey] || 0
-        const weekCount = weeksPerMonth[monthKey] || 1
-        const weeklyIncome = monthIncome / weekCount
-        cum += Math.max(0, weeklyIncome - spent)
-        return {
-          month: weekKey,
-          amount: cum
-        }
-      })
-    }
-
-    if (velocityView === 'daily') {
-      const dailyExpenses = {}
-      rawExpenses.forEach(exp => {
-        const date = new Date(exp.date + 'T00:00:00')
-        const monthKey = date.toLocaleString('en-US', { month: 'short' }).toUpperCase()
-        const dayKey = date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })
-        if (!dailyExpenses[dayKey]) {
-          dailyExpenses[dayKey] = { spent: 0, monthKey }
-        }
-        dailyExpenses[dayKey].spent += Number(exp.amount)
-      })
-
-      // Count days per month to distribute income
-      const daysPerMonth = {}
-      Object.values(dailyExpenses).forEach(({ monthKey }) => {
-        daysPerMonth[monthKey] = (daysPerMonth[monthKey] || 0) + 1
-      })
-
-      let cum = 0
-      return Object.entries(dailyExpenses).map(([dayKey, { spent, monthKey }]) => {
-        const monthIncome = monthlyIncomeMap[monthKey] || 0
-        const dayCount = daysPerMonth[monthKey] || 1
-        const dailyIncome = monthIncome / dayCount
-        cum += Math.max(0, dailyIncome - spent)
-        return {
-          month: dayKey,
-          amount: cum
-        }
-      })
-    }
-
-    return savingsData
-  }
+  }, [rawExpenses, rawIncome, filter, primaryIncome, loading])
 
   if (loading || authLoading) return (
     <div className="px-10 pt-8">
@@ -329,16 +232,30 @@ export default function AnalyticsPage() {
     </div>
   )
 
-  if (!loading && categoryData.length === 0) return (
-    <div className="px-10 pt-8 flex flex-col items-center justify-center h-64 text-center">
-      <p className="text-[#6b7280] text-sm">No expense data yet.</p>
-      <p className="text-[#00ff88] text-xs mt-2">Add expenses from the dashboard to see analytics.</p>
+  if (!loading && rawExpenses.length === 0) return (
+    <div style={{
+      display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center',
+      height: '60vh', gap: '12px'
+    }}>
+      <p style={{ color: '#ffffff', fontSize: '18px', fontWeight: 500 }}>
+        No expense data yet
+      </p>
+      <p style={{ color: '#6b7280', fontSize: '14px' }}>
+        Add expenses from the dashboard to see your analytics
+      </p>
+      <a href="/dashboard" style={{
+        marginTop: '8px', padding: '10px 24px',
+        background: '#00ff88', color: '#0a0a0a',
+        borderRadius: '8px', fontWeight: 600,
+        fontSize: '13px', textDecoration: 'none'
+      }}>
+        Go to Dashboard
+      </a>
     </div>
   )
 
   if (!user) return null
-
-  const ratio = avoidableTotal > 0 ? (unavoidableTotal / avoidableTotal).toFixed(1) : '0';
 
   return (
     <motion.div 
@@ -370,10 +287,32 @@ export default function AnalyticsPage() {
         </div>
       </header>
 
+      {/* Filter Dropdown */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '24px' }}>
+        <select
+          value={filter}
+          onChange={e => setFilter(e.target.value)}
+          style={{
+            padding: '8px 16px',
+            background: '#111311',
+            border: '1px solid #1f2b1f',
+            borderRadius: '8px',
+            color: '#ffffff',
+            fontSize: '13px',
+            cursor: 'pointer'
+          }}
+        >
+          <option value="this_month">This Month</option>
+          <option value="last_3">Last 3 Months</option>
+          <option value="last_6">Last 6 Months</option>
+          <option value="all_time">All Time</option>
+        </select>
+      </div>
+
       {/* Top Row: Line + Gauge */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8">
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', width: '100%', boxSizing: 'border-box' }}>
         <SavingsLineChart 
-          savingsData={getFilteredSavingsData()} 
+          savingsData={savingsData} 
           velocityView={velocityView} 
           setVelocityView={setVelocityView} 
         />
@@ -386,8 +325,24 @@ export default function AnalyticsPage() {
         />
       </div>
 
+      {/* Stats Cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '24px', width: '100%', boxSizing: 'border-box' }}>
+        <div className="card bg-[#111311] border border-border-dark p-6 rounded-xl relative overflow-hidden">
+           <p className="text-muted text-[10px] uppercase tracking-widest mb-1">Peak Liquidity</p>
+           <p style={{ color: '#00ff88', fontSize: '22px', fontWeight: 600 }}>{peakMonth}</p>
+        </div>
+        <div className="card bg-[#111311] border border-border-dark p-6 rounded-xl relative overflow-hidden">
+           <p className="text-muted text-[10px] uppercase tracking-widest mb-1">Savings Rate</p>
+           <p style={{ color: '#00ff88', fontSize: '22px', fontWeight: 600 }}>{savingsRate}%</p>
+        </div>
+        <div className="card bg-[#111311] border border-border-dark p-6 rounded-xl relative overflow-hidden">
+           <p className="text-muted text-[10px] uppercase tracking-widest mb-1">Cash Drag</p>
+           <p style={{ color: '#f59e0b', fontSize: '22px', fontWeight: 600 }}>{cashDrag}%</p>
+        </div>
+      </div>
+
       {/* Middle Row: Donut + Distribution */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', width: '100%', boxSizing: 'border-box' }}>
         <ExpenseDonut 
           avoidableTotal={avoidableTotal} 
           unavoidableTotal={unavoidableTotal} 
@@ -462,14 +417,14 @@ function SavingsRateGauge({ rate, setShowGoalModal }) {
 
   return (
     <div className="card bg-[#111311] border border-border-dark p-8 relative overflow-hidden flex flex-col h-full group">
-       <div className="space-y-1 mb-8">
+       <div className="space-y-1 mb-6">
           <h2 className="text-xl font-bold text-white tracking-tight">Savings Rate</h2>
           <p className="text-muted text-[11px] font-medium uppercase tracking-widest">Efficiency index</p>
        </div>
 
        <div className="flex-1 relative flex items-center justify-center">
-          <div className="w-56 h-56">
-            <ResponsiveContainer width="100%" height="100%">
+          <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <ResponsiveContainer width="100%" height={200}>
               <RadialBarChart 
                 cx="50%" 
                 cy="50%" 
@@ -490,14 +445,14 @@ function SavingsRateGauge({ rate, setShowGoalModal }) {
               </RadialBarChart>
             </ResponsiveContainer>
           </div>
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center mt-4">
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
             <span className="text-5xl font-bold text-white tracking-tighter shadow-sm">{rate}%</span>
             <span className="text-[10px] text-muted font-bold tracking-widest uppercase mt-2">Active Ratio</span>
           </div>
        </div>
 
-       <div className="mt-8 space-y-4 pt-8 border-t border-border-dark/50">
-          <p className="text-[11px] text-muted leading-relaxed font-medium">
+       <div className="mt-6 pt-6 border-t border-border-dark/50">
+          <p className="text-[11px] text-muted leading-relaxed font-medium mb-4">
             Your savings efficiency is currently at <span className="text-[#00ff88] font-bold">{rate}%</span>.
           </p>
           <button
@@ -548,8 +503,8 @@ function CategoryDistribution({ data }) {
           </div>
        </div>
 
-       <div className="flex-1 w-full min-h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
+       <div className="flex-1 w-full flex items-center justify-center">
+          <ResponsiveContainer width="100%" height={200}>
              <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
                 <XAxis 
                   dataKey="name" 
@@ -589,4 +544,5 @@ function CategoryDistribution({ data }) {
     </div>
   );
 }
+
 
