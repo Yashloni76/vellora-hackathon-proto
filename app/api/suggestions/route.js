@@ -62,7 +62,7 @@ export async function POST(req) {
     .map(([cat, amt]) => `${cat}: Rs ${amt}`)
     .join(', ')
 
-  // REPEATED EXPENSES (habits)
+  // REPEATED HABITS
   const expenseFrequency = expenses.reduce((acc, e) => {
     const key = e.title.toLowerCase()
     if (!acc[key]) acc[key] = { count: 0, total: 0, title: e.title }
@@ -78,7 +78,7 @@ export async function POST(req) {
     .map(e => `${e.title}: ${e.count} times, total Rs ${e.total}`)
     .join(', ')
 
-  // AVOIDABLE EXPENSE PATTERN
+  // AVOIDABLE EXPENSE LIST
   const avoidableList = expenses
     .filter(e => e.type === 'avoidable')
     .sort((a, b) => b.amount - a.amount)
@@ -99,70 +99,62 @@ export async function POST(req) {
     .map(([mood, amt]) => `${mood}: Rs ${amt}`)
     .join(', ')
 
-  const prompt = `You are an expert personal finance
-architect specialized in helping users master their money.
+  const prompt = `You are an expert personal finance wealth architect.
 
 FINANCIAL DATA:
 - Monthly Income: Rs ${income}
 - Total Unavoidable: Rs ${unavoidable}
 - Total Avoidable: Rs ${avoidable}
-- Current Monthly Savings: Rs ${savings}
-- Savings Rate: ${income > 0 ? ((savings/income)*100).toFixed(1) : 0}%
+- Savings: Rs ${savings}
 
-SPENDING BY CATEGORY:
-${categoryList}
-
-MONTHLY SPENDING PATTERNS:
-${monthlySummary}
-
-REPEATED HABITS:
-${repeatedExpenses || 'No repeated patterns yet'}
-
-AVOIDABLE SPENDING (USE THESE FOR MISTAKES):
-${avoidableList || 'No avoidable expenses yet'}
-
-MOOD BASED SPENDING:
-${moodPattern || 'No mood data yet'}
+SPENDING BY CATEGORY: ${categoryList}
+MONTHLY TRENDS: ${monthlySummary}
+REPEATED HABITS: ${repeatedExpenses}
+TOP AVOIDABLE ITEMS: ${avoidableList}
+MOOD PATTERNS: ${moodPattern}
 
 YOUR TASK:
-Analyze the transaction intelligence and provide a structured JSON response.
+Provide a deep analysis and smart growth strategies in JSON.
 
-1. PATTERN ANALYSIS:
-   - Identify if the user is repeating spending mistakes month-to-month.
-   - Point out which category is leaking the most money.
-   - Identify if there are "habitual" expenses (repeated titles).
+1. PATTERN ANALYSIS: Analyze monthly behavior vs income.
+2. MOOD WARNING: Identify emotional spending triggers.
+3. BIGGEST MISTAKE: Identify the most wasteful avoidable habit.
 
-2. MOOD WARNING:
-   - Precisely pinpoint if a specific mood triggers higher spending in AVOIDABLE categories.
-   - Give 1 actionable rule for that mood.
-
-3. BIGGEST MISTAKE (CRITICAL RULE):
-   - Select the single most expensive habit or pattern from the AVOIDABLE list only.
-   - NEVER, UNDER ANY CIRCUMSTANCE, flag Rent, Hostel, EMI, Tuition, Groceries, or Electricity as a "Mistake". These are survival costs.
-   - A mistake is a high-frequency or high-amount spend on things like dining out, shopping, or non-essential subscriptions.
-
-4. SUGGESTIONS (Provide exactly 6 items):
-   - 3 Investment suggestions based on their savings.
-   - 3 Saving suggestions based on their ACTUAL top avoidable expenses.
+4. SUGGESTIONS (Provide 6 items: 3 Investment, 3 Saving):
+FOR EACH INVESTMENT ITEM:
+- comparison: Specifically say "You spent Rs X on [Avoidable Item] last month. If you invested this in [Product] at 12% returns, it would be Rs Y in 5 years."
+- links: Provide 1-2 trusted Indian URLs.
+  TRUSTED URLS TO USE:
+  - SEBI Investor: https://investor.sebi.gov.in/
+  - NCFE: https://www.ncfe.org.in/
+  - RBI Education: https://rbi.org.in/scripts/BS_ViewFinancialEducation.aspx
+  - NSE Investor: https://www.nseindia.com/invest/about-investing
 
 Rules:
-- Use Rs only.
-- Reference their exact expense names.
-- Be practical and encouraging.
-- Keep descriptions under 2 lines.
+- NO generic advice. Use ACTUAL expense names from the data.
+- Investment products must be Indian (SIP, MF, Index Funds, PPF, FD).
+- Calculate growth correctly (12% CAGR is a good estimate).
 
-Return ONLY this JSON format:
+Return JSON ONLY:
 {
-  "patternAnalysis": "text analysis here",
-  "biggestMistake": "single biggest mistake",
-  "moodWarning": "mood correlation and rule",
+  "patternAnalysis": "text",
+  "biggestMistake": "text",
+  "moodWarning": "text",
   "suggestions": [
-    {"type":"investment","title":"title","desc":"desc"},
-    {"type":"investment","title":"title","desc":"desc"},
-    {"type":"investment","title":"title","desc":"desc"},
-    {"type":"saving","title":"title","desc":"desc"},
-    {"type":"saving","title":"title","desc":"desc"},
-    {"type":"saving","title":"title","desc":"desc"}
+    {
+      "type": "investment",
+      "title": "Strategy Name",
+      "desc": "How it helps",
+      "comparison": "The wasteful spend vs growth text",
+      "links": [{"title": "Official Guide", "url": "verified url"}]
+    },
+    ...3 total investment,
+    {
+      "type": "saving",
+      "title": "Saving Hack",
+      "desc": "Specific to their data"
+    }
+    ...3 total saving
   ]
 }`
 
@@ -183,16 +175,16 @@ Return ONLY this JSON format:
     console.error('Suggestions failed:', error.message)
     return Response.json({
       source: 'fallback',
-      patternAnalysis: `You spend Rs ${avoidable} on avoidable items monthly. Your savings rate is ${income > 0 ? ((savings/income)*100).toFixed(1) : 0}%.`,
+      patternAnalysis: `You spend Rs ${avoidable} on avoidable items monthly.`,
       biggestMistake: 'Generic spending on avoidable items.',
       moodWarning: 'Track your emotions before purchasing.',
       suggestions: [
-        { type: 'investment', title: 'Start SIP', desc: 'Invest 30% of savings in Nifty 50.' },
-        { type: 'investment', title: 'Emergency Fund', desc: 'Secure 3 months of basic expenses.' },
-        { type: 'investment', title: 'Gold ETF', desc: 'Diversify with digital gold.' },
-        { type: 'saving', title: 'Cut Avoidable', desc: 'Try cutting 10% of your top spending.' },
-        { type: 'saving', title: 'Weekly Review', desc: 'Review every Sunday to save 20% more.' },
-        { type: 'saving', title: 'Daily Limit', desc: 'Set a UPI limit for non-essentials.' }
+        { type: 'investment', title: 'Nifty 50 SIP', desc: 'Secure long term growth.', comparison: 'Cutting Rs 500 on dining out could become Rs 41,000 in 5 years.', links: [{title: 'NSE Investor Guide', url: 'https://www.nseindia.com/invest/about-investing'}] },
+        { type: 'investment', title: 'Debt Funds', desc: 'Low risk stability.', comparison: 'Your unused balance could grow at 7% in Debt funds.', links: [{title: 'SEBI Investor Portal', url: 'https://investor.sebi.gov.in/'}] },
+        { type: 'investment', title: 'Digital Gold', desc: 'Diversify your portfolio.', comparison: 'Small gold SIPs are better than impulse shopping.', links: [{title: 'NCFE E-Learning', url: 'https://www.ncfe.org.in/'}] },
+        { type: 'saving', title: 'Cut avoidable', desc: 'Focus on reducing the top 3 categories.' },
+        { type: 'saving', title: 'Mood Check', desc: 'Wait 24h before shopping while excited.' },
+        { type: 'saving', title: 'Subscription Check', desc: 'Audit recurring bills.' }
       ]
     })
   }

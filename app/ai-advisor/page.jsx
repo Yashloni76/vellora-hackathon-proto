@@ -247,7 +247,15 @@ export default function AIAdvisorPage() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {investmentCards.map((s, i) => (
-                    <SuggestionCard key={i} text={`${s.title}: ${s.desc}`} type="investment" index={i} />
+                    <SuggestionCard 
+                      key={i} 
+                      title={s.title}
+                      desc={s.desc}
+                      comparison={s.comparison}
+                      links={s.links}
+                      type="investment" 
+                      index={i} 
+                    />
                   ))}
                 </div>
               </div>
@@ -263,7 +271,13 @@ export default function AIAdvisorPage() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {savingCards.map((s, i) => (
-                    <SuggestionCard key={i} text={`${s.title}: ${s.desc}`} type="saving" index={i} />
+                    <SuggestionCard 
+                      key={i} 
+                      title={s.title}
+                      desc={s.desc}
+                      type="saving" 
+                      index={i} 
+                    />
                   ))}
                 </div>
               </div>
