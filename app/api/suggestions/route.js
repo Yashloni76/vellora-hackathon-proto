@@ -6,7 +6,8 @@ export async function POST(req) {
     unavoidable,
     avoidable,
     savings,
-    expenses
+    expenses,
+    goal
   } = await req.json()
 
   if (!expenses || expenses.length === 0) {
@@ -99,65 +100,51 @@ export async function POST(req) {
     .map(([mood, amt]) => `${mood}: Rs ${amt}`)
     .join(', ')
 
-  const prompt = `You are an expert personal finance wealth architect.
+  const prompt = `You are a world-class Financial Architect. 
 
-FINANCIAL DATA:
-- Monthly Income: Rs ${income}
-- Total Unavoidable: Rs ${unavoidable}
-- Total Avoidable: Rs ${avoidable}
+USER DATA:
+- Income: Rs ${income}
 - Savings: Rs ${savings}
-
-SPENDING BY CATEGORY: ${categoryList}
-MONTHLY TRENDS: ${monthlySummary}
-REPEATED HABITS: ${repeatedExpenses}
-TOP AVOIDABLE ITEMS: ${avoidableList}
-MOOD PATTERNS: ${moodPattern}
+- Target Goal: Rs ${goal || 'Not set'}
+- Top Avoidable Items: ${avoidableList}
+- Repeated Habits: ${repeatedExpenses}
 
 YOUR TASK:
-Provide a deep analysis and smart growth strategies in JSON.
+Provide deep transaction analysis and "Goal-Accelerated" growth strategies.
 
-1. PATTERN ANALYSIS: Analyze monthly behavior vs income.
-2. MOOD WARNING: Identify emotional spending triggers.
-3. BIGGEST MISTAKE: Identify the most wasteful avoidable habit.
+1. PATTERN ANALYSIS: Identify specific spending habits leaking money.
+2. MOOD WARNING: Identify mood-spending correlations.
+3. BIGGEST MISTAKE: Identify the most expensive avoidable habit.
 
-4. SUGGESTIONS (Provide 6 items: 3 Investment, 3 Saving):
+4. GROWTH STRATEGIES (Give 3 Investment, 3 Saving):
 FOR EACH INVESTMENT ITEM:
-- comparison: Specifically say "You spent Rs X on [Avoidable Item] last month. If you invested this in [Product] at 12% returns, it would be Rs Y in 5 years."
-- links: Provide 1-2 trusted Indian URLs.
-  TRUSTED URLS TO USE:
-  - SEBI Investor: https://investor.sebi.gov.in/
-  - NCFE: https://www.ncfe.org.in/
-  - RBI Education: https://rbi.org.in/scripts/BS_ViewFinancialEducation.aspx
-  - NSE Investor: https://www.nseindia.com/invest/about-investing
+- comparison: Calculate "Goal Acceleration". 
+  Logic: "If you save the Rs [X] you spend monthly on [Habit] and put it in a [Product] SIP at 12%:
+  - In 1 Year: Rs [Yearly_Total]
+  - In 5 Years: Rs [5Year_Total]
+  - Goal Impact: Achieve your Rs ${goal} goal approximately [N] months faster."
+- links: Provide 1-2 verified URLs (sebi.gov.in, rbi.org.in, ncfe.org.in).
 
 Rules:
-- NO generic advice. Use ACTUAL expense names from the data.
-- Investment products must be Indian (SIP, MF, Index Funds, PPF, FD).
-- Calculate growth correctly (12% CAGR is a good estimate).
-- CRITICAL: Select the 'Biggest Mistake' ONLY from the Avoidable Spending list.
-- CRITICAL: NEVER, UNDER ANY CIRCUMSTANCE, flag Rent, Hostel, EMI, Tuition, Books, Stationery, Learning, Groceries, or Health as a 'Mistake' or 'Waste'.
-- CRITICAL: For young users, spending on BOOKS and EDUCATION is a high-reward investment in their future. Praise this, do not suggest cutting it for financial products.
+- COMPOUND MATH: Assume the expense is saved EVERY MONTH. 
+- Use Rs only. 
+- NEVER flag Books, Education, Rent, or Health as a mistake.
+- Be highly motivating and precise with numbers.
 
-Return JSON ONLY:
+Return ONLY this JSON format:
 {
-  "patternAnalysis": "text",
-  "biggestMistake": "text",
-  "moodWarning": "text",
+  "patternAnalysis": "string",
+  "biggestMistake": "string",
+  "moodWarning": "string",
   "suggestions": [
     {
       "type": "investment",
       "title": "Strategy Name",
-      "desc": "How it helps",
-      "comparison": "The wasteful spend vs growth text",
-      "links": [{"title": "Official Guide", "url": "verified url"}]
+      "desc": "Benefit",
+      "comparison": "The deep SIP + Goal math text",
+      "links": [{"title": "Source", "url": "url"}]
     },
-    ...3 total investment,
-    {
-      "type": "saving",
-      "title": "Saving Hack",
-      "desc": "Specific to their data"
-    }
-    ...3 total saving
+    ...
   ]
 }`
 

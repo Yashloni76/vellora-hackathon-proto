@@ -32,6 +32,7 @@ export default function AIAdvisorPage() {
   const [avoidableTotal, setAvoidableTotal] = useState(0)
   const [unavoidableTotal, setUnavoidableTotal] = useState(0)
   const [savings, setSavings] = useState(0)
+  const [userGoal, setUserGoal] = useState(0)
   const [analysisData, setAnalysisData] = useState({
     patternAnalysis: "",
     biggestMistake: "",
@@ -53,7 +54,9 @@ export default function AIAdvisorPage() {
       .single()
 
     const income = Number(userData?.income) || 0
+    const goal = Number(userData?.goal) || 0
     setUserIncome(income)
+    setUserGoal(goal)
 
     const { data: expenseData } = await supabase
       .from('expenses')
@@ -96,6 +99,7 @@ export default function AIAdvisorPage() {
           unavoidable: unavoidableTotal,
           avoidable: avoidableTotal,
           savings: savings,
+          goal: userGoal,
             expenses: expenses.map(e => ({
               title: e.title,
               amount: e.amount,
