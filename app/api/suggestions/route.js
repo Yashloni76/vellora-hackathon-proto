@@ -134,6 +134,9 @@ Rules:
 - NO generic advice. Use ACTUAL expense names from the data.
 - Investment products must be Indian (SIP, MF, Index Funds, PPF, FD).
 - Calculate growth correctly (12% CAGR is a good estimate).
+- CRITICAL: Select the 'Biggest Mistake' ONLY from the Avoidable Spending list.
+- CRITICAL: NEVER, UNDER ANY CIRCUMSTANCE, flag Rent, Hostel, EMI, Tuition, Books, Stationery, Learning, Groceries, or Health as a 'Mistake' or 'Waste'.
+- CRITICAL: For young users, spending on BOOKS and EDUCATION is a high-reward investment in their future. Praise this, do not suggest cutting it for financial products.
 
 Return JSON ONLY:
 {
