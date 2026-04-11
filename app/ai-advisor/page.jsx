@@ -26,6 +26,11 @@ export default function AIAdvisorPage() {
   const [userIncome, setUserIncome] = useState(0)
   const [expenses, setExpenses] = useState([])
   const [suggestions, setSuggestions] = useState([])
+  const [analyzing, setAnalyzing] = useState(false)
+  const [dataLoading, setDataLoading] = useState(true)
+  const [totalSpent, setTotalSpent] = useState(0)
+  const [avoidableTotal, setAvoidableTotal] = useState(0)
+  const [unavoidableTotal, setUnavoidableTotal] = useState(0)
   const [savings, setSavings] = useState(0)
   const [analysisData, setAnalysisData] = useState({
     patternAnalysis: "",
