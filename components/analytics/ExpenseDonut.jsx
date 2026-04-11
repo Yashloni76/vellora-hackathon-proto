@@ -1,12 +1,8 @@
 "use client";
 
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
-import { avoidableExpenses, unavoidableExpenses } from "@/data/dummy";
-
-export default function ExpenseDonut() {
-  const avoidableTotal = avoidableExpenses.reduce((sum, item) => sum + item.amount, 0);
-  const unavoidableTotal = unavoidableExpenses.reduce((sum, item) => sum + item.amount, 0);
-  const ratio = (unavoidableTotal / avoidableTotal).toFixed(1);
+export default function ExpenseDonut({ avoidableTotal = 0, unavoidableTotal = 0 }) {
+  const ratio = avoidableTotal > 0 ? (unavoidableTotal / avoidableTotal).toFixed(1) : "0";
 
   const data = [
     { name: "AVOIDABLE", value: avoidableTotal, color: "#00ff88" },

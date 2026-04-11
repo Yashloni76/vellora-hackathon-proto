@@ -1,8 +1,8 @@
 'use client'
 import { useState, useEffect } from "react";
-import { useAuth } from '@/lib/AuthContext'
-import { useRouter } from 'next/navigation'
+import { supabase } from "@/lib/supabase"
 import { motion } from "framer-motion";
+import { Calendar } from "lucide-react";
 
 import { 
   BarChart, 
@@ -10,33 +10,211 @@ import {
   XAxis, 
   YAxis, 
   ResponsiveContainer, 
-  RadialBarChart, 
-  RadialBar, 
   Cell,
   Tooltip 
 } from "recharts";
-import { Calendar, ArrowUpRight, ArrowDownRight, Activity } from "lucide-react";
+
 import SavingsLineChart from "@/components/analytics/SavingsLineChart";
 import ExpenseDonut from "@/components/analytics/ExpenseDonut";
-import { categoryData } from "@/data/dummy";
+
+const CATEGORY_COLORS = {
+  'Food': '#00ff88',
+  'Transport': '#00b4d8',
+  'Entertainment': '#f59e0b',
+  'Utilities': '#a855f7',
+  'Health': '#ff4444',
+  'Shopping': '#f97316',
+  'Education': '#06b6d4',
+  'Rent': '#6366f1',
+  'Lifestyle': '#ec4899',
+  'Essential': '#6b7280',
+  'Other': '#84cc16'
+}
+
+const FALLBACK_COLORS = ['#00ff88', '#00b4d8', '#f59e0b', '#a855f7', '#ff4444', '#f97316', '#06b6d4', '#6366f1', '#ec4899', '#84cc16']
 
 export default function AnalyticsPage() {
-  const { user, loading } = useAuth()
-  const router = useRouter()
+  const [loading, setLoading] = useState(true)
+  const [totalIncome, setTotalIncome] = useState(0)
+  const [savingsRate, setSavingsRate] = useState(0)
+  const [cashDrag, setCashDrag] = useState(0)
+  const [lostPotential, setLostPotential] = useState(0)
+  const [peakMonth, setPeakMonth] = useState('-')
+  
+  const [avoidableTotal, setAvoidableTotal] = useState(0)
+  const [unavoidableTotal, setUnavoidableTotal] = useState(0)
+  const [categoryData, setCategoryData] = useState([])
+  const [savingsData, setSavingsData] = useState([])
+  
+  const [rawExpenses, setRawExpenses] = useState([])
+  const [rawIncome, setRawIncome] = useState([])
+  const [filter, setFilter] = useState('all_time')
+
+  const processData = (expenses, income, filterValue) => {
+    // Filter expenses by time period
+    const now = new Date()
+    const filtered = expenses.filter(exp => {
+      if (!exp.date) return true
+      const d = new Date(exp.date + 'T00:00:00')
+      if (filterValue === 'this_month') {
+        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
+      }
+      if (filterValue === 'last_3') {
+        const cutoff = new Date(now); cutoff.setMonth(now.getMonth() - 3)
+        return d >= cutoff
+      }
+      if (filterValue === 'last_6') {
+        const cutoff = new Date(now); cutoff.setMonth(now.getMonth() - 6)
+        return d >= cutoff
+      }
+      return true // all_time
+    })
+
+    // Total income (never filtered — income is always total)
+    const totalInc = income.reduce((sum, i) => sum + Number(i.amount || 0), 0)
+    setTotalIncome(totalInc)
+
+    // Total spent from filtered expenses
+    const totalSpent = filtered.reduce((sum, e) => sum + Number(e.amount || 0), 0)
+
+    // Savings rate
+    const rate = totalInc > 0 ? Math.round(((totalInc - totalSpent) / totalInc) * 100) : 0
+    setSavingsRate(rate)
+
+    // Avoidable vs unavoidable
+    const avoidable = filtered.filter(e => e.type === 'avoidable').reduce((sum, e) => sum + Number(e.amount || 0), 0)
+    const unavoidable = filtered.filter(e => e.type === 'unavoidable').reduce((sum, e) => sum + Number(e.amount || 0), 0)
+    setAvoidableTotal(avoidable)
+    setUnavoidableTotal(unavoidable)
+
+    // Lost potential
+    const lost = Math.round(avoidable * 0.12 / 12)
+    setLostPotential(lost)
+
+    // Cash drag
+    const drag = totalInc > 0 ? Math.round((avoidable / totalInc) * 100) : 0
+    setCashDrag(drag)
+
+    // Category map
+    const guessCategory = (exp) => {
+      if (exp.category && exp.category.trim() !== '' && exp.category !== 'null') return exp.category.trim()
+      const t = (exp.title || '').toLowerCase()
+      if (t.includes('bus') || t.includes('auto') || t.includes('petrol') || t.includes('travel') || t.includes('uber') || t.includes('ola') || t.includes('train')) return 'Transport'
+      if (t.includes('food') || t.includes('canteen') || t.includes('zomato') || t.includes('swiggy') || t.includes('misal') || t.includes('restaurant') || t.includes('cafe')) return 'Food'
+      if (t.includes('netflix') || t.includes('amazon') || t.includes('prime') || t.includes('hotstar') || t.includes('movie') || t.includes('spotify')) return 'Entertainment'
+      if (t.includes('rent') || t.includes('pg') || t.includes('hostel')) return 'Rent'
+      if (t.includes('electric') || t.includes('water') || t.includes('wifi') || t.includes('bill') || t.includes('recharge')) return 'Utilities'
+      if (t.includes('medicine') || t.includes('doctor') || t.includes('hospital')) return 'Health'
+      return exp.type === 'avoidable' ? 'Lifestyle' : 'Essential'
+    }
+    const categoryMap = {}
+    filtered.forEach(exp => {
+      const cat = guessCategory(exp)
+      categoryMap[cat] = (categoryMap[cat] || 0) + Number(exp.amount || 0)
+    })
+    setCategoryData(Object.entries(categoryMap).map(([name, value]) => ({ name, value })))
+
+    // Monthly income map
+    const monthlyIncomeMap = {}
+    income.forEach(inc => {
+      const m = inc.month
+        ? inc.month.trim().toUpperCase().slice(0, 3)
+        : inc.created_at
+          ? new Date(inc.created_at).toLocaleString('en-US', { month: 'short' }).toUpperCase()
+          : null
+      if (m) monthlyIncomeMap[m] = (monthlyIncomeMap[m] || 0) + Number(inc.amount || 0)
+    })
+
+    // Monthly expense map from filtered
+    const monthlySpent = {}
+    filtered.forEach(exp => {
+      if (!exp.date) return
+      const m = new Date(exp.date + 'T00:00:00').toLocaleString('en-US', { month: 'short' }).toUpperCase()
+      monthlySpent[m] = (monthlySpent[m] || 0) + Number(exp.amount || 0)
+    })
+
+    // Active months from filtered data
+    const activeMonthSet = new Set()
+    filtered.forEach(exp => {
+      if (!exp.date) return
+      const m = new Date(exp.date + 'T00:00:00').toLocaleString('en-US', { month: 'short' }).toUpperCase()
+      activeMonthSet.add(m)
+    })
+    Object.keys(monthlyIncomeMap).forEach(m => activeMonthSet.add(m))
+
+    const MONTH_ORDER = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC']
+    const displayMonths = MONTH_ORDER.filter(m => activeMonthSet.has(m))
+    const monthsToShow = displayMonths.length > 0 ? displayMonths : ['APR']
+
+    let cumulative = 0
+    const combinedChart = monthsToShow.map(m => {
+      const spent = monthlySpent[m] || 0
+      const inc = monthlyIncomeMap[m] || (totalInc / monthsToShow.length)
+      cumulative += Math.max(0, inc - spent)
+      return {
+        month: m,
+        amount: Math.round(cumulative),
+        spent: monthlySpent[m] ? Math.round(monthlySpent[m]) : null
+      }
+    })
+    setSavingsData(combinedChart)
+
+    // Peak liquidity
+    const peak = combinedChart.reduce((best, s) => s.amount > (best?.amount || 0) ? s : best, null)
+    setPeakMonth(peak?.month || '-')
+  }
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login')
+    fetchAnalyticsData()
+
+    // Real-time listener for updates
+    const channel = supabase
+      .channel('analytics-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses' }, () => {
+        fetchAnalyticsData()
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, () => {
+        fetchAnalyticsData()
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'income' }, () => {
+        fetchAnalyticsData()
+      })
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
     }
-  }, [user, loading])
+  }, [])
+
+  const fetchAnalyticsData = async () => {
+    setLoading(true)
+
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { setLoading(false); return }
+
+    const userId = session.user.id
+
+    const [{ data: expData }, { data: incData }, { data: userData }] = await Promise.all([
+      supabase.from('expenses').select('*').eq('user_id', userId),
+      supabase.from('income').select('*').eq('user_id', userId),
+      supabase.from('users').select('income').eq('id', userId).single()
+    ])
+
+    const expenses = expData || []
+    const income = incData || []
+
+    setRawExpenses(expenses)
+    setRawIncome(income)
+
+    processData(expenses, income, filter)
+    setLoading(false)
+  }
 
   if (loading) return (
     <div className="flex items-center justify-center h-screen bg-[#0a0a0a]">
-      <div className="text-[#00ff88] text-xl">Loading...</div>
+      <div className="text-[#00ff88] text-xl">Loading Analytics...</div>
     </div>
   )
-
-  if (!user) return null
 
   return (
     <motion.div 
@@ -68,75 +246,82 @@ export default function AnalyticsPage() {
         </div>
       </header>
 
-      {/* Top Row: Line + Gauge */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8">
-        <SavingsLineChart />
-        <SavingsRateGauge />
+      {/* Filter Dropdown */}
+      <div className="flex justify-end mb-4">
+        <select
+          value={filter}
+          onChange={e => {
+            const newFilter = e.target.value
+            setFilter(newFilter)
+            processData(rawExpenses, rawIncome, newFilter)
+          }}
+          style={{
+            padding: '8px 16px',
+            background: '#111311',
+            border: '1px solid #1f2b1f',
+            borderRadius: '8px',
+            color: '#ffffff',
+            fontSize: '13px',
+            cursor: 'pointer'
+          }}
+        >
+          <option value="this_month">This Month</option>
+          <option value="last_3">Last 3 Months</option>
+          <option value="last_6">Last 6 Months</option>
+          <option value="all_time">All Time</option>
+        </select>
+      </div>
+
+       {/* Top Summary Row */}
+       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="card bg-[#111311] border border-border-dark p-6 rounded-xl relative overflow-hidden">
+            <p className="text-muted text-[10px] uppercase tracking-widest mb-1">Total Income</p>
+            <p className="text-white text-2xl font-bold">₹{totalIncome.toLocaleString()}</p>
+        </div>
+        <div className="card bg-[#111311] border border-border-dark p-6 rounded-xl relative overflow-hidden">
+            <p className="text-muted text-[10px] uppercase tracking-widest mb-1">Savings Rate</p>
+            <p className="text-[#00ff88] text-2xl font-bold">{savingsRate}%</p>
+        </div>
+        <div style={{
+          background: '#111311',
+          border: '1px solid #1f2b1f',
+          borderRadius: '12px',
+          padding: '20px 24px'
+        }}>
+          <p style={{ color: '#6b7280', fontSize: '11px', letterSpacing: '1px', marginBottom: '8px' }}>
+            LOST POTENTIAL
+          </p>
+          <p style={{ color: '#f59e0b', fontSize: '22px', fontWeight: 600, margin: 0 }}>
+            {cashDrag}%
+          </p>
+          <p style={{ color: '#6b7280', fontSize: '12px', marginTop: '6px', margin: 0 }}>
+            Costing you{' '}
+            <span style={{ color: '#ff4444', fontWeight: 600 }}>
+              ₹{lostPotential.toLocaleString()}
+            </span>
+            {' '}in lost returns this month
+          </p>
+          <p style={{ color: '#6b7280', fontSize: '10px', marginTop: '4px' }}>
+            Based on Nifty 50 avg. 12% annual return
+          </p>
+        </div>
+      </div>
+
+      {/* Top Row: Line */}
+      <div className="grid grid-cols-1 gap-8">
+        <SavingsLineChart savingsData={savingsData} />
       </div>
 
       {/* Middle Row: Donut + Distribution */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <ExpenseDonut />
-        <CategoryDistribution />
+        <ExpenseDonut avoidableTotal={avoidableTotal} unavoidableTotal={unavoidableTotal} />
+        <CategoryDistribution data={categoryData} />
       </div>
     </motion.div>
   );
 }
 
-function SavingsRateGauge() {
-  const data = [
-    { name: "Rate", value: 64, fill: "#00ff88" }
-  ];
-
-  return (
-    <div className="card bg-[#111311] border border-border-dark p-8 relative overflow-hidden flex flex-col h-full group">
-       <div className="space-y-1 mb-8">
-          <h2 className="text-xl font-bold text-white tracking-tight">Savings Rate</h2>
-          <p className="text-muted text-[11px] font-medium uppercase tracking-widest">Efficiency index</p>
-       </div>
-
-       <div className="flex-1 relative flex items-center justify-center">
-          <div className="w-56 h-56">
-            <ResponsiveContainer width="100%" height="100%">
-              <RadialBarChart 
-                cx="50%" 
-                cy="50%" 
-                innerRadius="80%" 
-                outerRadius="100%" 
-                barSize={12} 
-                data={data} 
-                startAngle={225} 
-                endAngle={-45}
-              >
-                <RadialBar
-                  minAngle={15}
-                  background={{ fill: "#1a1f1a" }}
-                  clockWise
-                  dataKey="value"
-                  cornerRadius={10}
-                />
-              </RadialBarChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center mt-4">
-            <span className="text-5xl font-bold text-white tracking-tighter shadow-sm">64%</span>
-            <span className="text-[10px] text-muted font-bold tracking-widest uppercase mt-2">Active Ratio</span>
-          </div>
-       </div>
-
-       <div className="mt-8 space-y-4 pt-8 border-t border-border-dark/50">
-          <p className="text-[11px] text-muted leading-relaxed font-medium">
-            You are <span className="text-[#00ff88] font-bold">14% ahead</span> of your quarterly student liquidity target.
-          </p>
-          <button className="w-full bg-[#1a1f1a] border border-border-dark text-white text-[10px] font-bold tracking-widest uppercase py-3 rounded-lg hover:border-[#00ff88] transition-colors cursor-pointer">
-            Recalrate Goal
-          </button>
-       </div>
-    </div>
-  );
-}
-
-function CategoryDistribution() {
+function CategoryDistribution({ data }) {
   return (
     <div className="card bg-[#111311] border border-border-dark p-8 relative overflow-hidden flex flex-col h-full group">
        <div className="flex justify-between items-start mb-8">
@@ -151,7 +336,7 @@ function CategoryDistribution() {
 
        <div className="flex-1 w-full min-h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
-             <BarChart data={categoryData} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
+             <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
                 <XAxis 
                   dataKey="name" 
                   axisLine={false} 
@@ -176,11 +361,10 @@ function CategoryDistribution() {
                   radius={[4, 4, 0, 0]}
                   barSize={40}
                 >
-                  {categoryData.map((entry, index) => (
+                  {data.map((entry, index) => (
                     <Cell 
                       key={`cell-${index}`} 
-                      fill={index === 0 ? "#00ff88" : "#1a1f1a"} 
-                      stroke={index === 0 ? "none" : "#1f2b1f"}
+                      fill={CATEGORY_COLORS[entry.name] || FALLBACK_COLORS[index % FALLBACK_COLORS.length]}
                       className="hover:fill-[#00ff88] transition-all cursor-pointer"
                     />
                   ))}
@@ -191,4 +375,3 @@ function CategoryDistribution() {
     </div>
   );
 }
-
