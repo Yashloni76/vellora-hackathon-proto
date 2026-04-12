@@ -5,12 +5,64 @@ import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from "rec
 import { motion, useSpring, useTransform, animate } from "framer-motion";
 import { TrendingUp, Wallet, MinusCircle, PlusCircle, ShieldCheck } from "lucide-react";
 
-import { simulatorDefaults } from "@/data/dummy";
+import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/lib/AuthContext'
 
 export default function WhatIfSlider() {
-  const [avoidable, setAvoidable] = useState(simulatorDefaults.avoidable);
-  const income = simulatorDefaults.income;
-  const unavoidable = simulatorDefaults.unavoidable;
+  const { user } = useAuth()
+  const [income, setIncome] = useState(0);
+  const [unavoidable, setUnavoidable] = useState(0);
+  const [initialAvoidable, setInitialAvoidable] = useState(0);
+  const [avoidable, setAvoidable] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSimData = async () => {
+      if (!user) return;
+      setLoading(true);
+
+      // 1. Fetch Income
+      const { data: userData } = await supabase
+        .from('users')
+        .select('income')
+        .eq('id', user.id)
+        .single();
+      
+      const realIncome = Number(userData?.income) || 0;
+      setIncome(realIncome);
+
+      // 2. Fetch Expenses to calculate averages
+      const { data: expData } = await supabase
+        .from('expenses')
+        .select('amount, type')
+        .eq('user_id', user.id);
+
+      if (expData && expData.length > 0) {
+        // Calculate monthly average
+        // For simplicity, we sum per type and divide by months active (or at least 1)
+        const unavoidableTotal = expData
+          .filter(e => e.type === 'unavoidable')
+          .reduce((sum, e) => sum + Number(e.amount), 0);
+        
+        const avoidableTotal = expData
+          .filter(e => e.type === 'avoidable')
+          .reduce((sum, e) => sum + Number(e.amount), 0);
+
+        // We assume 1 month for now as a baseline, but ideally would calculate distinct months
+        setUnavoidable(unavoidableTotal);
+        setInitialAvoidable(avoidableTotal);
+        setAvoidable(avoidableTotal);
+      } else {
+        setUnavoidable(0);
+        setInitialAvoidable(2000); // Sensible default for a new user
+        setAvoidable(2000);
+      }
+
+      setLoading(false);
+    };
+
+    fetchSimData();
+  }, [user]);
 
   const savings = income - unavoidable - avoidable;
   const yearlySavings = savings * 12;
@@ -19,9 +71,17 @@ export default function WhatIfSlider() {
   const chartData = useMemo(() => {
     return Array.from({ length: 12 }).map((_, i) => ({
       month: ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"][i],
-      amount: savings * (i + 1)
+      amount: Math.max(0, savings * (i + 1))
     }));
   }, [savings]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-20">
+        <div className="w-8 h-8 border-4 border-[#00ff88] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-12">
@@ -56,22 +116,22 @@ export default function WhatIfSlider() {
             </div>
          </div>
 
-         <div className="space-y-8 relative z-10">
+          <div className="space-y-8 relative z-10">
             <div className="flex justify-between items-center px-2">
                <span className="text-[10px] text-muted font-black tracking-widest uppercase opacity-50">₹0</span>
-               <span className="text-[10px] text-muted font-black tracking-widest uppercase opacity-50">₹15,000</span>
+               <span className="text-[10px] text-muted font-black tracking-widest uppercase opacity-50">₹{(initialAvoidable * 2 || 10000).toLocaleString()}</span>
             </div>
             
             <input 
               type="range" 
               min="0" 
-              max="15000" 
+              max={initialAvoidable * 2 || 10000} 
               step="100"
               value={avoidable} 
               onChange={(e) => setAvoidable(parseInt(e.target.value))}
               className="w-full h-2 bg-gray-900 rounded-full appearance-none cursor-pointer accent-[#00ff88] hover:accent-[#00ff88]/80 transition-all focus:outline-none"
               style={{
-                background: `linear-gradient(to right, #00ff88 ${(avoidable / 15000) * 100}%, #111827 ${(avoidable / 15000) * 100}%)`
+                background: `linear-gradient(to right, #00ff88 ${(avoidable / (initialAvoidable * 2 || 10000)) * 100}%, #111827 ${(avoidable / (initialAvoidable * 2 || 10000)) * 100}%)`
               }}
             />
 
