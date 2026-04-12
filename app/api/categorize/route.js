@@ -132,10 +132,36 @@ no markdown, no explanation outside the array:
       .trim()
 
     const start = clean.indexOf('[')
-    const end = clean.lastIndexOf(']') + 1
-    const jsonStr = clean.slice(start, end)
-    const parsed = JSON.parse(jsonStr)
-    return Response.json(parsed)
+    let jsonStr = ""
+    if (start !== -1) {
+      const end = clean.lastIndexOf(']') + 1
+      jsonStr = clean.slice(start, end)
+    }
+
+    try {
+      const parsed = JSON.parse(jsonStr)
+      return Response.json(parsed)
+    } catch (parseError) {
+      // If direct parse fails, try to find the first complete array block
+      // by looking for the FIRST closing bracket that might match
+      let depth = 0;
+      let foundEnd = -1;
+      for (let i = start; i < clean.length; i++) {
+        if (clean[i] === '[') depth++;
+        if (clean[i] === ']') {
+          depth--;
+          if (depth === 0) {
+            foundEnd = i + 1;
+            break;
+          }
+        }
+      }
+      if (foundEnd !== -1) {
+        const fallbackStr = clean.slice(start, foundEnd)
+        return Response.json(JSON.parse(fallbackStr))
+      }
+      throw parseError
+    }
 
   } catch (error) {
     console.error('Groq categorize failed:', error.message)

@@ -460,7 +460,6 @@ export default function SettingsPage() {
                 <div style={{ spaceY: '24px', opacity: notifications ? 1 : 0.4, pointerEvents: notifications ? 'auto' : 'none', transition: 'opacity 0.2s' }}>
                   {[
                     { title: 'Weekly Summary', desc: 'Get a weekly algorithmic spending report' },
-                    { title: 'Streak Reminders', desc: "Don't break your goal-setting streak" },
                     { title: 'Goal Alerts', desc: 'Instant feedback when you hit savings milestones' },
                     { title: 'Overspending Alerts', desc: 'When avoidable spending exceeds 20% of income' }
                   ].map((item, i) => (

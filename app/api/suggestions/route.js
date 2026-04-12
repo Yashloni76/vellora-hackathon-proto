@@ -156,9 +156,37 @@ Return ONLY this JSON format:
       .trim()
 
     const start = clean.indexOf('{')
-    const end = clean.lastIndexOf('}') + 1
-    const jsonStr = clean.slice(start, end)
-    const parsed = JSON.parse(jsonStr)
+    let jsonStr = ""
+    if (start !== -1) {
+      const end = clean.lastIndexOf('}') + 1
+      jsonStr = clean.slice(start, end)
+    }
+
+    let parsed;
+    try {
+      parsed = JSON.parse(jsonStr)
+    } catch (parseError) {
+      // Robust extraction of the FIRST valid object block
+      let depth = 0;
+      let foundEnd = -1;
+      for (let i = start; i < clean.length; i++) {
+        if (clean[i] === '{') depth++;
+        if (clean[i] === '}') {
+          depth--;
+          if (depth === 0) {
+            foundEnd = i + 1;
+            break;
+          }
+        }
+      }
+      if (foundEnd !== -1) {
+        const fallbackStr = clean.slice(start, foundEnd)
+        parsed = JSON.parse(fallbackStr)
+      } else {
+        throw parseError
+      }
+    }
+    
     return Response.json({ ...parsed, source: 'groq' })
 
   } catch (error) {

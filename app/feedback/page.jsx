@@ -18,7 +18,6 @@ import { cn } from "@/lib/utils";
 const categories = [
   "UI Design", 
   "AI Suggestions", 
-  "Streak System", 
   "Analytics", 
   "Simulator", 
   "Performance", 

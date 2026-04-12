@@ -27,10 +27,7 @@ const navItems = [
   { name: "AI ADVISOR", icon: Brain, path: "/ai-advisor" },
   { name: "ANALYTICS", icon: TrendingUp, path: "/analytics" },
   { name: "SIMULATOR", icon: Sliders, path: "/simulator" },
-  { name: "STREAK", icon: Zap, path: "/streak" },
   { name: "GOALS", icon: Target, path: "/goals" },
-  { name: "INVESTMENTS", icon: PiggyBank, path: "/investments" },
-  { name: "JOURNAL", icon: BookOpen, path: "/journal" },
   { name: "FEEDBACK", icon: MessageSquare, path: "/feedback" },
 ];
 

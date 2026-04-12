@@ -3,7 +3,7 @@ import { callAI } from '@/lib/claude'
 export async function POST(req) {
   const { messages, userContext } = await req.json()
 
-  const systemPrompt = `You are a Senior Investment Consultant at an elite financial analytics firm.
+  const systemPrompt = `You are a Senior Financial Consultant at an elite financial analytics firm.
 
 USER CONTEXT:
 ${JSON.stringify(userContext)}

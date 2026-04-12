@@ -41,7 +41,7 @@ export default function AIAdvisorPage() {
   
   // Chat State
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: "Hello! I'm your Senior Investment Consultant. Ask me anything about SIPs, Mutual Funds, or financial terms, and I'll help you with research-backed info!" }
+    { role: 'assistant', content: "Hello! I'm your Financial Architect. Ask me anything about savings, budget optimization, or financial terms, and I'll help you with research-backed info!" }
   ])
   const [chatInput, setChatInput] = useState("")
   const [chatLoading, setChatLoading] = useState(false)
